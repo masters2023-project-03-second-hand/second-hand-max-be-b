@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `mydb`.`member`
     `email`       VARCHAR(45)  NOT NULL,
     `login_id`    VARCHAR(45)  NOT NULL,
     `password`    VARCHAR(512) NOT NULL,
-    `profile_url` VARCHAR(45)  NOT NULL,
+    `profile_url` VARCHAR(512) NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
