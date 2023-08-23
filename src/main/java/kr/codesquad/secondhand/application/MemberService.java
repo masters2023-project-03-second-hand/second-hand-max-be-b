@@ -43,6 +43,7 @@ public class MemberService {
         UserProfile userProfile = getUserProfile(tokenResponse);
         verifyDuplicated(request);
         saveMember(request, userProfile);
+        // todo: 주소 저장 로직 필요
     }
 
     private void verifyUser(LoginRequest request, UserProfile userProfile) {
