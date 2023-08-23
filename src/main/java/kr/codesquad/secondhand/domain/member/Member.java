@@ -7,6 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -28,4 +29,12 @@ public class Member {
 
     @Column(length = 512, nullable = false)
     private String profileUrl;
+
+    @Builder
+    private Member(Long id, String loginId, String email, String profileUrl) {
+        this.id = id;
+        this.loginId = loginId;
+        this.email = email;
+        this.profileUrl = profileUrl;
+    }
 }

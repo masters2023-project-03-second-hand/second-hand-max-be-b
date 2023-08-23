@@ -3,11 +3,13 @@ package kr.codesquad.secondhand.application;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.infrastructure.OauthProvider;
 import kr.codesquad.secondhand.presentation.dto.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
+import kr.codesquad.secondhand.presentation.dto.SignUpRequest;
 import kr.codesquad.secondhand.presentation.dto.UserProfile;
 import kr.codesquad.secondhand.presentation.dto.UserResponse;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
@@ -36,11 +38,34 @@ public class MemberService {
         return new LoginResponse(new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl()));
     }
 
+    public void signUp(SignUpRequest request, String code) {
+        OauthTokenResponse tokenResponse = getToken(code);
+        UserProfile userProfile = getUserProfile(tokenResponse);
+        verifyDuplicated(request);
+        saveMember(request, userProfile);
+    }
+
     private void verifyUser(LoginRequest request, UserProfile userProfile) {
         Member member = memberRepository.findByLoginId(request.getLoginId()).orElseThrow(); // todo: 예외 던지기(존재하지 않는 회원)
         if (!member.getEmail().equals(userProfile.getEmail())) {
             throw new IllegalArgumentException(); // todo: 예외 던지기(db email과 네이버 email 불일치)
         }
+    }
+
+    private void verifyDuplicated(SignUpRequest request) {
+        Optional<Member> existingMember = memberRepository.findByLoginId(request.getLoginId());
+        if (existingMember.isPresent()) {
+            throw new IllegalArgumentException(); // todo: 예외 던지기(존재하는 loginId)
+        }
+    }
+
+    private Member saveMember(SignUpRequest request, UserProfile userProfile) {
+        Member member = Member.builder()
+                .loginId(request.getLoginId())
+                .email(userProfile.getEmail())
+                .profileUrl(userProfile.getProfileUrl())
+                .build();
+        return memberRepository.save(member);
     }
 
     private OauthTokenResponse getToken(String code) {

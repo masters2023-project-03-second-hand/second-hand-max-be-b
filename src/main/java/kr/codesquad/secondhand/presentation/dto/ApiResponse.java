@@ -12,4 +12,8 @@ public class ApiResponse<T> {
         this.statusCode = statusCode;
         this.data = data;
     }
+
+    public ApiResponse(int statusCode) {
+        this.statusCode = statusCode;
+    }
 }
