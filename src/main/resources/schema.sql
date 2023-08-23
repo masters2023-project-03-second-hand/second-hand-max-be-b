@@ -6,66 +6,54 @@ SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE =
         'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema second_hand
 -- -----------------------------------------------------
 
 -- -----------------------------------------------------
--- Schema mydb
+-- Schema second_hand
 -- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `mydb` DEFAULT CHARACTER SET utf8;
-USE `mydb`;
+CREATE SCHEMA IF NOT EXISTS `second_hand` DEFAULT CHARACTER SET utf8;
+USE `second_hand`;
 
 -- -----------------------------------------------------
--- Table `mydb`.`member`
+-- Table `second_hand`.`member`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`member`
+CREATE TABLE IF NOT EXISTS `second_hand`.`member`
 (
     `id`          BIGINT       NOT NULL AUTO_INCREMENT,
-    `email`       VARCHAR(45)  NOT NULL,
     `login_id`    VARCHAR(45)  NOT NULL,
-    `password`    VARCHAR(512) NOT NULL,
+    `email`       VARCHAR(45)  NOT NULL,
     `profile_url` VARCHAR(512) NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`item`
+-- Table `second_hand`.`item`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`item`
+CREATE TABLE IF NOT EXISTS `second_hand`.`item`
 (
-    `id`             BIGINT       NOT NULL AUTO_INCREMENT,
-    `name`           VARCHAR(100) NOT NULL,
-    `price`          INT          NOT NULL,
-    `trading_region` VARCHAR(100) NOT NULL,
-    `created_at`     TIMESTAMP    NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
-    `view_count`     INT          NOT NULL DEFAULT 0,
-    `like_count`     INT          NOT NULL DEFAULT 0,
-    `chat_count`     INT          NOT NULL DEFAULT 0,
-    `state`          VARCHAR(45)  NOT NULL,
-    `category_name`  VARCHAR(45)  NOT NULL,
-    `thumbnail_url`  VARCHAR(512) NOT NULL,
-    `seller_id`      BIGINT       NOT NULL,
+    `id`             BIGINT        NOT NULL AUTO_INCREMENT,
+    `title`          VARCHAR(100)  NOT NULL,
+    `content`        VARCHAR(2000) NULL,
+    `price`          INT           NULL,
+    `trading_region` VARCHAR(100)  NOT NULL COMMENT '거래지역',
+    `created_at`     TIMESTAMP     NOT NULL DEFAULT CURRENT_TIMESTAMP(0),
+    `view_count`     INT           NOT NULL DEFAULT 0 COMMENT '조회수',
+    `wish_count`     INT           NOT NULL DEFAULT 0 COMMENT '관심수',
+    `chat_count`     INT           NOT NULL DEFAULT 0 COMMENT '채팅수',
+    `status`         VARCHAR(45)   NOT NULL COMMENT 'ON_SALE, SOLD_OUT, RESERVED ',
+    `category_name`  VARCHAR(45)   NOT NULL,
+    `thumbnail_url`  VARCHAR(512)  NOT NULL,
+    `seller_id`      BIGINT        NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`region`
+-- Table `second_hand`.`category`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`region`
-(
-    `id`        BIGINT       NOT NULL AUTO_INCREMENT,
-    `addr_name` VARCHAR(100) NOT NULL comment '동명(읍, 면)',
-    `full_addr` VARCHAR(100) NOT NULL comment '전체주소',
-    PRIMARY KEY (`id`)
-) ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `mydb`.`category`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`category`
+CREATE TABLE IF NOT EXISTS `second_hand`.`category`
 (
     `id`        BIGINT       NOT NULL AUTO_INCREMENT,
     `name`      VARCHAR(45)  NOT NULL,
@@ -75,9 +63,9 @@ CREATE TABLE IF NOT EXISTS `mydb`.`category`
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`item_image`
+-- Table `second_hand`.`item_image`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`item_image`
+CREATE TABLE IF NOT EXISTS `second_hand`.`item_image`
 (
     `id`        BIGINT       NOT NULL AUTO_INCREMENT,
     `image_url` VARCHAR(512) NOT NULL,
@@ -87,21 +75,21 @@ CREATE TABLE IF NOT EXISTS `mydb`.`item_image`
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`residence`
+-- Table `second_hand`.`residence`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`residence`
+CREATE TABLE IF NOT EXISTS `second_hand`.`residence`
 (
-    `id`        BIGINT NOT NULL AUTO_INCREMENT,
-    `region_id` BIGINT NOT NULL,
-    `member_id` BIGINT NOT NULL,
+    `id`        BIGINT      NOT NULL AUTO_INCREMENT,
+    `addr_name` VARCHAR(50) NOT NULL COMMENT '읍/면/동 주소',
+    `member_id` BIGINT      NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`chat_room`
+-- Table `second_hand`.`chat_room`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`chat_room`
+CREATE TABLE IF NOT EXISTS `second_hand`.`chat_room`
 (
     `id`         BIGINT    NOT NULL AUTO_INCREMENT,
     `created_at` TIMESTAMP NOT NULL,
@@ -112,9 +100,9 @@ CREATE TABLE IF NOT EXISTS `mydb`.`chat_room`
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`chat_log`
+-- Table `second_hand`.`chat_log`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`chat_log`
+CREATE TABLE IF NOT EXISTS `second_hand`.`chat_log`
 (
     `id`           BIGINT        NOT NULL AUTO_INCREMENT,
     `message`      VARCHAR(1000) NOT NULL,
@@ -127,9 +115,9 @@ CREATE TABLE IF NOT EXISTS `mydb`.`chat_log`
 
 
 -- -----------------------------------------------------
--- Table `mydb`.`like_item`
+-- Table `second_hand`.`wish_item`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `mydb`.`like_item`
+CREATE TABLE IF NOT EXISTS `second_hand`.`wish_item`
 (
     `id`        BIGINT NOT NULL AUTO_INCREMENT,
     `item_id`   BIGINT NOT NULL,

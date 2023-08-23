@@ -21,10 +21,10 @@ public class Member {
     private Long id;
 
     @Column(length = 45, nullable = false)
-    private String email;
+    private String loginId;
 
-    @Column(length = 512, nullable = false)
-    private String password;
+    @Column(length = 45, nullable = false)
+    private String email;
 
     @Column(length = 512, nullable = false)
     private String profileUrl;
