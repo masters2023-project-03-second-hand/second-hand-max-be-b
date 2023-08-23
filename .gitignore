@@ -32,3 +32,6 @@ replay_pid*
 
 # GRADLE
 .gradle
+
+# YML
+application-secret.yml
