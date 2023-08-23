@@ -54,7 +54,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private Optional<String> extractJwt(HttpServletRequest request) {
         final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
 
-        if (!StringUtils.hasText(header) || header.toLowerCase().startsWith(BEARER)) {
+        if (!StringUtils.hasText(header) || !header.toLowerCase().startsWith(BEARER)) {
             return Optional.empty();
         }
 
