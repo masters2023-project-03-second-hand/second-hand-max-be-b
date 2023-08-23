@@ -3,10 +3,14 @@ package kr.codesquad.secondhand.application;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.infrastructure.OauthProvider;
+import kr.codesquad.secondhand.presentation.dto.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import kr.codesquad.secondhand.presentation.dto.UserProfile;
+import kr.codesquad.secondhand.presentation.dto.UserResponse;
+import kr.codesquad.secondhand.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
@@ -20,13 +24,23 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class MemberService {
 
     private final OauthProvider oauthProvider;
+    private final MemberRepository memberRepository;
 
-    public LoginResponse login(String code) {
+    public LoginResponse login(LoginRequest request, String code) {
         OauthTokenResponse tokenResponse = getToken(code);
         UserProfile userProfile = getUserProfile(tokenResponse);
-        // loginId로 db에서 가져온 email과 userProfile의 email이 같은지 검증
-        // 애플리케이션의 Jwt토큰 만들어서 반환
-        return new LoginResponse("he2joo", "1234");
+        verifyUser(request, userProfile);
+
+        // todo: 애플리케이션의 Jwt토큰 만들어서 LoginResponse에 추가
+
+        return new LoginResponse(new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl()));
+    }
+
+    private void verifyUser(LoginRequest request, UserProfile userProfile) {
+        Member member = memberRepository.findByLoginId(request.getLoginId()).orElseThrow(); // todo: 예외 던지기(존재하지 않는 회원)
+        if (!member.getEmail().equals(userProfile.getEmail())) {
+            throw new IllegalArgumentException(); // todo: 예외 던지기(db email과 네이버 email 불일치)
+        }
     }
 
     private OauthTokenResponse getToken(String code) {
@@ -46,7 +60,7 @@ public class MemberService {
     }
 
     private MultiValueMap<String, String> tokenRequest(String code) {
-        MultiValueMap<String, String> formData= new LinkedMultiValueMap<>();
+        MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("code", code);
         formData.add("grant_type", "authorization_code");
         formData.add("redirect_uri", oauthProvider.getRedirectUrl());
@@ -67,7 +81,8 @@ public class MemberService {
                 .uri(oauthProvider.getUserInfoUrl())
                 .headers(header -> header.setBearerAuth(tokenResponse.getAccessToken()))
                 .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
                 .block();
     }
 }

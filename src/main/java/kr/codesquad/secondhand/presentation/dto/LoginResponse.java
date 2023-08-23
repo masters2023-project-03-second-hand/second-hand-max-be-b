@@ -5,11 +5,9 @@ import lombok.Getter;
 @Getter
 public class LoginResponse {
 
-    private final String loginId;
-    private final String profileUrl;
+    private final UserResponse user;
 
-    public LoginResponse(String loginId, String profileUrl) {
-        this.loginId = loginId;
-        this.profileUrl = profileUrl;
+    public LoginResponse(UserResponse user) {
+        this.user = user;
     }
 }
