@@ -14,5 +14,3 @@ jwt:
   secret-key: 2901ujr9021urf0u902hf021y90fh9c210hg093hg091h3g90h30gh901hg09h01
   access-token-expiration-time: 100000
   refresh-token-expiration-time: 2000000
-
-
