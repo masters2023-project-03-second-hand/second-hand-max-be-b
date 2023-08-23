@@ -8,8 +8,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "oauth2")
 public class OauthProperty {
 
-    private User user = new User();
-    private Provider provider = new Provider();
+    private final User user = new User();
+    private final Provider provider = new Provider();
 
     @Getter
     @Setter

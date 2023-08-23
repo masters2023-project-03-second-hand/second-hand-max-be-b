@@ -14,6 +14,7 @@ public class OauthConfig {
 
     private final OauthProperty property;
 
+
     @Bean
     public OauthProvider oauthProvider() {
        return OauthProvider.from(property);

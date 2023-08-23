@@ -57,7 +57,7 @@ public class MemberService {
         Map<String, Object> userAttributes = getUserAttributes(tokenResponse);
         return UserProfile.builder()
                 .email((String) userAttributes.get("email"))
-                .profileUrl((String) userAttributes.get("avatar_url"))
+                .profileUrl((String) userAttributes.get("profile_image"))
                 .build();
     }
 
