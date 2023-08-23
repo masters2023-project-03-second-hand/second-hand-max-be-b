@@ -5,14 +5,15 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.UnAuthorizedException;
+import kr.codesquad.secondhand.infrastructure.properties.JwtProperties;
+import org.springframework.stereotype.Component;
+
+import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Map;
-import javax.crypto.SecretKey;
-import kr.codesquad.secondhand.exception.BadRequestException;
-import kr.codesquad.secondhand.exception.ErrorCode;
-import kr.codesquad.secondhand.infrastructure.properties.JwtProperties;
-import org.springframework.stereotype.Component;
 
 
 @Component
@@ -45,9 +46,9 @@ public class JwtProvider {
                     .build()
                     .parseClaimsJws(token);
         } catch (ExpiredJwtException e) {
-            throw new BadRequestException(ErrorCode.EXPIRED_TOKEN);
+            throw new UnAuthorizedException(ErrorCode.EXPIRED_TOKEN);
         } catch (JwtException e) {
-            throw new BadRequestException(ErrorCode.INVALID_TOKEN);
+            throw new UnAuthorizedException(ErrorCode.INVALID_TOKEN);
         }
     }
 }
