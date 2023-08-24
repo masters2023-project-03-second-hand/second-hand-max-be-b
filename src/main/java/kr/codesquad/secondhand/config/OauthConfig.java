@@ -1,6 +1,6 @@
 package kr.codesquad.secondhand.config;
 
-import kr.codesquad.secondhand.infrastructure.OauthProperty;
+import kr.codesquad.secondhand.infrastructure.OauthProperties;
 import kr.codesquad.secondhand.infrastructure.OauthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -10,15 +10,14 @@ import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
 @Configuration
-@EnableConfigurationProperties(OauthProperty.class)
+@EnableConfigurationProperties(OauthProperties.class)
 public class OauthConfig {
 
-    private final OauthProperty property;
-
+    private final OauthProperties properties;
 
     @Bean
     public OauthProvider oauthProvider() {
-       return OauthProvider.from(property);
+       return OauthProvider.from(properties);
     }
 
     @Bean

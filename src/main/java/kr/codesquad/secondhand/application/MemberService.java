@@ -21,11 +21,13 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 @Service
 public class MemberService {
 
@@ -33,6 +35,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final RestTemplate restTemplate;
 
+    @Transactional
     public LoginResponse login(LoginRequest request, String code) {
         OauthTokenResponse tokenResponse = getToken(code);
         UserProfile userProfile = getUserProfile(tokenResponse);
@@ -43,10 +46,11 @@ public class MemberService {
         return new LoginResponse(new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl()));
     }
 
+    @Transactional
     public void signUp(SignUpRequest request, String code) {
+        verifyDuplicated(request);
         OauthTokenResponse tokenResponse = getToken(code);
         UserProfile userProfile = getUserProfile(tokenResponse);
-        verifyDuplicated(request);
         saveMember(request, userProfile);
         // todo: 주소 저장 로직 필요
     }
@@ -59,8 +63,7 @@ public class MemberService {
     }
 
     private void verifyDuplicated(SignUpRequest request) {
-        Optional<Member> existingMember = memberRepository.findByLoginId(request.getLoginId());
-        if (existingMember.isPresent()) {
+        if (memberRepository.existsByLoginId(request.getLoginId())) {
             throw new IllegalArgumentException(); // todo: 예외 던지기(존재하는 loginId)
         }
     }
@@ -101,7 +104,7 @@ public class MemberService {
 
     private UserProfile getUserProfile(OauthTokenResponse tokenResponse) {
         Map<String, Object> responseAttributes = getUserAttributes(tokenResponse);
-        Map<String, String> userAttributes = (Map<String, String>) responseAttributes.get("response");
+        Map<String, Object> userAttributes = (Map<String, Object>) responseAttributes.get("response");
         return UserProfile.builder()
                 .email((String) userAttributes.get("email"))
                 .profileUrl((String) userAttributes.get("profile_image"))

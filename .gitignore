@@ -32,4 +32,4 @@ replay_pid*
 
 # GRADLE
 .gradle
-/src/main/resources/application-oauth.yml
+application-oauth.yml

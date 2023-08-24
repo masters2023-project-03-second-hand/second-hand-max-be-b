@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class LoginRequest {
 
     @NotBlank
-    @Size(min = 2, max = 12) // todo: ExceptionHandler에서 예외처리하기
+    @Size(min = 2, max = 12, message = "아이디는 2자 ~ 12자여야 합니다.") // todo: ExceptionHandler에서 예외처리하기
     private String loginId;
 
     public LoginRequest(String loginId) {

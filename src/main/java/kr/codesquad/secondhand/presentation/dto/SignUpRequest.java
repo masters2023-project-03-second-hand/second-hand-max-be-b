@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 public class SignUpRequest {
 
     @NotBlank
-    @Size(min = 2, max = 12)
+    @Size(min = 2, max = 12, message = "아이디는 2자 ~ 12자여야 합니다.")
     private String loginId;
     @NotBlank
     private String addrName;
