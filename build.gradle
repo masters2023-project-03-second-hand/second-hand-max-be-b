@@ -35,6 +35,10 @@ dependencies {
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
+    // AWS S3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.526'
+    testImplementation 'com.amazonaws:aws-java-sdk-s3:1.12.526'
+
     // mysql
     runtimeOnly 'com.mysql:mysql-connector-j'
 
