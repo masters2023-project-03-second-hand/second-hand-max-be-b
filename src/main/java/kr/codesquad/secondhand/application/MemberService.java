@@ -15,11 +15,15 @@ import kr.codesquad.secondhand.presentation.dto.UserResponse;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.client.RestTemplate;
 
 @RequiredArgsConstructor
 @Service
@@ -27,6 +31,7 @@ public class MemberService {
 
     private final OauthProvider oauthProvider;
     private final MemberRepository memberRepository;
+    private final RestTemplate restTemplate;
 
     public LoginResponse login(LoginRequest request, String code) {
         OauthTokenResponse tokenResponse = getToken(code);
@@ -70,19 +75,20 @@ public class MemberService {
     }
 
     private OauthTokenResponse getToken(String code) {
-        return WebClient.create()
-                .post()
-                .uri(oauthProvider.getTokenUrl())
-                .headers(header -> {
-                    header.setBasicAuth(oauthProvider.getClientId(), oauthProvider.getClientSecret());
-                    header.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-                    header.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-                    header.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
-                })
-                .bodyValue(tokenRequest(code))
-                .retrieve()
-                .bodyToMono(OauthTokenResponse.class)
-                .block();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBasicAuth(oauthProvider.getClientId(), oauthProvider.getClientSecret());
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(tokenRequest(code), headers);
+
+        ResponseEntity<OauthTokenResponse> response = restTemplate.exchange(
+                oauthProvider.getTokenUrl(),
+                HttpMethod.POST,
+                request,
+                OauthTokenResponse.class
+        );
+        return response.getBody();
     }
 
     private MultiValueMap<String, String> tokenRequest(String code) {
@@ -94,7 +100,8 @@ public class MemberService {
     }
 
     private UserProfile getUserProfile(OauthTokenResponse tokenResponse) {
-        Map<String, Object> userAttributes = getUserAttributes(tokenResponse);
+        Map<String, Object> responseAttributes = getUserAttributes(tokenResponse);
+        Map<String, String> userAttributes = (Map<String, String>) responseAttributes.get("response");
         return UserProfile.builder()
                 .email((String) userAttributes.get("email"))
                 .profileUrl((String) userAttributes.get("profile_image"))
@@ -102,13 +109,16 @@ public class MemberService {
     }
 
     private Map<String, Object> getUserAttributes(OauthTokenResponse tokenResponse) {
-        return WebClient.create()
-                .get()
-                .uri(oauthProvider.getUserInfoUrl())
-                .headers(header -> header.setBearerAuth(tokenResponse.getAccessToken()))
-                .retrieve()
-                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
-                })
-                .block();
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(tokenResponse.getAccessToken());
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        ResponseEntity<Map<String, Object>> response =  restTemplate.exchange(
+                oauthProvider.getUserInfoUrl(),
+                HttpMethod.GET,
+                request,
+                new ParameterizedTypeReference<Map<String, Object>>() {}
+        );
+        return response.getBody();
     }
 }
