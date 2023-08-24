@@ -21,7 +21,7 @@ public class ImageFile {
     private final byte[] imageBytes;
     private final long fileSize;
 
-    public ImageFile(String originalFilename, String contentType, byte[] imageBytes, long fileSize) {
+    private ImageFile(String originalFilename, String contentType, byte[] imageBytes, long fileSize) {
         this.originalFilename = originalFilename;
         this.contentType = contentType;
         this.imageBytes = imageBytes;
