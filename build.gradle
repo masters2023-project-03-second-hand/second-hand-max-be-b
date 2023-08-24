@@ -40,6 +40,10 @@ dependencies {
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // validation
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation'
+
 }
 
 tasks.named('test') {

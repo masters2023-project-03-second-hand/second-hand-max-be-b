@@ -34,4 +34,5 @@ replay_pid*
 .gradle
 
 # YML
+application-oauth.yml
 application-secret.yml
