@@ -1,12 +1,17 @@
-package kr.codesquad.secondhand.application;
+package kr.codesquad.secondhand.application.auth;
 
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.exception.DuplicatedException;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.UnAuthorizedException;
+import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
 import kr.codesquad.secondhand.presentation.dto.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import kr.codesquad.secondhand.presentation.dto.SignUpRequest;
 import kr.codesquad.secondhand.presentation.dto.UserProfile;
 import kr.codesquad.secondhand.presentation.dto.UserResponse;
+import kr.codesquad.secondhand.presentation.dto.token.AuthToken;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,17 +24,20 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final NaverRequester naverRequester;
+    private final JwtProvider jwtProvider;
 
     public LoginResponse login(LoginRequest request, String code) {
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
-        verifyUser(request, userProfile);
+        Long memberId = verifyUser(request, userProfile);
 
-        // todo: 애플리케이션의 Jwt토큰 만들어서 LoginResponse에 추가
-
-        return new LoginResponse(new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl()));
+        return new LoginResponse(
+                new AuthToken(jwtProvider.createAccessToken(memberId), jwtProvider.createRefreshToken(memberId)),
+                new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl())
+        );
     }
 
+    @Transactional
     public void signUp(SignUpRequest request, String code) {
         verifyDuplicated(request);
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
@@ -38,16 +46,18 @@ public class MemberService {
         // todo: 주소 저장 로직 필요
     }
 
-    private void verifyUser(LoginRequest request, UserProfile userProfile) {
-        Member member = memberRepository.findByLoginId(request.getLoginId()).orElseThrow(); // todo: 예외 던지기(존재하지 않는 회원)
+    private Long verifyUser(LoginRequest request, UserProfile userProfile) {
+        Member member = memberRepository.findByLoginId(request.getLoginId())
+                .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA));
         if (!member.getEmail().equals(userProfile.getEmail())) {
-            throw new IllegalArgumentException(); // todo: 예외 던지기(db email과 네이버 email 불일치)
+            throw new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA);
         }
+        return member.getId();
     }
 
     private void verifyDuplicated(SignUpRequest request) {
         if (memberRepository.existsByLoginId(request.getLoginId())) {
-            throw new IllegalArgumentException(); // todo: 예외 던지기(존재하는 loginId)
+            throw new DuplicatedException(ErrorCode.DUPLICATED_LOGIN_ID);
         }
     }
 
