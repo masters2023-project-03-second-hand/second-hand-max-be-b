@@ -1,6 +1,7 @@
 package kr.codesquad.secondhand.application.auth;
 
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.DuplicatedException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
@@ -13,6 +14,7 @@ import kr.codesquad.secondhand.presentation.dto.UserProfile;
 import kr.codesquad.secondhand.presentation.dto.UserResponse;
 import kr.codesquad.secondhand.presentation.dto.token.AuthToken;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
+import kr.codesquad.secondhand.repository.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class MemberService {
 
+    private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
     private final NaverRequester naverRequester;
     private final JwtProvider jwtProvider;
@@ -31,8 +34,13 @@ public class MemberService {
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
         Long memberId = verifyUser(request, userProfile);
 
+        String refreshToken = jwtProvider.createRefreshToken(memberId);
+        tokenRepository.save(RefreshToken.builder()
+                .memberId(memberId)
+                .token(refreshToken)
+                .build());
         return new LoginResponse(
-                new AuthToken(jwtProvider.createAccessToken(memberId), jwtProvider.createRefreshToken(memberId)),
+                new AuthToken(jwtProvider.createAccessToken(memberId), refreshToken),
                 new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl())
         );
     }
