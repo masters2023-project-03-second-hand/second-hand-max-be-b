@@ -7,9 +7,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.given;
 
+import java.util.Optional;
 import kr.codesquad.secondhand.SupportRepository;
 import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.presentation.dto.LoginRequest;
@@ -54,7 +56,9 @@ class MemberServiceTest {
             LoginResponse response = memberService.login(request, "code");
 
             // then
+            Optional<RefreshToken> token = supportRepository.findById(RefreshToken.class, 1L);
             assertAll(
+                    () -> assertThat(token).isPresent(),
                     () -> assertThat(response.getJwt().getAccessToken()).isNotBlank(),
                     () -> assertThat(response.getJwt().getRefreshToken()).isNotBlank(),
                     () -> assertThat(response.getUser().getLoginId()).isNotBlank(),

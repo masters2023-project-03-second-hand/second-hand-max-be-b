@@ -29,6 +29,7 @@ public class MemberService {
     private final NaverRequester naverRequester;
     private final JwtProvider jwtProvider;
 
+    @Transactional
     public LoginResponse login(LoginRequest request, String code) {
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);

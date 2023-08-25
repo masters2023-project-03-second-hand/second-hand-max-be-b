@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand;
 
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
@@ -19,5 +20,10 @@ public class SupportRepository {
         em.flush();
         em.clear();
         return entity;
+    }
+
+    public <T> Optional<T> findById(Class<T> entityType, Object id) {
+        em.flush();
+        return Optional.ofNullable(em.find(entityType, id));
     }
 }
