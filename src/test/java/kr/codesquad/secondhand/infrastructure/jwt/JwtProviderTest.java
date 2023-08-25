@@ -1,16 +1,13 @@
 package kr.codesquad.secondhand.infrastructure.jwt;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.security.Keys;
+import kr.codesquad.secondhand.TokenCreator;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.infrastructure.properties.JwtProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -49,16 +46,24 @@ class JwtProviderTest {
     @Test
     void givenExpiredToken_thenThrowsException() {
         // given
-        Date now = new Date();
-        String expiredToken = Jwts.builder()
-                .setIssuedAt(now)
-                .setExpiration(new Date(now.getTime() - 1))
-                .signWith(Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8)), SignatureAlgorithm.HS256)
-                .compact();
+        String expiredToken = TokenCreator.createExpiredToken(1L);
 
         // when & then
         assertThatThrownBy(() -> jwtProvider.validateToken(expiredToken))
                 .isInstanceOf(UnAuthorizedException.class)
                 .extracting("errorCode").isEqualTo(ErrorCode.EXPIRED_TOKEN);
+    }
+
+    @DisplayName("payload가 멤버 PK인 토큰이 주어지면 토큰에서 클레임을 추출하는데 성공한다.")
+    @Test
+    void givenToken_whenExtractClaims_thenSuccess() {
+        // given
+        String token = TokenCreator.createToken(1L);
+
+        // when
+        Map<String, Object> claims = jwtProvider.extractClaims(token);
+
+        // then
+        assertThat(claims.get("memberId").toString()).isEqualTo("1");
     }
 }

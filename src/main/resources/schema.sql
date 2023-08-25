@@ -27,6 +27,16 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`member`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `second_hand`.`refresh_token`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `second_hand`.`refresh_token`
+(
+    `member_id` BIGINT       NOT NULL,
+    `token`     VARCHAR(256) NOT NULL,
+    PRIMARY KEY (`member_id`)
+) ENGINE = InnoDB;
+
 
 -- -----------------------------------------------------
 -- Table `second_hand`.`item`
