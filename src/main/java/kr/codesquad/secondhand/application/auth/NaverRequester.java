@@ -1,4 +1,4 @@
-package kr.codesquad.secondhand.application;
+package kr.codesquad.secondhand.application.auth;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
@@ -64,11 +64,12 @@ public class NaverRequester {
         headers.setBearerAuth(tokenResponse.getAccessToken());
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
-        ResponseEntity<Map<String, Object>> response =  restTemplate.exchange(
+        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
                 oauthProvider.getUserInfoUrl(),
                 HttpMethod.GET,
                 request,
-                new ParameterizedTypeReference<Map<String, Object>>() {}
+                new ParameterizedTypeReference<Map<String, Object>>() {
+                }
         );
         return response.getBody();
     }
