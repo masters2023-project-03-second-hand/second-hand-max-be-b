@@ -1,0 +1,39 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3309/second_hand
+    username: user
+    password: admin
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+jwt:
+  secret-key: 2901ujr9021urf0u902hf021y90fh9c210hg093hg091h3g90h30gh901hg09h01
+  access-token-expiration-time: 100000
+  refresh-token-expiration-time: 2000000
+
+cloud:
+  aws:
+    credentials:
+      access-key: access-key
+      secret-key: secret-key
+    s3:
+      bucket: bucket
+    region:
+      static: static
+    stack:
+      auto: false
+
+oauth2:
+  user:
+    client-id: client-id
+    client-secret: client-secret
+    redirect-url: redirect-url
+  provider:
+    token-url: token-url
+    user-info-url: user-info-url

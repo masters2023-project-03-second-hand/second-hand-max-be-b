@@ -1,0 +1,30 @@
+version: '3'
+services:
+  mysql:  # 로컬 환경에서 동작시킬 DB
+    image: mysql:8.0
+    container_name: mysql-local
+    ports:
+      - 3308:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: second_hand
+      MYSQL_USER: user
+      MYSQL_PASSWORD: admin
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+  mysql-test: # 테스트 환경에서 동작시킬 DB
+    image: mysql:8.0
+    container_name: mysql-test
+    ports:
+      - 3309:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: second_hand
+      MYSQL_USER: user
+      MYSQL_PASSWORD: admin
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+
+# docker-compose -f docker.yml up -d
