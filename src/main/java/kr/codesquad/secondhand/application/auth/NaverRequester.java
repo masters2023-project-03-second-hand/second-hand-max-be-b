@@ -25,10 +25,10 @@ public class NaverRequester {
     private final OauthProvider oauthProvider;
     private final String DEFAULT_PROFILE_IMAGE;
 
-    public NaverRequester(RestTemplate restTemplate, OauthProvider oauthProvider, @Value("${custom.default-profile}") String DEFAULT_PROFILE_IMAGE) {
+    public NaverRequester(RestTemplate restTemplate, OauthProvider oauthProvider, @Value("${custom.default-profile}") String defaultProfileImage) {
         this.restTemplate = restTemplate;
         this.oauthProvider = oauthProvider;
-        this.DEFAULT_PROFILE_IMAGE = DEFAULT_PROFILE_IMAGE;
+        this.DEFAULT_PROFILE_IMAGE = defaultProfileImage;
     }
 
     public OauthTokenResponse getToken(String code) {

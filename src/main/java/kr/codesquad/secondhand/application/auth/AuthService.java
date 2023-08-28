@@ -1,10 +1,13 @@
 package kr.codesquad.secondhand.application.auth;
 
+import java.util.Optional;
+import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.residence.Residence;
 import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.DuplicatedException;
 import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.InternalServerException;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
 import kr.codesquad.secondhand.presentation.dto.LoginRequest;
@@ -27,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class AuthService {
 
+    private final ImageService imageService;
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
     private final ResidenceRepository residenceRepository;
@@ -51,16 +55,16 @@ public class AuthService {
     }
 
     @Transactional
-    public void signUp(SignUpRequest request, String code, MultipartFile profile) {
+    public void signUp(SignUpRequest request, String code, Optional<MultipartFile> profile) {
         verifyDuplicated(request);
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
-        if (profile != null && !profile.isEmpty()) {
-            userProfile.changeProfileUrl(profile);
+        if (profile.isPresent()) {
+            String profileUrl = imageService.uploadImage(profile.get());
+            userProfile.setProfileUrl(profileUrl);
         }
         Member savedMember = saveMember(request, userProfile);
         saveResidence(request, savedMember);
-
     }
 
     private Long verifyUser(LoginRequest request, UserProfile userProfile) {

@@ -17,11 +17,7 @@ public class UserProfile {
         this.profileUrl = profileUrl;
     }
 
-    public void changeProfileUrl(MultipartFile file) {
-        try {
-            this.profileUrl = file.getBytes().toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+    public void setProfileUrl(String profileUrl) {
+        this.profileUrl = profileUrl;
     }
 }
