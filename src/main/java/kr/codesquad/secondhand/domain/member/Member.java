@@ -33,7 +33,7 @@ public class Member {
     private String profileUrl;
 
     @Builder
-    private Member(Long id, String loginId, String email, String profileUrl) {
+    public Member(Long id, String loginId, String email, String profileUrl) {
         this.id = id;
         this.loginId = loginId;
         this.email = email;
