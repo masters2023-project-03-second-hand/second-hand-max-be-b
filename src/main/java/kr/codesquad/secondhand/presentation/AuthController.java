@@ -4,6 +4,7 @@ import java.util.Optional;
 import javax.validation.Valid;
 import kr.codesquad.secondhand.application.auth.AuthService;
 import kr.codesquad.secondhand.application.auth.TokenService;
+import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
@@ -19,7 +20,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
@@ -28,8 +31,9 @@ public class AuthController {
 
     private final AuthService authService;
     private final TokenService tokenService;
+    private final ImageService imageService;
 
-    @PostMapping("/login/naver")
+    @PostMapping("/naver/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest request,
                                                             @RequestParam Optional<String> code,
                                                             @RequestParam Optional<String> state) {
@@ -43,11 +47,15 @@ public class AuthController {
                 ));
     }
 
-    @PostMapping("/signup/naver")
+    @PostMapping("/naver/signup")
     public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody @Valid SignUpRequest request,
                                                     @RequestParam Optional<String> code,
-                                                    @RequestParam Optional<String> state) {
-        authService.signUp(request, code.orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER)));
+                                                    @RequestParam Optional<String> state,
+                                                    @RequestPart(required = false) MultipartFile profile) {
+        if (profile != null && !profile.isEmpty()) {
+            imageService.uploadImage(profile);
+        }
+        authService.signUp(request, code.orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER)), profile);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(HttpStatus.CREATED.value()));
     }

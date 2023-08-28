@@ -20,6 +20,7 @@ import kr.codesquad.secondhand.repository.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -50,10 +51,13 @@ public class AuthService {
     }
 
     @Transactional
-    public void signUp(SignUpRequest request, String code) {
+    public void signUp(SignUpRequest request, String code, MultipartFile profile) {
         verifyDuplicated(request);
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
+        if (profile != null && !profile.isEmpty()) {
+            userProfile.changeProfileUrl(profile);
+        }
         Member savedMember = saveMember(request, userProfile);
         saveResidence(request, savedMember);
 
