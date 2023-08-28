@@ -50,7 +50,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody @Valid SignUpRequest request,
                                                     @RequestParam Optional<String> code,
                                                     @RequestParam Optional<String> state,
-                                                    @RequestPart(required = false) Optional<MultipartFile> profile) {
+                                                    @RequestPart Optional<MultipartFile> profile) {
         authService.signUp(request,
                 code.orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER)),
                 profile);
