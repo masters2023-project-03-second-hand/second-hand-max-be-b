@@ -1,8 +1,11 @@
 package kr.codesquad.secondhand.presentation;
 
+import java.util.Optional;
 import javax.validation.Valid;
-import kr.codesquad.secondhand.application.auth.MemberService;
+import kr.codesquad.secondhand.application.auth.AuthService;
 import kr.codesquad.secondhand.application.auth.TokenService;
+import kr.codesquad.secondhand.exception.BadRequestException;
+import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.LoginResponse;
@@ -21,28 +24,37 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/auth")
 @RestController
-public class MemberController {
+public class AuthController {
 
-    private final MemberService memberService;
+    private final AuthService authService;
     private final TokenService tokenService;
 
     @PostMapping("/login/naver")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody @Valid LoginRequest request,
-                                                            @RequestParam String code, @RequestParam String state) {
+                                                            @RequestParam Optional<String> code,
+                                                            @RequestParam Optional<String> state) {
         return ResponseEntity.ok()
-                .body(new ApiResponse<>(HttpStatus.OK.value(), memberService.login(request, code)));
+                .body(new ApiResponse<>(
+                        HttpStatus.OK.value(),
+                        authService.login(
+                                request,
+                                code.orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER))
+                        )
+                ));
     }
 
     @PostMapping("/signup/naver")
     public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody @Valid SignUpRequest request,
-                                                    @RequestParam String code, @RequestParam String state) {
-        memberService.signUp(request, code);
+                                                    @RequestParam Optional<String> code,
+                                                    @RequestParam Optional<String> state) {
+        authService.signUp(request, code.orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER)));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(HttpStatus.CREATED.value()));
     }
 
     @PostMapping("/token")
-    public ResponseEntity<ApiResponse<AccessTokenResponse>> renewAccessToken(@RequestBody TokenRenewRequest request) {
+    public ResponseEntity<ApiResponse<AccessTokenResponse>> renewAccessToken(
+            @Valid @RequestBody TokenRenewRequest request) {
         return ResponseEntity.ok()
                 .body(new ApiResponse<>(
                         HttpStatus.OK.value(),

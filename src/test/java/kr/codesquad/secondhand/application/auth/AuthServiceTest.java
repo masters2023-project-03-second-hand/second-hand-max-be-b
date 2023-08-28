@@ -25,10 +25,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
 @ApplicationTest
-class MemberServiceTest {
+class AuthServiceTest {
 
     @Autowired
-    private MemberService memberService;
+    private AuthService authService;
 
     @Autowired
     private SupportRepository supportRepository;
@@ -53,7 +53,7 @@ class MemberServiceTest {
                     .build());
 
             // when
-            LoginResponse response = memberService.login(request, "code");
+            LoginResponse response = authService.login(request, "code");
 
             // then
             Optional<RefreshToken> token = supportRepository.findById(RefreshToken.class, 1L);
@@ -80,7 +80,7 @@ class MemberServiceTest {
                     .build());
 
             // when & then
-            assertThatThrownBy(() -> memberService.login(request, "code"))
+            assertThatThrownBy(() -> authService.login(request, "code"))
                     .isInstanceOf(UnAuthorizedException.class)
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_LOGIN_DATA);
         }
@@ -93,7 +93,7 @@ class MemberServiceTest {
             LoginRequest request = new LoginRequest("joy");
 
             // when & then
-            assertThatThrownBy(() -> memberService.login(request, "code"))
+            assertThatThrownBy(() -> authService.login(request, "code"))
                     .isInstanceOf(UnAuthorizedException.class)
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_LOGIN_DATA);
         }

@@ -39,6 +39,7 @@ public class NaverRequester {
                 request,
                 OauthTokenResponse.class
         );
+        // todo: validate access_token필드가 있는지 검증 / 없으면 `error_description` 필드
         return response.getBody();
     }
 
