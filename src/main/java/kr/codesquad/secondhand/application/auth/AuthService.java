@@ -1,6 +1,7 @@
 package kr.codesquad.secondhand.application.auth;
 
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.residence.Residence;
 import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.DuplicatedException;
 import kr.codesquad.secondhand.exception.ErrorCode;
@@ -14,6 +15,7 @@ import kr.codesquad.secondhand.presentation.dto.UserProfile;
 import kr.codesquad.secondhand.presentation.dto.UserResponse;
 import kr.codesquad.secondhand.presentation.dto.token.AuthToken;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
+import kr.codesquad.secondhand.repository.residence.ResidenceRepository;
 import kr.codesquad.secondhand.repository.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ public class AuthService {
 
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
+    private final ResidenceRepository residenceRepository;
     private final NaverRequester naverRequester;
     private final JwtProvider jwtProvider;
 
@@ -51,8 +54,9 @@ public class AuthService {
         verifyDuplicated(request);
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
-        saveMember(request, userProfile);
-        // todo: 주소 저장 로직 필요
+        Member savedMember = saveMember(request, userProfile);
+        saveResidence(request, savedMember);
+
     }
 
     private Long verifyUser(LoginRequest request, UserProfile userProfile) {
@@ -72,5 +76,9 @@ public class AuthService {
 
     private Member saveMember(SignUpRequest request, UserProfile userProfile) {
         return memberRepository.save(Member.toEntity(request, userProfile));
+    }
+
+    private Residence saveResidence(SignUpRequest request, Member member) {
+        return residenceRepository.save(Residence.toEntity(request, member));
     }
 }
