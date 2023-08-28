@@ -1,16 +1,15 @@
 package kr.codesquad.secondhand.domain.image;
 
-import kr.codesquad.secondhand.exception.BadRequestException;
-import kr.codesquad.secondhand.exception.ErrorCode;
-import kr.codesquad.secondhand.exception.InternalServerException;
-import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import kr.codesquad.secondhand.exception.BadRequestException;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.InternalServerException;
+import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 public class ImageFile {
 
@@ -45,7 +44,7 @@ public class ImageFile {
     private static void validateFileExtension(MultipartFile multipartFile) {
         String extension = StringUtils.getFilenameExtension(multipartFile.getOriginalFilename());
         if (extension == null || !VALIDATE_EXTENSION.matcher(extension).matches()) {
-            throw new BadRequestException(ErrorCode.INVALID_FILE_EXTENSION, "이미지 파일의 확장자는 png, jpg, jpeg, svg만 가능합니다.");
+            throw new BadRequestException(ErrorCode.INVALID_FILE_EXTENSION);
         }
     }
 

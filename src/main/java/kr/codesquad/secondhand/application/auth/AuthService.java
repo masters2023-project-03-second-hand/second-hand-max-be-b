@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
-public class MemberService {
+public class AuthService {
 
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
@@ -58,7 +58,7 @@ public class MemberService {
     private Long verifyUser(LoginRequest request, UserProfile userProfile) {
         Member member = memberRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA));
-        if (!member.getEmail().equals(userProfile.getEmail())) {
+        if (!member.isSameEmail(userProfile.getEmail())) {
             throw new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA);
         }
         return member.getId();
@@ -71,11 +71,6 @@ public class MemberService {
     }
 
     private Member saveMember(SignUpRequest request, UserProfile userProfile) {
-        Member member = Member.builder()
-                .loginId(request.getLoginId())
-                .email(userProfile.getEmail())
-                .profileUrl(userProfile.getProfileUrl())
-                .build();
-        return memberRepository.save(member);
+        return memberRepository.save(Member.toEntity(request, userProfile));
     }
 }
