@@ -1,4 +1,4 @@
-package kr.codesquad.secondhand.presentation.dto;
+package kr.codesquad.secondhand.domain.member;
 
 import java.io.IOException;
 import lombok.Builder;

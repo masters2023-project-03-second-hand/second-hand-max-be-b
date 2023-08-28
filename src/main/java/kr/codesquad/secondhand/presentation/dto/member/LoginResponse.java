@@ -1,4 +1,4 @@
-package kr.codesquad.secondhand.presentation.dto;
+package kr.codesquad.secondhand.presentation.dto.member;
 
 import kr.codesquad.secondhand.presentation.dto.token.AuthToken;
 import lombok.Getter;
