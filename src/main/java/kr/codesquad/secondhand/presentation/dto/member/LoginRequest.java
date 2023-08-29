@@ -1,4 +1,4 @@
-package kr.codesquad.secondhand.presentation.dto;
+package kr.codesquad.secondhand.presentation.dto.member;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;

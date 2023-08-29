@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.Map;
 import kr.codesquad.secondhand.infrastructure.OauthProvider;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
-import kr.codesquad.secondhand.presentation.dto.UserProfile;
+import kr.codesquad.secondhand.domain.member.UserProfile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
