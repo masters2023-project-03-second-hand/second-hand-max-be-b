@@ -23,7 +23,8 @@ public enum ErrorCode {
     NOT_LOGIN("로그인된 상태가 아닙니다."),
 
     // COMMON
-    INVALID_PARAMETER("유효한 파라미터값이 아닙니다.");
+    INVALID_PARAMETER("유효한 파라미터값이 아닙니다."),
+    INVALID_REQUEST("유효한 요청이 아닙니다.");
 
     private final String message;
 }
