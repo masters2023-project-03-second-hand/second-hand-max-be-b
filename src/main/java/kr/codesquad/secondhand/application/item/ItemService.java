@@ -6,6 +6,9 @@ import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.exception.BadRequestException;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.itemimage.ItemImageRepository;
@@ -38,5 +41,19 @@ public class ItemService {
                 .map(url -> ItemImage.toEntity(url, savedItem))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
+    }
+
+    @Transactional
+    public ItemDetailResponse read(Long memberId, Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_REQUEST));
+
+        List<ItemImage> images = itemImageRepository.findByItemId(itemId);
+
+        if (memberId != item.getMember().getId()) {
+            itemRepository.incrementViewCount(itemId);
+            return ItemDetailResponse.toBuyerResponse(item, images);
+        }
+        return ItemDetailResponse.toSellerResponse(item, images);
     }
 }

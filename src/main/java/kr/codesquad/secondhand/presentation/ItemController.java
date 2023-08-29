@@ -7,12 +7,15 @@ import kr.codesquad.secondhand.application.item.ItemService;
 import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.presentation.support.Auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -40,5 +43,15 @@ public class ItemController {
                 memberId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(HttpStatus.CREATED.value()));
+    }
+
+    @GetMapping("/{itemId}")
+    public ResponseEntity<ApiResponse<ItemDetailResponse>> readItem(@PathVariable Long itemId,
+                                                                    @Auth Long memberId) {
+        return ResponseEntity.ok()
+                .body(new ApiResponse<>(
+                        HttpStatus.OK.value(),
+                        itemService.read(memberId, itemId))
+                );
     }
 }
