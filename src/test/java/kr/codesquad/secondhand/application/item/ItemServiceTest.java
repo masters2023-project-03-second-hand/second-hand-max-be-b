@@ -13,9 +13,11 @@ import kr.codesquad.secondhand.SupportRepository;
 import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.image.S3Uploader;
 import kr.codesquad.secondhand.domain.item.Item;
+import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
+import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +59,56 @@ class ItemServiceTest {
         assertAll(
                 () -> assertThat(item).isPresent(),
                 () -> assertThat(images).hasSize(3)
+        );
+    }
+
+    @DisplayName("판매자가 상품의 상세화면을 조회한다.")
+    @Test
+    void given_whenSeller_thenItemDetails() {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        Member member = supportRepository.save(Member.builder()
+                .email("bruni@secondhand.com")
+                .loginId("bruni")
+                .profileUrl("profile-url")
+                .build());
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+
+        // when
+        ItemDetailResponse response = itemService.read(member.getId(), 1L);
+
+        // then
+        assertAll(
+                () -> assertThat(response.isSeller()).isTrue(),
+                () -> assertThat(response.getStatus()).isEqualTo(ItemStatus.ON_SALE.getStatus()),
+                () -> assertThat(response.getViewCount()).isEqualTo(0)
+        );
+    }
+
+    @DisplayName("구매자가 상품의 상세화면을 조회한다.")
+    @Test
+    void given_whenBuyer_thenItemDetails() {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        Member seller = supportRepository.save(Member.builder()
+                .email("bruni@secondhand.com")
+                .loginId("bruni")
+                .profileUrl("profile-url")
+                .build());
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), seller.getId());
+        Member buyer = supportRepository.save(Member.builder()
+                .email("joy@secondhand.com")
+                .loginId("joy")
+                .profileUrl("profile-url")
+                .build());
+
+        // when
+        ItemDetailResponse response = itemService.read(buyer.getId(), 1L);
+
+        // then
+        assertAll(
+                () -> assertThat(response.isSeller()).isFalse(),
+                () -> assertThat(response.getViewCount()).isEqualTo(1)
         );
     }
 
