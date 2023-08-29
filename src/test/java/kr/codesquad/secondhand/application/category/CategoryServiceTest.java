@@ -20,7 +20,6 @@ public class CategoryServiceTest {
     @Autowired
     private SupportRepository supportRepository;
 
-//    @Disabled
     @DisplayName("카테고리 목록을 반환한다.")
     @Test
     void whenRead_thenSuccess() {
