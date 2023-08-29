@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand.domain.item;
 
+import com.fasterxml.jackson.annotation.JsonValue;
 import java.util.Arrays;
 import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
@@ -12,6 +13,7 @@ public enum ItemStatus {
 
     ON_SALE("판매중"), SOLD_OUT("판매완료"), RESERVED("예약중");
 
+    @JsonValue
     private final String status;
 
     public static ItemStatus of(String statusName) {
