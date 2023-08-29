@@ -28,7 +28,7 @@ public class Category {
     private String imageUrl;
 
     @Builder
-    public Category(Long id, String name, String imageUrl) {
+    private Category(Long id, String name, String imageUrl) {
         this.id = id;
         this.name = name;
         this.imageUrl = imageUrl;

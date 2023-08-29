@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import kr.codesquad.secondhand.SupportRepository;
 import kr.codesquad.secondhand.application.ApplicationTest;
+import kr.codesquad.secondhand.domain.category.Category;
 import kr.codesquad.secondhand.presentation.dto.category.CategoryListResponse;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
@@ -19,10 +20,18 @@ public class CategoryServiceTest {
     @Autowired
     private SupportRepository supportRepository;
 
-    @Disabled
+//    @Disabled
     @DisplayName("카테고리 목록을 반환한다.")
     @Test
     void whenRead_thenSuccess() {
+        // given
+        for (int i = 0; i < 18; i++) {
+            supportRepository.save(Category.builder()
+                    .name("test" + i)
+                    .imageUrl("http://")
+                    .build());
+        }
+
         // when
         CategoryListResponse response = categoryService.read();
 
