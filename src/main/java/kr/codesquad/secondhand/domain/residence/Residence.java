@@ -30,11 +30,11 @@ public class Residence {
     private String addrName;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
+    @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Builder
-    public Residence(Long id, String addrName, Member member) {
+    private Residence(Long id, String addrName, Member member) {
         this.id = id;
         this.addrName = addrName;
         this.member = member;

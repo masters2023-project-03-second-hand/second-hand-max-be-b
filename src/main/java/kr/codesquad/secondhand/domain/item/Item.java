@@ -95,4 +95,12 @@ public class Item extends AuditingFields {
                 .member(member)
                 .build();
     }
+
+    public void incrementViewCount() {
+        this.viewCount += 1;
+    }
+
+    public boolean isSeller(Long memberId) {
+        return this.member.getId() == memberId;
+    }
 }
