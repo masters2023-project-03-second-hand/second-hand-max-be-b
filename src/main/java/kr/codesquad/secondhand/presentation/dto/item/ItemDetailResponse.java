@@ -29,9 +29,8 @@ public class ItemDetailResponse {
 
     @Builder
     private ItemDetailResponse(boolean isSeller, List<String> imageUrls, String seller, String status, String title,
-                               String categoryName, LocalDateTime createdAt, String content, int chatCount,
-                               int wishCount,
-                               int viewCount, int price) {
+                               String categoryName, LocalDateTime createdAt, String content,
+                               int chatCount, int wishCount, int viewCount, int price) {
         this.isSeller = isSeller;
         this.imageUrls = imageUrls;
         this.seller = seller;
@@ -49,7 +48,9 @@ public class ItemDetailResponse {
     public static ItemDetailResponse toSellerResponse(Item item, List<ItemImage> images) {
         return ItemDetailResponse.builder()
                 .isSeller(true)
-                .imageUrls(images.stream().map(ItemImage::getImageUrl).collect(Collectors.toUnmodifiableList()))
+                .imageUrls(images.stream()
+                        .map(ItemImage::getImageUrl)
+                        .collect(Collectors.toUnmodifiableList()))
                 .seller(item.getMember().getLoginId())
                 .status(item.getStatus().getStatus())
                 .title(item.getTitle())
@@ -66,7 +67,9 @@ public class ItemDetailResponse {
     public static ItemDetailResponse toBuyerResponse(Item item, List<ItemImage> images) {
         return ItemDetailResponse.builder()
                 .isSeller(false)
-                .imageUrls(images.stream().map(ItemImage::getImageUrl).collect(Collectors.toUnmodifiableList()))
+                .imageUrls(images.stream()
+                        .map(ItemImage::getImageUrl)
+                        .collect(Collectors.toUnmodifiableList()))
                 .seller(item.getMember().getLoginId())
                 .title(item.getTitle())
                 .categoryName(item.getCategoryName())

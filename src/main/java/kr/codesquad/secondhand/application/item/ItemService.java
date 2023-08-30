@@ -8,6 +8,7 @@ import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
@@ -46,12 +47,12 @@ public class ItemService {
     @Transactional
     public ItemDetailResponse read(Long memberId, Long itemId) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_REQUEST));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
 
         List<ItemImage> images = itemImageRepository.findByItemId(itemId);
 
-        if (memberId != item.getMember().getId()) {
-            itemRepository.incrementViewCount(itemId);
+        if (!item.isSeller(memberId)) {
+            item.incrementViewCount();
             return ItemDetailResponse.toBuyerResponse(item, images);
         }
         return ItemDetailResponse.toSellerResponse(item, images);
