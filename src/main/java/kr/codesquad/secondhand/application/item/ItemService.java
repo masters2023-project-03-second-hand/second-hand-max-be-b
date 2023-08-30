@@ -47,7 +47,7 @@ public class ItemService {
     @Transactional
     public ItemDetailResponse read(Long memberId, Long itemId) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
 
         List<ItemImage> images = itemImageRepository.findByItemId(itemId);
 
