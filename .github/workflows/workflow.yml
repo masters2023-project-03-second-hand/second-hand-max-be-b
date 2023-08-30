@@ -35,7 +35,7 @@ jobs:
 
       # Docker image build
       - name: Build docker image
-        run: docker build -t bruni/second-hand:0.0 .
+        run: docker build -t second-hand:0.0 .
 
       # Docker image push
       - name: Push docker image
