@@ -1,0 +1,52 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  private-registry-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 소스 코드 Checkout
+      - name: Checkout Source Code
+        uses: actions/checkout@v3
+
+      # Gradle 실행권한 부여
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./gradlew
+
+      # Spring boot application 빌드
+      - name: Build with gradle
+        run: ./gradlew clean build -x test
+
+      # Docker image build
+      - name: Build docker image
+        run: docker build -t bruni/second-hand:0.0 .
+
+      # Docker image push
+      - name: Push docker image
+        run: |
+          docker tag second-hand:0.0 ${{ secrets.PRIVATE_REGISTRY_IP }}/second-hand:0.0
+          docker push ${{ secrets.PRIVATE_REGISTRY_IP }}/second-hand:0.0
+
+      # 인스턴스 접속 & Private registry ec2에 이미지 배포
+      - name: Connect to WAS & Deploy image to private registry ec2
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.PRIVATE_REGISTRY_IP }}
+          username: ${{ secrets.PRIVATE_REGISTRY_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.PRIVATE_REGISTRY_SSH_PORT }}
+          script: |
+            docker rm -f second-hand
+            docker rmi -f ${{ secrets.PRIVATE_REGISTRY_IP }}/second-hand:0.0
+            docker pull ${{ secrets.PRIVATE_REGISTRY_IP }}/second-hand:0.0
+            docker run -d -p 8080:8080 -v /home/ubuntu/applicationlog:/second-hand -e PROFILE=prod -- name second-hand-app ${{ secrets.PRIVATE_REGISTRY_IP }}/second-hand:0.0
