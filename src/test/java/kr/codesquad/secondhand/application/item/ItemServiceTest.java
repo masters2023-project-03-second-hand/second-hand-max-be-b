@@ -14,11 +14,13 @@ import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.image.S3Uploader;
 import kr.codesquad.secondhand.domain.category.Category;
 import kr.codesquad.secondhand.domain.item.Item;
+import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,6 +128,56 @@ class ItemServiceTest {
                 () -> assertThat(response.getPaging().getNextCursor()).isEqualTo(13),
                 () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("맛없는 거 - 5"),
                 () -> assertThat(response.getContents().get(7).getTitle()).isEqualTo("맛있는 거 - 3")
+        );
+    }
+
+    @DisplayName("판매자가 상품의 상세화면을 조회한다.")
+    @Test
+    void given_whenSeller_thenItemDetails() {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        Member member = supportRepository.save(Member.builder()
+                .email("bruni@secondhand.com")
+                .loginId("bruni")
+                .profileUrl("profile-url")
+                .build());
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+
+        // when
+        ItemDetailResponse response = itemService.read(member.getId(), 1L);
+
+        // then
+        assertAll(
+                () -> assertThat(response.isSeller()).isTrue(),
+                () -> assertThat(response.getStatus()).isEqualTo(ItemStatus.ON_SALE.getStatus()),
+                () -> assertThat(response.getViewCount()).isEqualTo(0)
+        );
+    }
+
+    @DisplayName("구매자가 상품의 상세화면을 조회한다.")
+    @Test
+    void given_whenBuyer_thenItemDetails() {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        Member seller = supportRepository.save(Member.builder()
+                .email("bruni@secondhand.com")
+                .loginId("bruni")
+                .profileUrl("profile-url")
+                .build());
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), seller.getId());
+        Member buyer = supportRepository.save(Member.builder()
+                .email("joy@secondhand.com")
+                .loginId("joy")
+                .profileUrl("profile-url")
+                .build());
+
+        // when
+        ItemDetailResponse response = itemService.read(buyer.getId(), 1L);
+
+        // then
+        assertAll(
+                () -> assertThat(response.isSeller()).isFalse(),
+                () -> assertThat(response.getViewCount()).isEqualTo(1)
         );
     }
 

@@ -7,6 +7,10 @@ import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
+import kr.codesquad.secondhand.exception.BadRequestException;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.NotFoundException;
+import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
@@ -67,5 +71,20 @@ public class ItemService {
             nextCursor = content.get(content.size() - 1).getItemId();
         }
         return nextCursor;
+    }
+
+
+    @Transactional
+    public ItemDetailResponse read(Long memberId, Long itemId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
+
+        List<ItemImage> images = itemImageRepository.findByItemId(itemId);
+
+        if (!item.isSeller(memberId)) {
+            item.incrementViewCount();
+            return ItemDetailResponse.toBuyerResponse(item, images);
+        }
+        return ItemDetailResponse.toSellerResponse(item, images);
     }
 }
