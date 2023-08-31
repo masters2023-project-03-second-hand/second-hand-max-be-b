@@ -9,9 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import kr.codesquad.secondhand.SupportRepository;
 import kr.codesquad.secondhand.application.ApplicationTest;
-import kr.codesquad.secondhand.application.image.S3Uploader;
+import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.category.Category;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
@@ -19,24 +18,17 @@ import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
-import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @ApplicationTest
-class ItemServiceTest {
-
-    @MockBean
-    private S3Uploader s3Uploader;
-
-    @Autowired
-    private SupportRepository supportRepository;
+class ItemServiceTest extends ApplicationTestSupport {
 
     @Autowired
     private ItemService itemService;
