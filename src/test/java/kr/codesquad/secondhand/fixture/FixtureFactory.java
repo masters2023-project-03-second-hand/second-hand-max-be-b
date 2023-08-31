@@ -1,9 +1,11 @@
 package kr.codesquad.secondhand.fixture;
 
+import java.util.List;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
+import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 
 public class FixtureFactory {
 
@@ -37,5 +39,18 @@ public class FixtureFactory {
                 .loginId("23Yong")
                 .profileUrl("image-url")
                 .build();
+    }
+
+    public static ItemUpdateRequest createItemUpdateRequest() {
+        return new ItemUpdateRequest(
+                "수정제목",
+                10000,
+                "바람이 시원한 선풍기",
+                "범안 1동",
+                "판매중",
+                1,
+                "가전/잡화",
+                List.of("url1", "url2")
+        );
     }
 }

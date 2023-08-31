@@ -128,11 +128,7 @@ class ItemServiceTest extends ApplicationTestSupport {
     void given_whenSeller_thenItemDetails() {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
-        Member member = supportRepository.save(Member.builder()
-                .email("bruni@secondhand.com")
-                .loginId("bruni")
-                .profileUrl("profile-url")
-                .build());
+        Member member = signup();
         itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
 
         // when
@@ -151,11 +147,7 @@ class ItemServiceTest extends ApplicationTestSupport {
     void given_whenBuyer_thenItemDetails() {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
-        Member seller = supportRepository.save(Member.builder()
-                .email("bruni@secondhand.com")
-                .loginId("bruni")
-                .profileUrl("profile-url")
-                .build());
+        Member seller = signup();
         itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), seller.getId());
         Member buyer = supportRepository.save(Member.builder()
                 .email("joy@secondhand.com")
@@ -170,6 +162,29 @@ class ItemServiceTest extends ApplicationTestSupport {
         assertAll(
                 () -> assertThat(response.isSeller()).isFalse(),
                 () -> assertThat(response.getViewCount()).isEqualTo(1)
+        );
+    }
+
+    @DisplayName("상품을 수정하면 상품정보가 db에 업데이트되고 삭제 이미지가 db에서 제거된다.")
+    @Test
+    void given_whenUpdateItem_thenSuccess() {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        Member member = signup();
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+
+        // when
+        itemService.update(null, FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
+
+        // then
+        Optional<Item> item = supportRepository.findById(Item.class, 1L);
+        List<ItemImage> images = supportRepository.findAll(ItemImage.class);
+
+        assertAll(
+                () -> assertThat(item).isPresent(),
+                () -> assertThat(item.get().getTitle()).isEqualTo("수정제목"),
+                () -> assertThat(item.get().getThumbnailUrl()).isEqualTo("url3"),
+                () -> assertThat(images).hasSize(1)
         );
     }
 
