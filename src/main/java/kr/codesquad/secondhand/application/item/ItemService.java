@@ -8,10 +8,12 @@ import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.NotFoundException;
+import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.item.querydsl.ItemPaginationRepository;
@@ -72,7 +74,6 @@ public class ItemService {
         return nextCursor;
     }
 
-
     @Transactional
     public ItemDetailResponse read(Long memberId, Long itemId) {
         Item item = itemRepository.findById(itemId)
@@ -85,5 +86,39 @@ public class ItemService {
             return ItemDetailResponse.toBuyerResponse(item, images);
         }
         return ItemDetailResponse.toSellerResponse(item, images);
+    }
+
+    @Transactional
+    public void update(List<MultipartFile> images, ItemUpdateRequest request, Long itemId, Long sellerId) {
+        // 상품 찾고 없으면 에러 던지기
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
+
+        // 상품 작성자와 멤버가 같은지 확인, 아니면 에러 던지기
+        if (!item.isSeller(sellerId)) {
+            throw new UnAuthorizedException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // deleteImageUrls에 있는 이미지 db에서 제거
+        List<String> deleteImageUrls = request.getDeleteImageUrls();
+        itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
+
+        // 추가하는 이미지 있으면 s3에 저장, db에 저장
+        if (images != null) {
+            List<String> itemImageUrls = imageService.uploadImages(images);
+            List<ItemImage> itemImages = itemImageUrls.stream()
+                    .map(url -> ItemImage.toEntity(url, item))
+                    .collect(Collectors.toList());
+            itemImageRepository.saveAllItemImages(itemImages);
+        }
+
+        // 썸네일 수정
+        if (item.isThumbnailDeleted(deleteImageUrls)) {
+            String thumbnail = itemImageRepository.findByItemId(itemId).get(0).getImageUrl();
+            item.updateThumbnail(thumbnail);
+        }
+
+        // 상품 제목, 내용, 가격 등 수정
+        item.update(request);
     }
 }

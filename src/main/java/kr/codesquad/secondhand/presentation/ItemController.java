@@ -11,6 +11,7 @@ import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import kr.codesquad.secondhand.presentation.support.Auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -65,5 +66,22 @@ public class ItemController {
                         HttpStatus.OK.value(),
                         itemService.read(memberId, itemId))
                 );
+    }
+
+    @PostMapping(consumes = {
+            MediaType.MULTIPART_FORM_DATA_VALUE,
+            MediaType.APPLICATION_JSON_VALUE
+    })
+    public ResponseEntity<ApiResponse<Void>> updateItem(@RequestPart Optional<List<MultipartFile>> images,
+                                                        @Valid @RequestPart ItemUpdateRequest item,
+                                                        @PathVariable Long itemId,
+                                                        @Auth Long memberId) {
+       itemService.update(
+               images.orElse(null),
+               item,
+               itemId,
+               memberId);
+        return ResponseEntity.ok()
+                .body(new ApiResponse<>(HttpStatus.OK.value()));
     }
 }
