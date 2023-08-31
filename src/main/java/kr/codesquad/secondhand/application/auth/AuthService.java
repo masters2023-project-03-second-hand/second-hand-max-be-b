@@ -3,17 +3,17 @@ package kr.codesquad.secondhand.application.auth;
 import java.util.Optional;
 import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.member.UserProfile;
 import kr.codesquad.secondhand.domain.residence.Residence;
 import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.DuplicatedException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
+import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import kr.codesquad.secondhand.presentation.dto.member.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
-import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
-import kr.codesquad.secondhand.domain.member.UserProfile;
 import kr.codesquad.secondhand.presentation.dto.member.UserResponse;
 import kr.codesquad.secondhand.presentation.dto.token.AuthToken;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
@@ -43,6 +43,8 @@ public class AuthService {
         Long memberId = verifyUser(request, userProfile);
 
         String refreshToken = jwtProvider.createRefreshToken(memberId);
+        tokenRepository.deleteByMemberId(memberId);
+
         tokenRepository.save(RefreshToken.builder()
                 .memberId(memberId)
                 .token(refreshToken)
