@@ -120,7 +120,11 @@ public class Item extends AuditingFields {
                 .anyMatch(deleteImage -> thumbnailUrl.equals(deleteImage));
     }
 
-    public void updateThumbnail(String imageUrl) {
+    public void changeThumbnail(String imageUrl) {
         this.thumbnailUrl = imageUrl;
+    }
+
+    public void changeStatus(String status) {
+        this.status = ItemStatus.of(status);
     }
 }

@@ -13,6 +13,7 @@ import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
@@ -103,9 +104,18 @@ public class ItemService {
 
         if (item.isThumbnailDeleted(deleteImageUrls)) {
             String thumbnail = itemImageRepository.findByItemId(itemId).get(0).getImageUrl();
-            item.updateThumbnail(thumbnail);
+            item.changeThumbnail(thumbnail);
         }
         item.update(request);
+    }
+
+    @Transactional
+    public void updateStatus(ItemStatusRequest request, Long itemId, Long sellerId) {
+        Item item = findItem(itemId);
+        if (!item.isSeller(sellerId)) {
+            throw new UnAuthorizedException(ErrorCode.UNAUTHORIZED);
+        }
+        item.changeStatus(request.getStatus());
     }
 
     private Item findItem(Long itemId) {
