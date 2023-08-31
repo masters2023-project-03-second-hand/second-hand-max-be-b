@@ -19,13 +19,9 @@ jobs:
       # SOURCE 단계 - 저장소 Checkout
       - name: Checkout-source code
         uses: actions/checkout@v3
-
-      #1. Secret 정보 담은 yml 파일 생성
-      - name: Make application-secret.yml file
-        run: touch '${{ env.APPLICATION_SECRET_FILE_PATH }}'
-
-      - name: Output application information
-        run: echo '${{ secrets.APPLICATION_SECRET }}' > '${{ env.APPLICATION_SECRET_FILE_PATH }}'
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          submodules: true
 
       # Gradle 실행권한 부여
       - name: Grant execute permission to gradlew

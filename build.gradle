@@ -84,3 +84,17 @@ compileQuerydsl {
     options.annotationProcessorPath = configurations.querydsl
 }
 /** QueryDSL end **/
+
+/** Git Submodules start **/
+processResources.dependsOn('copySecret')
+
+tasks.register('copySecret', Copy) {
+    description = 'Copy submodules to project'
+
+    from('./src/main/resources/secret') {
+        include('*.yml')
+    }
+    into('src/main/resources')
+}
+
+/** Git Submodules end **/

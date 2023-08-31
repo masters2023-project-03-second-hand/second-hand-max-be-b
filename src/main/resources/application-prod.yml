@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: ${db.prod.url}
+    username: ${db.prod.username}
+    password: ${db.prod.password}
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+cloud:
+  aws:
+    credentials:
+      access-key: ${aws.access-key}
+      secret-key: ${aws.secret-key}
+    s3:
+      bucket: ${aws.s3.bucket}
+    region:
+      static: ${aws.region}
+    stack:
+      auto: false
+
