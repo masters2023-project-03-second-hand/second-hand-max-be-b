@@ -1,0 +1,65 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - develop
+      - main
+
+env:
+  APPLICATION_SECRET_FILE_PATH: ./src/main/resources/application-secret.yml
+
+jobs:
+  backend-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # SOURCE 단계 - 저장소 Checkout
+      - name: Checkout-source code
+        uses: actions/checkout@v3
+
+      #1. Secret 정보 담은 yml 파일 생성
+      - name: Make application-secret.yml file
+        run: touch '${{ env.APPLICATION_SECRET_FILE_PATH }}'
+
+      - name: Output application information
+        run: echo '${{ secrets.APPLICATION_SECRET }}' > '${{ env.APPLICATION_SECRET_FILE_PATH }}'
+
+      # Gradle 실행권한 부여
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./gradlew
+
+      # Spring boot application 빌드
+      - name: Build with gradle
+        run: ./gradlew clean build -x test
+
+      # docker image 빌드
+      - name: Build docker image
+        run: docker build -t 23yong/second-hand .
+
+      # docker hub 로그인
+      - name: Login docker hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # docker hub 퍼블리시
+      - name: Publish to docker hub
+        run: docker push 23yong/second-hand
+
+      # WAS 인스턴스 접속 & 애플리케이션 실행
+      - name: Connect to WAS & Execute Application
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          script: |
+            docker stop $(docker ps -a -q) 
+            docker rm $(docker ps -a -q) 
+            docker pull 23yong/second-hand
+            docker run -d -p 8080:8080 --name second-hand 23yong/second-hand
