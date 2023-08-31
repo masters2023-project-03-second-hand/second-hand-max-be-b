@@ -1,6 +1,7 @@
 package kr.codesquad.secondhand.application.item;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.BDDMockito.anyList;
 import static org.mockito.BDDMockito.given;
@@ -16,10 +17,13 @@ import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -186,6 +190,46 @@ class ItemServiceTest extends ApplicationTestSupport {
                 () -> assertThat(item.get().getThumbnailUrl()).isEqualTo("url3"),
                 () -> assertThat(images).hasSize(1)
         );
+    }
+
+    @DisplayName("상품의 상태 수정에 성공한다.")
+    @Test
+    void given_whenUpdateStatus_thenSuccess() {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        Member member = signup();
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        ItemStatusRequest request = new ItemStatusRequest("예약중");
+
+        // when
+        itemService.updateStatus(request, 1L, member.getId());
+
+        // then
+        Item item = supportRepository.findById(Item.class, 1L).get();
+
+        assertThat(item.getStatus().getStatus()).isEqualTo("예약중");
+
+    }
+
+    @DisplayName("작성자가 아닌 사람이 상품을 수정하려하면 예외를 던진다.")
+    @Test
+    void givenBuyer_whenUpdateItem_thenThrowsException() {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        Member member = signup();
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        ItemStatusRequest request = new ItemStatusRequest("예약중");
+        Member buyer = supportRepository.save(Member.builder()
+                .email("joy@secondhand.com")
+                .loginId("joy")
+                .profileUrl("profile-url")
+                .build());
+
+        // when & then
+        assertThatThrownBy(() -> itemService.updateStatus(request, 1L, buyer.getId()))
+                .isInstanceOf(UnAuthorizedException.class)
+                .extracting("errorCode").isEqualTo(ErrorCode.UNAUTHORIZED);
+
     }
 
     private List<MultipartFile> createFakeImage() {
