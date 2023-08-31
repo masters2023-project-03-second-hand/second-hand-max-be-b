@@ -1,6 +1,3 @@
-[submodule "secret"]
-	path = secret
-	url = https://github.com/masters2023-project-03-second-hand/secret.git
 [submodule "src/main/resources/secret"]
 	path = src/main/resources/secret
 	url = https://github.com/masters2023-project-03-second-hand/secret.git

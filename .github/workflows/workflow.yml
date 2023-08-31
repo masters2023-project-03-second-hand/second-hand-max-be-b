@@ -20,7 +20,7 @@ jobs:
       - name: Checkout-source code
         uses: actions/checkout@v3
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
           submodules: true
 
       # Gradle 실행권한 부여
