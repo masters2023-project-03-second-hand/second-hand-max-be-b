@@ -77,7 +77,7 @@ public class ItemDetailResponse {
                 .content(item.getContent())
                 .chatCount(item.getChatCount())
                 .wishCount(item.getWishCount())
-                .viewCount(item.getViewCount() + 1)
+                .viewCount(item.getViewCount())
                 .price(item.getPrice())
                 .build();
     }
