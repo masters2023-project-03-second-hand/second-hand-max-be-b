@@ -6,10 +6,9 @@ import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
-import kr.codesquad.secondhand.presentation.dto.CustomSlice;
-import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.NotFoundException;
+import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
@@ -60,14 +59,14 @@ public class ItemService {
         Slice<ItemResponse> response = itemPaginationRepository.findByIdAndCategoryName(itemId, categoryName, pageSize);
         List<ItemResponse> content = response.getContent();
 
-        Long nextCursor = setNextCursor(content);
+        Long nextCursor = setNextCursor(content, pageSize);
 
         return new CustomSlice<>(content, nextCursor, response.hasNext());
     }
 
-    private Long setNextCursor(List<ItemResponse> content) {
+    private Long setNextCursor(List<ItemResponse> content, int pageSize) {
         Long nextCursor = null;
-        if (!content.isEmpty()) {
+        if (content.size() == pageSize) {
             nextCursor = content.get(content.size() - 1).getItemId();
         }
         return nextCursor;

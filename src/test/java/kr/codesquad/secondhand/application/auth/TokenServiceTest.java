@@ -1,8 +1,11 @@
 package kr.codesquad.secondhand.application.auth;
 
-import kr.codesquad.secondhand.SupportRepository;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
 import kr.codesquad.secondhand.TokenCreator;
 import kr.codesquad.secondhand.application.ApplicationTest;
+import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
@@ -12,17 +15,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
 @ApplicationTest
-class TokenServiceTest {
+class TokenServiceTest extends ApplicationTestSupport {
 
     @Autowired
     private JwtProvider jwtProvider;
-
-    @Autowired
-    private SupportRepository supportRepository;
 
     @Autowired
     private TokenService tokenService;

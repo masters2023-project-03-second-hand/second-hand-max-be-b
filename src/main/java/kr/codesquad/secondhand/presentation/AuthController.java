@@ -14,6 +14,7 @@ import kr.codesquad.secondhand.presentation.dto.token.AccessTokenResponse;
 import kr.codesquad.secondhand.presentation.dto.token.TokenRenewRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,8 +46,11 @@ public class AuthController {
                 ));
     }
 
-    @PostMapping("/naver/signup")
-    public ResponseEntity<ApiResponse<Void>> signUp(@RequestBody @Valid SignUpRequest request,
+    @PostMapping(value = "/naver/signup", consumes = {
+            MediaType.MULTIPART_FORM_DATA_VALUE,
+            MediaType.APPLICATION_JSON_VALUE
+    })
+    public ResponseEntity<ApiResponse<Void>> signUp(@RequestPart @Valid SignUpRequest request,
                                                     @RequestParam Optional<String> code,
                                                     @RequestParam Optional<String> state,
                                                     @RequestPart Optional<MultipartFile> profile) {

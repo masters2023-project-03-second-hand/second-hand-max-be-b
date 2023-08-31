@@ -6,7 +6,6 @@ import static org.mockito.BDDMockito.anyList;
 import static org.mockito.BDDMockito.given;
 
 import com.fasterxml.jackson.core.json.JsonWriteFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -14,9 +13,6 @@ import io.restassured.specification.RequestSpecification;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
-import kr.codesquad.secondhand.DatabaseInitializerExtension;
-import kr.codesquad.secondhand.SupportRepository;
-import kr.codesquad.secondhand.application.image.S3Uploader;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
@@ -24,35 +20,16 @@ import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
-@ExtendWith(DatabaseInitializerExtension.class)
-@SpringBootTest(webEnvironment = WebEnvironment.DEFINED_PORT)
-public class ItemAcceptanceTest {
-
-    @Autowired
-    private ObjectMapper objectMapper;
+public class ItemAcceptanceTest extends AcceptanceTestSupport {
 
     @Autowired
     private JwtProvider jwtProvider;
 
-    @Autowired
-    private SupportRepository supportRepository;
-
-    @MockBean
-    private S3Uploader s3Uploader;
-
     private File createFakeFile() throws IOException {
         return File.createTempFile("test-image", ".png");
-    }
-
-    private Member signup() {
-        return supportRepository.save(FixtureFactory.createMember());
     }
 
     private void saveItems(Member member) {
