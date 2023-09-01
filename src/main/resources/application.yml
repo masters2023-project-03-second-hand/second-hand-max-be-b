@@ -3,9 +3,9 @@ spring:
     active:
       - prod
     include:
+      - db
       - oauth
       - secret
-      - db
 
 custom:
   default-profile:
