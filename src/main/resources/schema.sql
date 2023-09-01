@@ -56,7 +56,8 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`item`
     `category_name`  VARCHAR(45)   NOT NULL,
     `thumbnail_url`  VARCHAR(512)  NOT NULL,
     `seller_id`      BIGINT        NOT NULL,
-    PRIMARY KEY (`id`)
+    PRIMARY KEY (`id`),
+    INDEX `idx_item_trading_region` (`trading_region`(5))
 ) ENGINE = InnoDB;
 
 
