@@ -25,12 +25,12 @@ public class ItemDetailResponse {
     private final int chatCount;
     private final int wishCount;
     private final int viewCount;
-    private final int price;
+    private final Integer price;
 
     @Builder
     private ItemDetailResponse(boolean isSeller, List<String> imageUrls, String seller, String status, String title,
                                String categoryName, LocalDateTime createdAt, String content,
-                               int chatCount, int wishCount, int viewCount, int price) {
+                               int chatCount, int wishCount, int viewCount, Integer price) {
         this.isSeller = isSeller;
         this.imageUrls = imageUrls;
         this.seller = seller;

@@ -7,11 +7,15 @@ import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
+import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
+import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.item.querydsl.ItemPaginationRepository;
@@ -72,11 +76,9 @@ public class ItemService {
         return nextCursor;
     }
 
-
     @Transactional
     public ItemDetailResponse read(Long memberId, Long itemId) {
-        Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
+        Item item = findItem(itemId);
 
         List<ItemImage> images = itemImageRepository.findByItemId(itemId);
 
@@ -85,5 +87,52 @@ public class ItemService {
             return ItemDetailResponse.toBuyerResponse(item, images);
         }
         return ItemDetailResponse.toSellerResponse(item, images);
+    }
+
+    @Transactional
+    public void update(List<MultipartFile> images, ItemUpdateRequest request, Long itemId, Long sellerId) {
+        Item item = findItem(itemId);
+        if (!item.isSeller(sellerId)) {
+            throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
+        }
+
+        List<String> deleteImageUrls = List.of();
+
+        if (request.getDeleteImageUrls() != null && !request.getDeleteImageUrls().isEmpty()) {
+            deleteImageUrls = request.getDeleteImageUrls();
+            itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
+        }
+
+        if (images != null) {
+            saveImages(images, item);
+        }
+
+        if (item.isThumbnailDeleted(deleteImageUrls)) {
+            String thumbnail = itemImageRepository.findByItemId(itemId).get(0).getImageUrl();
+            item.changeThumbnail(thumbnail);
+        }
+        item.update(request);
+    }
+
+    @Transactional
+    public void updateStatus(ItemStatusRequest request, Long itemId, Long sellerId) {
+        Item item = findItem(itemId);
+        if (!item.isSeller(sellerId)) {
+            throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
+        }
+        item.changeStatus(request.getStatus());
+    }
+
+    private Item findItem(Long itemId) {
+        return itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
+    }
+
+    private void saveImages(List<MultipartFile> images, Item item) {
+        List<String> itemImageUrls = imageService.uploadImages(images);
+        List<ItemImage> itemImages = itemImageUrls.stream()
+                .map(url -> ItemImage.toEntity(url, item))
+                .collect(Collectors.toList());
+        itemImageRepository.saveAllItemImages(itemImages);
     }
 }

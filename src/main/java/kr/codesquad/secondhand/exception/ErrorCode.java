@@ -21,6 +21,7 @@ public enum ErrorCode {
     INVALID_LOGIN_DATA("로그인 정보가 일치하지 않습니다."),
     DUPLICATED_LOGIN_ID("중복된 아이디입니다."),
     NOT_LOGIN("로그인된 상태가 아닙니다."),
+    UNAUTHORIZED("수정 권한이 없습니다."),
 
     // COMMON
     INVALID_PARAMETER("유효한 파라미터값이 아닙니다."),

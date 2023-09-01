@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand.domain.item;
 
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -14,6 +15,7 @@ import javax.persistence.Table;
 import kr.codesquad.secondhand.domain.AuditingFields;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
+import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -102,5 +104,27 @@ public class Item extends AuditingFields {
 
     public boolean isSeller(Long memberId) {
         return this.member.getId() == memberId;
+    }
+
+    public void update(ItemUpdateRequest request) {
+        this.title = request.getTitle();
+        this.content = request.getContent();
+        this.price = request.getPrice();
+        this.tradingRegion = request.getRegion();
+        this.status = ItemStatus.of(request.getStatus());
+        this.categoryName = request.getCategoryName();
+    }
+
+    public boolean isThumbnailDeleted(List<String> deleteImageUrls) {
+        return deleteImageUrls.stream()
+                .anyMatch(deleteImage -> thumbnailUrl.equals(deleteImage));
+    }
+
+    public void changeThumbnail(String imageUrl) {
+        this.thumbnailUrl = imageUrl;
+    }
+
+    public void changeStatus(String status) {
+        this.status = ItemStatus.of(status);
     }
 }
