@@ -6,7 +6,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
 
 cloud:
   aws:
@@ -19,4 +19,3 @@ cloud:
       static: ${aws.region}
     stack:
       auto: false
-
