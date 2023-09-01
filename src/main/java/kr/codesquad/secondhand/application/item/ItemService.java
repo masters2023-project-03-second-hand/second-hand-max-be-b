@@ -9,7 +9,6 @@ import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
-import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
@@ -54,23 +53,24 @@ public class ItemService {
         itemImageRepository.saveAllItemImages(itemImages);
     }
 
-    public CustomSlice<ItemResponse> readAll(Long itemId, Long categoryId, int pageSize) {
+    public CustomSlice<ItemResponse> readAll(Long itemId, Long categoryId, String region, int pageSize) {
         String categoryName = null;
         if (categoryId != null) {
             categoryName = categoryRepository.findNameById(categoryId).orElse(null);
         }
 
-        Slice<ItemResponse> response = itemPaginationRepository.findByIdAndCategoryName(itemId, categoryName, pageSize);
+        Slice<ItemResponse> response =
+                itemPaginationRepository.findByIdAndCategoryName(itemId, categoryName, region, pageSize);
         List<ItemResponse> content = response.getContent();
 
-        Long nextCursor = setNextCursor(content, pageSize);
+        Long nextCursor = setNextCursor(content, response.hasNext());
 
         return new CustomSlice<>(content, nextCursor, response.hasNext());
     }
 
-    private Long setNextCursor(List<ItemResponse> content, int pageSize) {
+    private Long setNextCursor(List<ItemResponse> content, boolean hasNext) {
         Long nextCursor = null;
-        if (content.size() == pageSize) {
+        if (hasNext) {
             nextCursor = content.get(content.size() - 1).getItemId();
         }
         return nextCursor;

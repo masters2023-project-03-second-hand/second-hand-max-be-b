@@ -25,6 +25,7 @@ import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -54,76 +55,6 @@ class ItemServiceTest extends ApplicationTestSupport {
         assertAll(
                 () -> assertThat(item).isPresent(),
                 () -> assertThat(images).hasSize(3)
-        );
-    }
-
-    @DisplayName("상품 목록을 조회할 때 첫 페이지에서 최근 등록된 상품 순으로 보여진다.")
-    @Test
-    void givenSavedItemData_whenReadAllItemsOfFirstPage_thenSuccess() {
-        // given
-        for (int i = 1; i <= 30; i++) {
-            supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", signup()));
-        }
-
-        // when
-        CustomSlice<ItemResponse> response = itemService.readAll(null, null, 10);
-
-        // then
-        assertAll(
-                () -> assertThat(response.getPaging().isHasNext()).isTrue(),
-                () -> assertThat(response.getPaging().getNextCursor()).isEqualTo(21),
-                () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("선풍기 - 30"),
-                () -> assertThat(response.getContents().get(9).getTitle()).isEqualTo("선풍기 - 21")
-        );
-    }
-
-    @DisplayName("상품 목록을 조회할 때 두 번째 페이지에서 최근 등록된 상품 순으로 보여진다.")
-    @Test
-    void givenSavedItemData_whenReadAllItemsOfSecondPage_thenSuccess() {
-        // given
-        for (int i = 1; i <= 20; i++) {
-            supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", signup()));
-        }
-
-        // when
-        CustomSlice<ItemResponse> response = itemService.readAll(11L, null, 10);
-
-        // then
-        assertAll(
-                () -> assertThat(response.getPaging().isHasNext()).isFalse(),
-                () -> assertThat(response.getPaging().getNextCursor()).isEqualTo(1),
-                () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("선풍기 - 10"),
-                () -> assertThat(response.getContents().get(9).getTitle()).isEqualTo("선풍기 - 1")
-        );
-    }
-
-    @DisplayName("카테고리 별 아이템 목록을 조회할 때 첫 페이지에서 해당 카테고리의 최근 등록된 상품 순으로 보여진다.")
-    @Test
-    void givenSavedItemDataAndCategoryId_whenReadAllItemsOfFirstPage_thenSuccess() {
-        // given
-        Member member = signup();
-        supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
-        supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
-
-        for (int i = 1; i <= 10; i++) {
-            supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", member));
-        }
-        for (int i = 1; i <= 5; i++) {
-            supportRepository.save(FixtureFactory.createItem("맛있는 거 - " + i, "식품", member));
-        }
-        for (int i = 1; i <= 5; i++) {
-            supportRepository.save(FixtureFactory.createItem("맛없는 거 - " + i, "식품", member));
-        }
-
-        // when
-        CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, 8);
-
-        // then
-        assertAll(
-                () -> assertThat(response.getPaging().isHasNext()).isTrue(),
-                () -> assertThat(response.getPaging().getNextCursor()).isEqualTo(13),
-                () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("맛없는 거 - 5"),
-                () -> assertThat(response.getContents().get(7).getTitle()).isEqualTo("맛있는 거 - 3")
         );
     }
 
@@ -244,5 +175,81 @@ class ItemServiceTest extends ApplicationTestSupport {
 
     private Member signup() {
         return supportRepository.save(FixtureFactory.createMember());
+    }
+
+    @DisplayName("상품 전체 목록을 조회할 때")
+    @Nested
+    class ReadAll {
+
+        @DisplayName("첫 페이지에서 최근 등록된 상품 순으로 보여진다.")
+        @Test
+        void givenSavedItemData_whenReadAllItemsOfFirstPage_thenSuccess() {
+            // given
+            Member member = signup();
+            for (int i = 1; i <= 30; i++) {
+                supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", member));
+            }
+
+            // when
+            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "범박동", 10);
+
+            // then
+            assertAll(
+                    () -> assertThat(response.getPaging().isHasNext()).isTrue(),
+                    () -> assertThat(response.getPaging().getNextCursor()).isEqualTo(21),
+                    () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("선풍기 - 30"),
+                    () -> assertThat(response.getContents().get(9).getTitle()).isEqualTo("선풍기 - 21")
+            );
+        }
+
+        @DisplayName("두 번째 페이지에서 최근 등록된 상품 순으로 보여진다.")
+        @Test
+        void givenSavedItemData_whenReadAllItemsOfSecondPage_thenSuccess() {
+            // given
+            for (int i = 1; i <= 20; i++) {
+                supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", signup()));
+            }
+
+            // when
+            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10);
+
+            // then
+            assertAll(
+                    () -> assertThat(response.getPaging().isHasNext()).isFalse(),
+                    () -> assertThat(response.getPaging().getNextCursor()).isNull(),
+                    () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("선풍기 - 10"),
+                    () -> assertThat(response.getContents().get(9).getTitle()).isEqualTo("선풍기 - 1")
+            );
+        }
+
+        @DisplayName("카테고리 별 아이템 목록을 조회하면 첫 페이지에서 해당 카테고리의 최근 등록된 상품 순으로 보여진다.")
+        @Test
+        void givenSavedItemDataAndCategoryId_whenReadAllItemsOfFirstPage_thenSuccess() {
+            // given
+            Member member = signup();
+            supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
+            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
+
+            for (int i = 1; i <= 10; i++) {
+                supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", member));
+            }
+            for (int i = 1; i <= 5; i++) {
+                supportRepository.save(FixtureFactory.createItem("맛있는 거 - " + i, "식품", member));
+            }
+            for (int i = 1; i <= 5; i++) {
+                supportRepository.save(FixtureFactory.createItem("맛없는 거 - " + i, "식품", member));
+            }
+
+            // when
+            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8);
+
+            // then
+            assertAll(
+                    () -> assertThat(response.getPaging().isHasNext()).isTrue(),
+                    () -> assertThat(response.getPaging().getNextCursor()).isEqualTo(13),
+                    () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("맛없는 거 - 5"),
+                    () -> assertThat(response.getContents().get(7).getTitle()).isEqualTo("맛있는 거 - 3")
+            );
+        }
     }
 }

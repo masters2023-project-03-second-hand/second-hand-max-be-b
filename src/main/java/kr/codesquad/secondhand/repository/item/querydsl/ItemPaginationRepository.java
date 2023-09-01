@@ -19,7 +19,7 @@ public class ItemPaginationRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Slice<ItemResponse> findByIdAndCategoryName(Long itemId, String categoryName, int pageSize) {
+    public Slice<ItemResponse> findByIdAndCategoryName(Long itemId, String categoryName, String region, int pageSize) {
         List<ItemResponse> itemResponses = queryFactory
                 .select(Projections.fields(ItemResponse.class,
                         item.id.as("itemId"),
@@ -33,7 +33,8 @@ public class ItemPaginationRepository {
                         item.wishCount))
                 .from(item)
                 .where(lessThanItemId(itemId),
-                        equalCategoryName(categoryName)
+                        equalCategoryName(categoryName),
+                        equalTradingRegion(region)
                 )
                 .orderBy(item.createdAt.desc())
                 .limit(pageSize + 1)    // 다음 요소가 있는지 확인하기 위해 +1개 만큼 더 가져온다.
@@ -55,6 +56,14 @@ public class ItemPaginationRepository {
         }
 
         return item.categoryName.eq(categoryName);
+    }
+
+    private BooleanExpression equalTradingRegion(String region) {
+        if (region == null) {
+            return null;
+        }
+
+        return item.tradingRegion.like(region + "%");
     }
 
     private Slice<ItemResponse> checkLastPage(int pageSize, List<ItemResponse> results) {

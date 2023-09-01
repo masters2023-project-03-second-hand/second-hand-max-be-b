@@ -57,9 +57,15 @@ public class ItemController {
     public ResponseEntity<ApiResponse<CustomSlice<ItemResponse>>> readAll(
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Long categoryId,
+            @RequestParam Optional<String> region,
             @RequestParam(required = false, defaultValue = "10") int size) {
+        String regionName = region
+                .orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER, "상품 조회시 지역정보는 반드시 들어와야 합니다."));
         return ResponseEntity.ok()
-                .body(new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, size)));
+                .body(new ApiResponse<>(
+                        HttpStatus.OK.value(),
+                        itemService.readAll(cursor, categoryId, regionName, size))
+                );
     }
 
     @GetMapping("/{itemId}")
