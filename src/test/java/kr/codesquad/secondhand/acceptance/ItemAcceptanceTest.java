@@ -128,6 +128,7 @@ public class ItemAcceptanceTest extends AcceptanceTestSupport {
             var request = RestAssured
                     .given().log().all()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(1L))
+                    .queryParam("region", "범박동")
                     .queryParam("size", 5);
 
             // when & then
@@ -155,6 +156,7 @@ public class ItemAcceptanceTest extends AcceptanceTestSupport {
             var request = RestAssured
                     .given().log().all()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(1L))
+                    .queryParam("region", "범박동")
                     .queryParam("size", 5)
                     .queryParam("cursor", 16);
 
