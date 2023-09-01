@@ -80,8 +80,7 @@ public class ItemController {
                                                         @Valid @RequestPart ItemUpdateRequest item,
                                                         @PathVariable Long itemId,
                                                         @Auth Long memberId) {
-       itemService.update(
-               images.orElse(null), item, itemId, memberId);
+       itemService.update(images.orElse(null), item, itemId, memberId);
        return ResponseEntity.ok()
                .body(new ApiResponse<>(HttpStatus.OK.value()));
     }

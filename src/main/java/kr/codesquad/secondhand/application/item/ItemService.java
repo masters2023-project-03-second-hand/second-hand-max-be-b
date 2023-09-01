@@ -7,6 +7,7 @@ import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
@@ -92,11 +93,15 @@ public class ItemService {
     public void update(List<MultipartFile> images, ItemUpdateRequest request, Long itemId, Long sellerId) {
         Item item = findItem(itemId);
         if (!item.isSeller(sellerId)) {
-            throw new UnAuthorizedException(ErrorCode.UNAUTHORIZED);
+            throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
         }
 
-        List<String> deleteImageUrls = request.getDeleteImageUrls();
-        itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
+        List<String> deleteImageUrls = List.of();
+
+        if (request.getDeleteImageUrls() != null && !request.getDeleteImageUrls().isEmpty()) {
+            deleteImageUrls = request.getDeleteImageUrls();
+            itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
+        }
 
         if (images != null) {
             saveImages(images, item);
@@ -113,7 +118,7 @@ public class ItemService {
     public void updateStatus(ItemStatusRequest request, Long itemId, Long sellerId) {
         Item item = findItem(itemId);
         if (!item.isSeller(sellerId)) {
-            throw new UnAuthorizedException(ErrorCode.UNAUTHORIZED);
+            throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
         }
         item.changeStatus(request.getStatus());
     }
@@ -123,13 +128,11 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
     }
 
-    private String saveImages(List<MultipartFile> images, Item item) {
+    private void saveImages(List<MultipartFile> images, Item item) {
         List<String> itemImageUrls = imageService.uploadImages(images);
         List<ItemImage> itemImages = itemImageUrls.stream()
                 .map(url -> ItemImage.toEntity(url, item))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
-
-        return itemImageUrls.get(0);
     }
 }

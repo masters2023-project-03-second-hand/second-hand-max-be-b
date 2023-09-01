@@ -208,7 +208,6 @@ class ItemServiceTest extends ApplicationTestSupport {
         Item item = supportRepository.findById(Item.class, 1L).get();
 
         assertThat(item.getStatus().getStatus()).isEqualTo("예약중");
-
     }
 
     @DisplayName("작성자가 아닌 사람이 상품을 수정하려하면 예외를 던진다.")
@@ -229,7 +228,6 @@ class ItemServiceTest extends ApplicationTestSupport {
         assertThatThrownBy(() -> itemService.updateStatus(request, 1L, buyer.getId()))
                 .isInstanceOf(UnAuthorizedException.class)
                 .extracting("errorCode").isEqualTo(ErrorCode.UNAUTHORIZED);
-
     }
 
     private List<MultipartFile> createFakeImage() {
