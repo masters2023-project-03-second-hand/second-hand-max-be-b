@@ -8,33 +8,26 @@ import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.given;
 
 import java.util.Optional;
-import kr.codesquad.secondhand.SupportRepository;
 import kr.codesquad.secondhand.application.ApplicationTest;
+import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.member.UserProfile;
 import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
-import kr.codesquad.secondhand.presentation.dto.LoginRequest;
-import kr.codesquad.secondhand.presentation.dto.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
-import kr.codesquad.secondhand.presentation.dto.UserProfile;
+import kr.codesquad.secondhand.presentation.dto.member.LoginRequest;
+import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 
 @ApplicationTest
-class MemberServiceTest {
+class AuthServiceTest extends ApplicationTestSupport {
 
     @Autowired
-    private MemberService memberService;
-
-    @Autowired
-    private SupportRepository supportRepository;
-
-    @MockBean
-    private NaverRequester naverRequester;
+    private AuthService authService;
 
     @Nested
     class Login {
@@ -53,7 +46,7 @@ class MemberServiceTest {
                     .build());
 
             // when
-            LoginResponse response = memberService.login(request, "code");
+            LoginResponse response = authService.login(request, "code");
 
             // then
             Optional<RefreshToken> token = supportRepository.findById(RefreshToken.class, 1L);
@@ -64,6 +57,31 @@ class MemberServiceTest {
                     () -> assertThat(response.getUser().getLoginId()).isNotBlank(),
                     () -> assertThat(response.getUser().getProfileUrl()).isNotBlank()
             );
+        }
+
+        @DisplayName("리프레시 토큰이 존재하는 사용자가 다시 로그인을 시도할 때 존재하는 리프레시 토큰을 삭제하고 새로운 리프레시 토큰을 저장한다.")
+        @Test
+        void givenLoginDataAndAlreadyHasRefreshToken_whenLogin_thenSuccess() {
+            // given
+            mockingOAuthInfo();
+
+            LoginRequest request = new LoginRequest("joy");
+            supportRepository.save(Member.builder()
+                    .email("joy@naver.com")
+                    .loginId("joy")
+                    .profileUrl("url")
+                    .build());
+            supportRepository.save(RefreshToken.builder()
+                    .memberId(1L)
+                    .token("token.token.token")
+                    .build());
+
+            // when
+            authService.login(request, "code");
+
+            // then
+            assertThat(supportRepository.findById(RefreshToken.class, 1L).get().getToken())
+                    .isNotEqualTo("token.token.token");
         }
 
         @DisplayName("아이디는 존재하지만 해당 아이디의 이메일과 Naver 이메일 정보가 일치하지 않는 로그인 정보가 주어지면 예외를 던진다.")
@@ -80,7 +98,7 @@ class MemberServiceTest {
                     .build());
 
             // when & then
-            assertThatThrownBy(() -> memberService.login(request, "code"))
+            assertThatThrownBy(() -> authService.login(request, "code"))
                     .isInstanceOf(UnAuthorizedException.class)
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_LOGIN_DATA);
         }
@@ -93,7 +111,7 @@ class MemberServiceTest {
             LoginRequest request = new LoginRequest("joy");
 
             // when & then
-            assertThatThrownBy(() -> memberService.login(request, "code"))
+            assertThatThrownBy(() -> authService.login(request, "code"))
                     .isInstanceOf(UnAuthorizedException.class)
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_LOGIN_DATA);
         }

@@ -14,12 +14,19 @@ public enum ErrorCode {
 
     // IMAGE
     INVALID_IMAGE("유효하지 않은 이미지 입니다."),
-    INVALID_FILE_EXTENSION("잘못된 파일 확장자 입니다."),
+    INVALID_FILE_EXTENSION("이미지 파일의 확장자는 png, jpg, jpeg, svg만 가능합니다."),
     UPLOAD_FAIL("이미지 업로드 실패"),
 
     // AUTH
     INVALID_LOGIN_DATA("로그인 정보가 일치하지 않습니다."),
-    DUPLICATED_LOGIN_ID("중복된 아이디입니다.");
+    DUPLICATED_LOGIN_ID("중복된 아이디입니다."),
+    NOT_LOGIN("로그인된 상태가 아닙니다."),
+    UNAUTHORIZED("수정 권한이 없습니다."),
+
+    // COMMON
+    INVALID_PARAMETER("유효한 파라미터값이 아닙니다."),
+    INVALID_REQUEST("유효한 요청이 아닙니다."),
+    NOT_FOUND("페이지를 찾을 수 없습니다.");
 
     private final String message;
 }

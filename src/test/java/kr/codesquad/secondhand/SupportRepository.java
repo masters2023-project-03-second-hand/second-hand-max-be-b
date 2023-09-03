@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand;
 
+import java.util.List;
 import java.util.Optional;
 import javax.persistence.EntityManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,5 +26,12 @@ public class SupportRepository {
     public <T> Optional<T> findById(Class<T> entityType, Object id) {
         em.flush();
         return Optional.ofNullable(em.find(entityType, id));
+    }
+
+    public <T> List<T> findAll(Class<T> entityTypes) {
+        em.flush();
+        String entityTypeName = entityTypes.getSimpleName();
+        return em.createQuery(String.format("SELECT entity FROM %s entity", entityTypeName))
+                .getResultList();
     }
 }
