@@ -12,7 +12,7 @@ public class FixtureFactory {
     public static ItemRegisterRequest createItemRegisterRequest() {
         return new ItemRegisterRequest(
                 "선풍기",
-                10000,
+                10000L,
                 "바람이 시원한 선풍기",
                 "범안 1동",
                 "판매중",
@@ -25,7 +25,7 @@ public class FixtureFactory {
         return Item.builder()
                 .title(title)
                 .status(ItemStatus.ON_SALE)
-                .price(10000)
+                .price(10000L)
                 .categoryName(categoryName)
                 .member(member)
                 .thumbnailUrl("url")
@@ -44,7 +44,7 @@ public class FixtureFactory {
     public static ItemUpdateRequest createItemUpdateRequest() {
         return new ItemUpdateRequest(
                 "수정제목",
-                10000,
+                10000L,
                 "바람이 시원한 선풍기",
                 "범안 1동",
                 "판매중",

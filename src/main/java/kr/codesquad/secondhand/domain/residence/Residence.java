@@ -10,7 +10,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import kr.codesquad.secondhand.domain.member.Member;
-import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,23 +26,16 @@ public class Residence {
     private Long id;
 
     @Column(length = 45, nullable = false)
-    private String addrName;
+    private String addressName;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
     @Builder
-    private Residence(Long id, String addrName, Member member) {
+    private Residence(Long id, String addressName, Member member) {
         this.id = id;
-        this.addrName = addrName;
+        this.addressName = addressName;
         this.member = member;
-    }
-
-    public static Residence toEntity(SignUpRequest request, Member member) {
-        return Residence.builder()
-                .addrName(request.getAddrName())
-                .member(member)
-                .build();
     }
 }

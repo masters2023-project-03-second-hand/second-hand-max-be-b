@@ -3,9 +3,9 @@ package kr.codesquad.secondhand.application.auth;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
+import kr.codesquad.secondhand.domain.member.UserProfile;
 import kr.codesquad.secondhand.infrastructure.OauthProvider;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
-import kr.codesquad.secondhand.domain.member.UserProfile;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -23,12 +23,13 @@ public class NaverRequester {
 
     private final RestTemplate restTemplate;
     private final OauthProvider oauthProvider;
-    private final String DEFAULT_PROFILE_IMAGE;
+    private final String defaultProfileImage;
 
-    public NaverRequester(RestTemplate restTemplate, OauthProvider oauthProvider, @Value("${custom.default-profile}") String defaultProfileImage) {
+    public NaverRequester(RestTemplate restTemplate, OauthProvider oauthProvider,
+                          @Value("${custom.default-profile}") String defaultProfileImage) {
         this.restTemplate = restTemplate;
         this.oauthProvider = oauthProvider;
-        this.DEFAULT_PROFILE_IMAGE = defaultProfileImage;
+        this.defaultProfileImage = defaultProfileImage;
     }
 
     public OauthTokenResponse getToken(String code) {
@@ -62,7 +63,7 @@ public class NaverRequester {
         Map<String, Object> userAttributes = (Map<String, Object>) responseAttributes.get("response");
         return UserProfile.builder()
                 .email((String) userAttributes.get("email"))
-                .profileUrl(DEFAULT_PROFILE_IMAGE)
+                .profileUrl(defaultProfileImage)
                 .build();
     }
 

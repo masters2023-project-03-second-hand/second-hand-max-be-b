@@ -15,7 +15,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import kr.codesquad.secondhand.domain.AuditingFields;
 import kr.codesquad.secondhand.domain.member.Member;
-import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -44,7 +43,7 @@ public class Item extends AuditingFields {
     private String content;
 
     @Column
-    private Integer price;
+    private Long price;
 
     @Column(length = 100, nullable = false)
     private String tradingRegion;
@@ -76,7 +75,7 @@ public class Item extends AuditingFields {
     private Member member;
 
     @Builder
-    private Item(String title, String content, Integer price, String tradingRegion,
+    private Item(String title, String content, Long price, String tradingRegion,
                  ItemStatus status, String categoryName, String thumbnailUrl, Member member) {
         this.title = title;
         this.content = content;
@@ -86,19 +85,6 @@ public class Item extends AuditingFields {
         this.categoryName = categoryName;
         this.thumbnailUrl = thumbnailUrl;
         this.member = member;
-    }
-
-    public static Item toEntity(ItemRegisterRequest request, Member member, String thumbnailUrl) {
-        return Item.builder()
-                .title(request.getTitle())
-                .content(request.getContent())
-                .price(request.getPrice())
-                .tradingRegion(request.getRegion())
-                .status(ItemStatus.of(request.getStatus()))
-                .categoryName(request.getCategoryName())
-                .thumbnailUrl(thumbnailUrl)
-                .member(member)
-                .build();
     }
 
     public void incrementViewCount() {
