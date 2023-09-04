@@ -24,7 +24,6 @@ public class TokenService {
 
     private final TokenRepository tokenRepository;
     private final JwtProvider jwtProvider;
-    private final RedisTemplate redisTemplate;
 
     public AccessTokenResponse renewAccessToken(final String refreshToken) {
         jwtProvider.validateToken(refreshToken);
@@ -35,23 +34,5 @@ public class TokenService {
             throw new UnAuthorizedException(ErrorCode.INVALID_TOKEN);
         }
         return new AccessTokenResponse(jwtProvider.createAccessToken(memberId));
-    }
-
-    @Transactional
-    public void logout(HttpServletRequest request, Long memberId) {
-        String accessToken = extractJwt(request);
-        Long expiration = jwtProvider.getExpiration(accessToken);
-        redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
-        tokenRepository.deleteByMemberId(memberId);
-    }
-
-    private String extractJwt(HttpServletRequest request) {
-        final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (!StringUtils.hasText(header) || !header.toLowerCase().startsWith("bearer")) {
-            throw new UnAuthorizedException(ErrorCode.INVALID_AUTH_HEADER);
-        }
-
-        return header.split(" ")[1];
     }
 }

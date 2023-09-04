@@ -65,7 +65,7 @@ public class AuthController {
     @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/logout")
     public ApiResponse<Void> logout(HttpServletRequest request, @Auth Long memberId) {
-        tokenService.logout(request, memberId);
+        authService.logout(request, memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 }
