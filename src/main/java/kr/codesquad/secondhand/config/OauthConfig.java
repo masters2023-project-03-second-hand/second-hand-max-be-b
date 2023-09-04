@@ -1,6 +1,6 @@
 package kr.codesquad.secondhand.config;
 
-import kr.codesquad.secondhand.infrastructure.OauthProperties;
+import kr.codesquad.secondhand.infrastructure.properties.OauthProperties;
 import kr.codesquad.secondhand.infrastructure.OauthProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

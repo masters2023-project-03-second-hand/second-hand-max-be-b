@@ -5,6 +5,7 @@ import io.jsonwebtoken.security.Keys;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.infrastructure.properties.JwtProperties;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -20,11 +21,13 @@ public class JwtProvider {
     private final SecretKey secretKey;
     private final long accessTokenExpirationTime;
     private final long refreshTokenExpirationTime;
+    private final RedisTemplate redisTemplate;
 
-    public JwtProvider(JwtProperties jwtProperties) {
+    public JwtProvider(JwtProperties jwtProperties, RedisTemplate redisTemplate) {
         this.secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpirationTime = jwtProperties.getAccessTokenExpirationTime();
         this.refreshTokenExpirationTime = jwtProperties.getRefreshTokenExpirationTime();
+        this.redisTemplate = redisTemplate;
     }
 
     public String createAccessToken(Long memberId) {
@@ -71,5 +74,22 @@ public class JwtProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return Collections.unmodifiableMap(claims);
+    }
+
+    public Long getExpiration(String accessToken) {
+        Date expiration = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody()
+                .getExpiration();
+        long now = new Date().getTime();
+        return expiration.getTime() - now;
+    }
+
+    public void validBlackToken(String accessToken) {
+        if (redisTemplate.hasKey(accessToken)) {
+            throw new UnAuthorizedException(ErrorCode.NOT_LOGIN);
+        }
     }
 }

@@ -49,6 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String token = extractJwt(request)
                 .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_AUTH_HEADER));
+        jwtProvider.validBlackToken(token);
         jwtProvider.validateToken(token);
         authenticationContext.setMemberId(jwtProvider.extractClaims(token));
 
