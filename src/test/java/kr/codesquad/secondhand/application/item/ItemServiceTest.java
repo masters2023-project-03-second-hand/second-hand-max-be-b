@@ -18,7 +18,7 @@ import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.exception.ErrorCode;
-import kr.codesquad.secondhand.exception.UnAuthorizedException;
+import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
@@ -157,7 +157,7 @@ class ItemServiceTest extends ApplicationTestSupport {
 
         // when & then
         assertThatThrownBy(() -> itemService.updateStatus(request, 1L, buyer.getId()))
-                .isInstanceOf(UnAuthorizedException.class)
+                .isInstanceOf(ForbiddenException.class)
                 .extracting("errorCode").isEqualTo(ErrorCode.UNAUTHORIZED);
     }
 

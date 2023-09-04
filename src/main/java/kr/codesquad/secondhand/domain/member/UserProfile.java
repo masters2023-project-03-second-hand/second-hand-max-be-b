@@ -1,9 +1,7 @@
 package kr.codesquad.secondhand.domain.member;
 
-import java.io.IOException;
 import lombok.Builder;
 import lombok.Getter;
-import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 public class UserProfile {
@@ -17,7 +15,7 @@ public class UserProfile {
         this.profileUrl = profileUrl;
     }
 
-    public void setProfileUrl(String profileUrl) {
+    public void changeProfileUrl(String profileUrl) {
         this.profileUrl = profileUrl;
     }
 }

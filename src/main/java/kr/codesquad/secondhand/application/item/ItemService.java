@@ -45,10 +45,10 @@ public class ItemService {
 
         Member seller = memberRepository.getReferenceById(sellerId);
 
-        Item savedItem = itemRepository.save(Item.toEntity(request, seller, thumbnailUrl));
+        Item savedItem = itemRepository.save(request.toEntity(seller, thumbnailUrl));
 
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.toEntity(url, savedItem))
+                .map(url -> ItemImage.from(url, savedItem))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
     }
@@ -96,12 +96,8 @@ public class ItemService {
             throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
         }
 
-        List<String> deleteImageUrls = List.of();
-
-        if (request.getDeleteImageUrls() != null && !request.getDeleteImageUrls().isEmpty()) {
-            deleteImageUrls = request.getDeleteImageUrls();
-            itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
-        }
+        List<String> deleteImageUrls = request.getDeleteImageUrls();
+        itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
 
         if (images != null) {
             saveImages(images, item);
@@ -131,7 +127,7 @@ public class ItemService {
     private void saveImages(List<MultipartFile> images, Item item) {
         List<String> itemImageUrls = imageService.uploadImages(images);
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.toEntity(url, item))
+                .map(url -> ItemImage.from(url, item))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
     }

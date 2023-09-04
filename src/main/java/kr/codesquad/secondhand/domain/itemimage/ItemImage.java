@@ -38,7 +38,7 @@ public class ItemImage {
         this.item = item;
     }
 
-    public static ItemImage toEntity(String imageUrl, Item item) {
+    public static ItemImage from(String imageUrl, Item item) {
         return ItemImage.builder()
                 .imageUrl(imageUrl)
                 .item(item)

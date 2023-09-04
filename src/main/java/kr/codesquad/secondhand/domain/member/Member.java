@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,19 +31,11 @@ public class Member {
     private String profileUrl;
 
     @Builder
-    public Member(Long id, String loginId, String email, String profileUrl) {
+    private Member(Long id, String loginId, String email, String profileUrl) {
         this.id = id;
         this.loginId = loginId;
         this.email = email;
         this.profileUrl = profileUrl;
-    }
-
-    public static Member toEntity(SignUpRequest request, UserProfile userProfile) {
-        return Member.builder()
-                .loginId(request.getLoginId())
-                .email(userProfile.getEmail())
-                .profileUrl(userProfile.getProfileUrl())
-                .build();
     }
 
     public boolean isSameEmail(String email) {
