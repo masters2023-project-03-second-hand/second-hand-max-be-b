@@ -15,18 +15,13 @@ import java.io.IOException;
 import java.util.List;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
-import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 
 public class ItemAcceptanceTest extends AcceptanceTestSupport {
-
-    @Autowired
-    private JwtProvider jwtProvider;
 
     private File createFakeFile() throws IOException {
         return File.createTempFile("test-image", ".png");
