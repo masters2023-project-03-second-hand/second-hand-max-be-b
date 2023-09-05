@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 
-public class JwtExtractor {
+public final class JwtExtractor {
 
     public static final String BEARER = "bearer";
 
@@ -18,4 +18,6 @@ public class JwtExtractor {
 
         return Optional.of(header.split(" ")[1]);
     }
+
+    private JwtExtractor() {}
 }
