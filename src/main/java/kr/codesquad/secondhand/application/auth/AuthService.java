@@ -10,6 +10,7 @@ import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.DuplicatedException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
+import kr.codesquad.secondhand.infrastructure.jwt.JwtExtractor;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import kr.codesquad.secondhand.presentation.dto.member.LoginRequest;
@@ -75,20 +76,10 @@ public class AuthService {
 
     @Transactional
     public void logout(HttpServletRequest request, Long memberId) {
-        String accessToken = extractJwt(request);
+        String accessToken = JwtExtractor.extract(request).orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_TOKEN));
         Long expiration = jwtProvider.getExpiration(accessToken);
         redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
         tokenRepository.deleteByMemberId(memberId);
-    }
-
-    private String extractJwt(HttpServletRequest request) {
-        final String header = request.getHeader(HttpHeaders.AUTHORIZATION);
-
-        if (!StringUtils.hasText(header) || !header.toLowerCase().startsWith("bearer")) {
-            throw new UnAuthorizedException(ErrorCode.INVALID_AUTH_HEADER);
-        }
-
-        return header.split(" ")[1];
     }
 
     private Long verifyUser(LoginRequest request, UserProfile userProfile) {

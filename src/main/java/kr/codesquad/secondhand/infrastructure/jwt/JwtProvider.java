@@ -90,7 +90,7 @@ public class JwtProvider {
         return expiration.getTime() - now;
     }
 
-    public void validBlackToken(String accessToken) {
+    public void validateBlackToken(String accessToken) {
         if (redisTemplate.hasKey(accessToken)) {
             throw new UnAuthorizedException(ErrorCode.NOT_LOGIN);
         }
