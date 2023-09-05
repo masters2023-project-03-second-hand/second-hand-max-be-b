@@ -141,9 +141,13 @@ public class ItemService {
         if (!item.isSeller(memberId)) {
             throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
         }
+        List<ItemImage> imageUrls = itemImageRepository.findByItemId(itemId);
+        imageService.deleteImages(imageUrls);
+
         itemImageRepository.deleteByItemId(itemId);
         wishItemRepository.deleteByItemId(itemId);
         itemRepository.deleteById(itemId);
+
         // todo: 삭제한 item과 관련된 채팅도 삭제하기
     }
 }

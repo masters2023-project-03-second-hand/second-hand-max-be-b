@@ -2,9 +2,12 @@ package kr.codesquad.secondhand.application.image;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import kr.codesquad.secondhand.domain.image.ImageFile;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.InternalServerException;
 import kr.codesquad.secondhand.infrastructure.properties.AwsProperties;
 import org.springframework.stereotype.Component;
 
@@ -63,5 +66,16 @@ public class S3Uploader {
         metadata.setContentType(imageFile.getContentType());
         metadata.setContentLength(imageFile.getFileSize());
         return metadata;
+    }
+
+    public void deleteImageFile(String imageUrl) {
+        try {
+            String decodedImageUrl = URLDecoder.decode(imageUrl, StandardCharsets.UTF_8);
+            String fileName = decodedImageUrl.substring(decodedImageUrl.lastIndexOf('/') + 1);
+
+            s3Client.deleteObject(bucket, fileName);
+        } catch (Exception e) {
+            throw new InternalServerException(ErrorCode.DELETE_FAIL);
+        }
     }
 }
