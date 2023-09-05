@@ -4,13 +4,11 @@ on:
   push:
     branches:
       - main
+      - develop
   pull_request:
     branches:
       - develop
       - main
-
-env:
-  APPLICATION_SECRET_FILE_PATH: ./src/main/resources/application-secret.yml
 
 jobs:
   backend-deploy:
@@ -35,16 +33,46 @@ jobs:
       - name: Build docker image
         run: docker build -t 23yong/second-hand .
 
-      # docker hub 로그인
-      - name: Login docker hub
-        uses: docker/login-action@v2
+      # GHCR(github container registry) 로그인
+      - name: Login to GHCR
+        uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{secrets.GH_USER}}
+          password: ${{secrets.GH_TOKEN}}
 
-      # docker hub 퍼블리시
-      - name: Publish to docker hub
-        run: docker push 23yong/second-hand
+      # Build & Push to GHCR
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        id: docker_build
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{secrets.GH_USER}}/secondhand:0.0
+
+      # Copy docker-compose-deploy.yml
+      - name: Deliver docker-compose-deploy.yml file
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          source: "docker-compose-deploy.yml"
+          target: "/home/ubuntu"
+
+      # Copy nginx.conf
+      - name: Deliver nginx.conf file
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          source: "./nginx/nginx.conf"
+          target: "/home/ubuntu/nginx"
 
       # WAS 인스턴스 접속 & 애플리케이션 실행
       - name: Connect to WAS & Execute Application
@@ -55,6 +83,9 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.WAS_SSH_PORT }}
           script: |
+            echo ${{secrets.GH_TOKEN}} >> TOKEN.txt
+            cat TOKEN.txt | docker login https://ghcr.io -u ${{secrets.GH_USER}} --password-stdin
+            
             docker stop $(docker ps -a -q) 
             docker rm $(docker ps -a -q) 
             docker pull 23yong/second-hand
