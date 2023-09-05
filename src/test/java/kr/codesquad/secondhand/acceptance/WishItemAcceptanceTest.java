@@ -3,9 +3,9 @@ package kr.codesquad.secondhand.acceptance;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import io.restassured.RestAssured;
-import kr.codesquad.secondhand.domain.WishItem;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.wishitem.WishItem;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

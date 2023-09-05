@@ -1,8 +1,8 @@
 package kr.codesquad.secondhand.application.wishitem;
 
-import kr.codesquad.secondhand.domain.WishItem;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.wishitem.WishItem;
 import kr.codesquad.secondhand.repository.wishitem.WishItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
