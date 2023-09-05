@@ -72,7 +72,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.WAS_SSH_PORT }}
           source: "./nginx/nginx.conf"
-          target: "/home/ubuntu/nginx"
+          target: "/home/ubuntu"
 
       # WAS 인스턴스 접속 & 애플리케이션 실행
       - name: Connect to WAS & Execute Application
