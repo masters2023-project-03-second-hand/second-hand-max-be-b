@@ -141,6 +141,7 @@ public class ItemService {
         if (!item.isSeller(memberId)) {
             throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
         }
+
         List<ItemImage> imageUrls = itemImageRepository.findByItemId(itemId);
         imageService.deleteImages(imageUrls);
 
