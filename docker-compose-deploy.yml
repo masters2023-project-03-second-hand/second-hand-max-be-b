@@ -2,7 +2,7 @@ version: '3.3'
 
 services:
   app:
-    container_name: novel-park-app
+    container_name: second-hand-app
     image: ghcr.io/23yong/secondhand:0.0
     ports:
       - 8080:8080
