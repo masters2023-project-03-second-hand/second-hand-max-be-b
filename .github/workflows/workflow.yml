@@ -63,17 +63,6 @@ jobs:
           source: "docker-compose-deploy.yml"
           target: "/home/ubuntu"
 
-      # Copy nginx.conf
-      - name: Deliver nginx.conf file
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.WAS_HOST }}
-          username: ${{ secrets.WAS_USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.WAS_SSH_PORT }}
-          source: "./nginx/nginx.conf"
-          target: "/home/ubuntu"
-
       # WAS 인스턴스 접속 & 애플리케이션 실행
       - name: Connect to WAS & Execute Application
         uses: appleboy/ssh-action@v0.1.6
