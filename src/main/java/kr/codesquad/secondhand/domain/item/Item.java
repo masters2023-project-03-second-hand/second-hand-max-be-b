@@ -75,8 +75,9 @@ public class Item extends AuditingFields {
     private Member member;
 
     @Builder
-    private Item(String title, String content, Long price, String tradingRegion,
+    private Item(Long id, String title, String content, Long price, String tradingRegion,
                  ItemStatus status, String categoryName, String thumbnailUrl, Member member) {
+        this.id = id;
         this.title = title;
         this.content = content;
         this.price = price;

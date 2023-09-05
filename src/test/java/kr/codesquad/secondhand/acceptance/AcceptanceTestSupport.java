@@ -6,6 +6,7 @@ import kr.codesquad.secondhand.application.auth.NaverRequester;
 import kr.codesquad.secondhand.application.image.S3Uploader;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
+import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
@@ -23,6 +24,9 @@ public abstract class AcceptanceTestSupport {
 
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @Autowired
+    protected JwtProvider jwtProvider;
 
     protected Member signup() {
         return supportRepository.save(FixtureFactory.createMember());
