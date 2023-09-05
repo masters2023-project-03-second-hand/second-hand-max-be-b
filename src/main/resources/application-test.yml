@@ -37,3 +37,7 @@ oauth2:
   provider:
     token-url: token-url
     user-info-url: user-info-url
+
+redis:
+  host: localhost
+  port: 6379

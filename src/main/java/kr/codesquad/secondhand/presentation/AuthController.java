@@ -1,6 +1,7 @@
 package kr.codesquad.secondhand.presentation;
 
 import java.util.Optional;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import kr.codesquad.secondhand.application.auth.AuthService;
 import kr.codesquad.secondhand.application.auth.TokenService;
@@ -12,6 +13,7 @@ import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
 import kr.codesquad.secondhand.presentation.dto.token.AccessTokenResponse;
 import kr.codesquad.secondhand.presentation.dto.token.TokenRenewRequest;
+import kr.codesquad.secondhand.presentation.support.Auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -58,5 +60,12 @@ public class AuthController {
     @PostMapping("/token")
     public ApiResponse<AccessTokenResponse> renewAccessToken(@Valid @RequestBody TokenRenewRequest request) {
         return new ApiResponse<>(HttpStatus.OK.value(), tokenService.renewAccessToken(request.getRefreshToken()));
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(HttpServletRequest request, @Auth Long memberId) {
+        authService.logout(request, memberId);
+        return new ApiResponse<>(HttpStatus.OK.value());
     }
 }

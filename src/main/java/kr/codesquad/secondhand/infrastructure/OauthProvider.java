@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand.infrastructure;
 
+import kr.codesquad.secondhand.infrastructure.properties.OauthProperties;
 import lombok.Builder;
 import lombok.Getter;
 
