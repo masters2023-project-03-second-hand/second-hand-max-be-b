@@ -135,7 +135,6 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`wish_item`
     `item_id`    BIGINT    NOT NULL,
     `member_id`  BIGINT    NOT NULL,
     `created_at` TIMESTAMP NOT NULL,
-    `updated_at` TIMESTAMP NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
