@@ -44,11 +44,11 @@ public class AuthController {
 
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(value = "/naver/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Void> signUp(@RequestPart @Valid SignUpRequest request,
+    public ApiResponse<Void> signUp(@RequestPart @Valid SignUpRequest signupData,
                                     @RequestParam Optional<String> code,
                                     @RequestParam Optional<String> state,
                                     @RequestPart Optional<MultipartFile> profile) {
-        authService.signUp(request,
+        authService.signUp(signupData,
                 code.orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER)),
                 profile);
         return new ApiResponse<>(HttpStatus.CREATED.value());
