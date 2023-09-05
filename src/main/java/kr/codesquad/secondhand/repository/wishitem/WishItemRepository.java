@@ -1,6 +1,6 @@
 package kr.codesquad.secondhand.repository.wishitem;
 
-import kr.codesquad.secondhand.domain.WishItem;
+import kr.codesquad.secondhand.domain.wishitem.WishItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

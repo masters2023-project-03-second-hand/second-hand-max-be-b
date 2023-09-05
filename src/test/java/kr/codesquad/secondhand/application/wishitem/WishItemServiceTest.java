@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.util.Optional;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
-import kr.codesquad.secondhand.domain.WishItem;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.wishitem.WishItem;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

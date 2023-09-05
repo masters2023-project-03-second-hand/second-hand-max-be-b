@@ -91,9 +91,9 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`item_image`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `second_hand`.`residence`
 (
-    `id`        BIGINT      NOT NULL AUTO_INCREMENT,
-    `addr_name` VARCHAR(50) NOT NULL COMMENT '읍/면/동 주소',
-    `member_id` BIGINT      NOT NULL,
+    `id`           BIGINT      NOT NULL AUTO_INCREMENT,
+    `address_name` VARCHAR(50) NOT NULL COMMENT '읍/면/동 주소',
+    `member_id`    BIGINT      NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
