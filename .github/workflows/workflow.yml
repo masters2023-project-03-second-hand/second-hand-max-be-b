@@ -86,7 +86,7 @@ jobs:
             echo ${{secrets.PRIVATE_REPO_ACCESS_TOKEN}} >> TOKEN.txt
             cat TOKEN.txt | docker login https://ghcr.io -u ${{secrets.GH_USER}} --password-stdin
             
-            docker stop $(docker ps -a -q) 
-            docker rm $(docker ps -a -q) 
-            docker pull 23yong/second-hand
-            docker run -d -p 8080:8080 --name second-hand 23yong/second-hand
+            docker-compose -f docker-compose-deploy.yml down -v
+            docker-compose -f docker-compose-deploy.yml pull
+            docker-compose -f docker-compose-deploy.yml up -d
+            docker image prune -f
