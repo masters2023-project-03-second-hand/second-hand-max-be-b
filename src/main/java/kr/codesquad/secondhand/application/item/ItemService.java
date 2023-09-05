@@ -20,6 +20,7 @@ import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.item.querydsl.ItemPaginationRepository;
 import kr.codesquad.secondhand.repository.itemimage.ItemImageRepository;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
+import kr.codesquad.secondhand.repository.wishitem.WishItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -37,6 +38,8 @@ public class ItemService {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
     private final ItemPaginationRepository itemPaginationRepository;
+    private final WishItemRepository wishItemRepository;
+
 
     @Transactional
     public void register(List<MultipartFile> images, ItemRegisterRequest request, Long sellerId) {
@@ -130,5 +133,17 @@ public class ItemService {
                 .map(url -> ItemImage.from(url, item))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
+    }
+
+    @Transactional
+    public void delete(Long itemId, Long memberId) {
+        Item item = findItem(itemId);
+        if (!item.isSeller(memberId)) {
+            throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
+        }
+        itemImageRepository.deleteByItemId(itemId);
+        wishItemRepository.deleteByItemId(itemId);
+        itemRepository.deleteById(itemId);
+        // todo: 삭제한 item과 관련된 채팅도 삭제하기
     }
 }

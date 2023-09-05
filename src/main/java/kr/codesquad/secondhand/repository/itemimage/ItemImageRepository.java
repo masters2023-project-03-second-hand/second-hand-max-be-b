@@ -9,4 +9,6 @@ public interface ItemImageRepository extends JpaRepository<ItemImage, Long>, Ite
     List<ItemImage> findByItemId(Long itemId);
 
     void deleteByItem_IdAndImageUrlIn(Long itemId, List<String> deleteImageUrls);
+
+    void deleteByItemId(Long itemId);
 }

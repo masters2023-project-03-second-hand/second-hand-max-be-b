@@ -17,6 +17,7 @@ import kr.codesquad.secondhand.presentation.support.Auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -85,6 +86,14 @@ public class ItemController {
                                               @PathVariable Long itemId,
                                               @Auth Long memberId) {
         itemService.updateStatus(status, itemId, memberId);
+        return new ApiResponse<>(HttpStatus.OK.value());
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
+    @DeleteMapping("/{itemId}")
+    public ApiResponse<Void> deleteItem(@PathVariable Long itemId,
+                                        @Auth Long memberId) {
+        itemService.delete(itemId, memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 }

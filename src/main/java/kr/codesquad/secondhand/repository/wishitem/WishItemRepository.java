@@ -11,4 +11,6 @@ public interface WishItemRepository extends JpaRepository<WishItem, Long> {
     @Modifying
     @Query("DELETE FROM WishItem wishItem WHERE wishItem.item.id = :itemId AND wishItem.member.id = :memberId")
     void deleteByItemIdAndMemberId(@Param("itemId") Long itemId, @Param("memberId") Long memberId);
+
+    void deleteByItemId(Long itemId);
 }
