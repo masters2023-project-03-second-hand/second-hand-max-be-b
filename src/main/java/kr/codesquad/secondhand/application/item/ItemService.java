@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
-@EnableAsync
 @Transactional(readOnly = true)
 @Service
 public class ItemService {
@@ -138,7 +137,7 @@ public class ItemService {
         itemImageRepository.saveAllItemImages(itemImages);
     }
 
-    @Async
+    @Async("imageThreadExecutor")
     @Transactional
     public void delete(Long itemId, Long memberId) {
         Item item = findItem(itemId);
