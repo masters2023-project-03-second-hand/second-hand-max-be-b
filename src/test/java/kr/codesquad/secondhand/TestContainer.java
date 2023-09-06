@@ -1,15 +1,11 @@
 package kr.codesquad.secondhand;
 
-import org.springframework.context.annotation.Profile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-@Profile("test")
-@Testcontainers
 public abstract class TestContainer {
 
     static final GenericContainer redis = new GenericContainer(DockerImageName.parse("redis"))
