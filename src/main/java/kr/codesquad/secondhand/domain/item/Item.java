@@ -117,4 +117,12 @@ public class Item extends AuditingFields {
     public void changeStatus(String status) {
         this.status = ItemStatus.of(status);
     }
+
+    public void increaseWishCount() {
+        this.wishCount++;
+    }
+
+    public void decreaseWishCount() {
+        this.wishCount--;
+    }
 }
