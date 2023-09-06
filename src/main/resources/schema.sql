@@ -131,9 +131,10 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`chat_log`
 -- -----------------------------------------------------
 CREATE TABLE IF NOT EXISTS `second_hand`.`wish_item`
 (
-    `id`        BIGINT NOT NULL AUTO_INCREMENT,
-    `item_id`   BIGINT NOT NULL,
-    `member_id` BIGINT NOT NULL,
+    `id`         BIGINT    NOT NULL AUTO_INCREMENT,
+    `item_id`    BIGINT    NOT NULL,
+    `member_id`  BIGINT    NOT NULL,
+    `created_at` TIMESTAMP NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
