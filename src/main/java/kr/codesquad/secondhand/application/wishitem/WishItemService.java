@@ -4,9 +4,12 @@ import java.util.List;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.wishitem.WishItem;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
+import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.wishitem.WishItemRepository;
 import kr.codesquad.secondhand.repository.wishitem.querydsl.WishItemPaginationRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +22,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class WishItemService {
 
+    private final ItemRepository itemRepository;
     private final WishItemRepository wishItemRepository;
     private final CategoryRepository categoryRepository;
     private final WishItemPaginationRepository wishItemPaginationRepository;
 
     @Transactional
     public void registerWishItem(Long itemId, Long memberId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(
+                        ErrorCode.NOT_FOUND,
+                        String.format("%s 번호의 아이템을 찾을 수 없습니다.", itemId)));
+        item.increaseWishCount();
+
         wishItemRepository.save(WishItem.builder()
                 .item(Item.builder()
                         .id(itemId)
@@ -37,6 +47,12 @@ public class WishItemService {
 
     @Transactional
     public void removeWishItem(Long itemId, Long memberId) {
+        Item item = itemRepository.findById(itemId)
+                .orElseThrow(() -> new NotFoundException(
+                        ErrorCode.NOT_FOUND,
+                        String.format("%s 번호의 아이템을 찾을 수 없습니다.", itemId)));
+        item.decreaseWishCount();
+        
         wishItemRepository.deleteByItemIdAndMemberId(itemId, memberId);
     }
 

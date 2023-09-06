@@ -34,11 +34,13 @@ class WishItemServiceTest extends ApplicationTestSupport {
 
         // then
         Optional<WishItem> wishItem = supportRepository.findById(WishItem.class, 1L);
+        Item item = supportRepository.findById(Item.class, 1L).get();
 
         assertAll(
                 () -> assertThat(wishItem).isPresent(),
                 () -> assertThat(wishItem.get().getMember().getId()).isEqualTo(1L),
-                () -> assertThat(wishItem.get().getItem().getId()).isEqualTo(1L)
+                () -> assertThat(wishItem.get().getItem().getId()).isEqualTo(1L),
+                () -> assertThat(item.getWishCount()).isEqualTo(1)
         );
     }
 
@@ -55,8 +57,12 @@ class WishItemServiceTest extends ApplicationTestSupport {
 
         // then
         Optional<WishItem> wishItem = supportRepository.findById(WishItem.class, 1L);
+        Item noWishItem = supportRepository.findById(Item.class, 1L).get();
 
-        assertThat(wishItem).isNotPresent();
+        assertAll(
+                () -> assertThat(wishItem).isNotPresent(),
+                () -> assertThat(noWishItem.getWishCount()).isEqualTo(-1)
+        );
     }
 
     private Member signup() {
