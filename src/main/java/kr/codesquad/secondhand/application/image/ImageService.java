@@ -1,6 +1,7 @@
 package kr.codesquad.secondhand.application.image;
 
 import kr.codesquad.secondhand.domain.image.ImageFile;
+import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,5 +29,15 @@ public class ImageService {
                 .map(ImageFile::from)
                 .collect(Collectors.toList());
         return s3Uploader.uploadImageFiles(imageFiles);
+    }
+
+    @Transactional
+    public void deleteImage(ItemImage itemImage) {
+        s3Uploader.deleteImageFile(itemImage.getImageUrl());
+    }
+
+    @Transactional
+    public void deleteImages(List<ItemImage> itemImages) {
+        itemImages.stream().forEach(this::deleteImage);
     }
 }

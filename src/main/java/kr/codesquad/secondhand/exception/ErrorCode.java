@@ -16,6 +16,7 @@ public enum ErrorCode {
     INVALID_IMAGE("유효하지 않은 이미지 입니다."),
     INVALID_FILE_EXTENSION("이미지 파일의 확장자는 png, jpg, jpeg, svg만 가능합니다."),
     UPLOAD_FAIL("이미지 업로드 실패"),
+    DELETE_FAIL("이미지 삭제 실패"),
 
     // AUTH
     INVALID_LOGIN_DATA("로그인 정보가 일치하지 않습니다."),
