@@ -8,10 +8,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
 
 jwt:
   secret-key: 2901ujr9021urf0u902hf021y90fh9c210hg093hg091h3g90h30gh901hg09h01
