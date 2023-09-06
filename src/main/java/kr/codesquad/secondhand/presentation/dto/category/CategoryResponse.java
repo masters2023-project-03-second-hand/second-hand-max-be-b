@@ -10,14 +10,12 @@ public class CategoryResponse {
     private final Long id;
     private final String imageUrl;
     private final String name;
-    private final boolean selected;
 
     @Builder
-    private CategoryResponse(Long id, String imageUrl, String name, boolean selected) {
+    private CategoryResponse(Long id, String imageUrl, String name) {
         this.id = id;
         this.imageUrl = imageUrl;
         this.name = name;
-        this.selected = selected;
     }
 
     public static CategoryResponse toResponse(Category category) {
@@ -25,7 +23,6 @@ public class CategoryResponse {
                 .id(category.getId())
                 .imageUrl(category.getImageUrl())
                 .name(category.getName())
-                .selected(false)
                 .build();
     }
 }
