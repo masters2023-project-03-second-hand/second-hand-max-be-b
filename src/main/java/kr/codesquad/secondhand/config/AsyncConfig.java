@@ -14,7 +14,6 @@ public class AsyncConfig {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(3);
         executor.setMaxPoolSize(30);
-        executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("ImageExecutor-");
         executor.initialize();
         return executor;
