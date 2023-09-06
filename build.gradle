@@ -57,7 +57,7 @@ dependencies {
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'io.rest-assured:rest-assured:4.5.1'
-    implementation 'org.testcontainers:mysql:1.18.3'
+    testImplementation 'org.testcontainers:mysql:1.18.3'
     testImplementation 'com.redis.testcontainers:testcontainers-redis-junit:1.6.4'
     testImplementation "org.testcontainers:junit-jupiter:1.18.3"
 
