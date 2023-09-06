@@ -27,7 +27,7 @@ public abstract class TestContainer {
 
     @DynamicPropertySource
     public static void overrideProps(DynamicPropertyRegistry registry) {
-        registry.add("spring.redis.host", redis::getHost);
-        registry.add("spring.redis.port", () -> redis.getMappedPort(6379));
+        registry.add("redis.host", redis::getHost);
+        registry.add("redis.port", () -> redis.getMappedPort(6379));
     }
 }
