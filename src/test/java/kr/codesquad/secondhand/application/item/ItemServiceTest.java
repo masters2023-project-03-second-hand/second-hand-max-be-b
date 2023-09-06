@@ -255,7 +255,7 @@ class ItemServiceTest extends ApplicationTestSupport {
 
     @DisplayName("아이템을 삭제 요청 시 아이템과 이미지를 삭제한다.")
     @Test
-    void given_when_then() {
+    void given_whenDeleteItem_thenSuccess() {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         signup();
@@ -269,7 +269,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         List<ItemImage> images = supportRepository.findAll(ItemImage.class);
 
         assertAll(
-                () -> assertThat(item.orElse(null)).isNull(),
+                () -> assertThat(item).isNotPresent(),
                 () -> assertThat(images).isEmpty()
         );
     }
