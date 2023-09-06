@@ -20,7 +20,7 @@ public class WishItemPaginationRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Slice<ItemResponse> findAll(Long wishItemId, String categoryName, int pageSize) {
+    public Slice<ItemResponse> findAll(Long memberId, Long wishItemId, String categoryName, int pageSize) {
         List<ItemResponse> itemResponses = queryFactory.select(Projections.fields(ItemResponse.class,
                         wishItem.item.id.as("itemId"),
                         item.thumbnailUrl,
@@ -34,6 +34,7 @@ public class WishItemPaginationRepository {
                 .from(wishItem)
                 .innerJoin(wishItem.item, item).on(wishItem.item.id.eq(item.id))
                 .where(lessThanId(wishItemId),
+                        eqMemberId(memberId),
                         eqCategoryName(categoryName))
                 .orderBy(wishItem.createdAt.desc())
                 .limit(pageSize + 1)    // 다음 요소가 있는지 확인하기 위해 +1개 만큼 더 가져온다.
@@ -46,6 +47,13 @@ public class WishItemPaginationRepository {
             return null;
         }
         return wishItem.id.lt(wishItemId);
+    }
+
+    private BooleanExpression eqMemberId(Long memberId) {
+        if (memberId == null) {
+            return null;
+        }
+        return wishItem.member.id.eq(memberId);
     }
 
     private BooleanExpression eqCategoryName(String categoryName) {

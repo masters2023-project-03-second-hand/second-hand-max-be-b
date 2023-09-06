@@ -39,7 +39,9 @@ public class WishItemController {
     @GetMapping
     public ApiResponse<CustomSlice<ItemResponse>> readAll(@RequestParam(required = false) Long categoryId,
                                                           @RequestParam(required = false) Long cursor,
-                                                          @RequestParam(required = false, defaultValue = "10") int pageSize) {
-        return new ApiResponse<>(HttpStatus.OK.value(), wishItemService.readAll(categoryId, cursor, pageSize));
+                                                          @RequestParam(required = false, defaultValue = "10") int pageSize,
+                                                          @Auth Long memberId) {
+        return new ApiResponse<>(HttpStatus.OK.value(),
+                wishItemService.readAll(memberId, categoryId, cursor, pageSize));
     }
 }

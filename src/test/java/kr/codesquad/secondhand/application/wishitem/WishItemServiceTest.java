@@ -85,7 +85,7 @@ class WishItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = wishItemService.readAll(null, null, 10);
+            CustomSlice<ItemResponse> response = wishItemService.readAll(1L, null, null, 10);
 
             // then
             assertAll(
@@ -113,7 +113,7 @@ class WishItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = wishItemService.readAll(null, 11L, 10);
+            CustomSlice<ItemResponse> response = wishItemService.readAll(1L, null, 11L, 10);
 
             // then
             assertAll(

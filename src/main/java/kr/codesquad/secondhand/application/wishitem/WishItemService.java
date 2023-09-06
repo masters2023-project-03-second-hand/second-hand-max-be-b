@@ -40,9 +40,10 @@ public class WishItemService {
         wishItemRepository.deleteByItemIdAndMemberId(itemId, memberId);
     }
 
-    public CustomSlice<ItemResponse> readAll(Long categoryId, Long cursor, int pageSize) {
+    public CustomSlice<ItemResponse> readAll(Long memberId, Long categoryId, Long cursor, int pageSize) {
         String categoryName = categoryRepository.findNameById(categoryId).orElse(null);
-        Slice<ItemResponse> itemResponses = wishItemPaginationRepository.findAll(cursor, categoryName, pageSize);
+        Slice<ItemResponse> itemResponses =
+                wishItemPaginationRepository.findAll(memberId, cursor, categoryName, pageSize);
 
         List<ItemResponse> content = itemResponses.getContent();
 
