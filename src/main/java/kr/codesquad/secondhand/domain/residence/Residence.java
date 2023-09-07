@@ -32,10 +32,15 @@ public class Residence {
     @JoinColumn(name = "member_id", nullable = false)
     private Member member;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "region_id", nullable = false)
+    private Region region;
+
     @Builder
-    private Residence(Long id, String addressName, Member member) {
+    private Residence(Long id, String addressName, Member member, Region region) {
         this.id = id;
         this.addressName = addressName;
         this.member = member;
+        this.region = region;
     }
 }
