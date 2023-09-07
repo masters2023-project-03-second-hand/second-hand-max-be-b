@@ -1,6 +1,7 @@
 package kr.codesquad.secondhand.application.wishitem;
 
 import java.util.List;
+import kr.codesquad.secondhand.application.item.PagingUtils;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.wishitem.WishItem;
@@ -52,7 +53,7 @@ public class WishItemService {
                         ErrorCode.NOT_FOUND,
                         String.format("%s 번호의 아이템을 찾을 수 없습니다.", itemId)));
         item.decreaseWishCount();
-        
+
         wishItemRepository.deleteByItemIdAndMemberId(itemId, memberId);
     }
 
@@ -63,16 +64,8 @@ public class WishItemService {
 
         List<ItemResponse> content = itemResponses.getContent();
 
-        Long nextCursor = setNextCursor(content, itemResponses.hasNext());
+        Long nextCursor = PagingUtils.setNextCursor(content, itemResponses.hasNext());
 
         return new CustomSlice<>(content, nextCursor, itemResponses.hasNext());
-    }
-
-    private Long setNextCursor(List<ItemResponse> content, boolean hasNext) {
-        Long nextCursor = null;
-        if (hasNext) {
-            nextCursor = content.get(content.size() - 1).getItemId();
-        }
-        return nextCursor;
     }
 }

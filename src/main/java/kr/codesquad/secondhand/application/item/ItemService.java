@@ -71,17 +71,9 @@ public class ItemService {
                 itemPaginationRepository.findByIdAndCategoryName(itemId, categoryName, region, pageSize);
         List<ItemResponse> content = response.getContent();
 
-        Long nextCursor = setNextCursor(content, response.hasNext());
+        Long nextCursor = PagingUtils.setNextCursor(content, response.hasNext());
 
         return new CustomSlice<>(content, nextCursor, response.hasNext());
-    }
-
-    private Long setNextCursor(List<ItemResponse> content, boolean hasNext) {
-        Long nextCursor = null;
-        if (hasNext) {
-            nextCursor = content.get(content.size() - 1).getItemId();
-        }
-        return nextCursor;
     }
 
     @Transactional
