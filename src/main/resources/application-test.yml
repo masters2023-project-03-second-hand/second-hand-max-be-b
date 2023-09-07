@@ -1,16 +1,13 @@
 spring:
   datasource:
-    url: jdbc:mysql://localhost:3309/second_hand
-    username: user
-    password: admin
+    url: jdbc:tc:mysql:8.0.34:///second_hand
+    username: root
+    password: root
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
 
   jpa:
     hibernate:
       ddl-auto: create-drop
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
 
 jwt:
   secret-key: 2901ujr9021urf0u902hf021y90fh9c210hg093hg091h3g90h30gh901hg09h01
@@ -37,7 +34,3 @@ oauth2:
   provider:
     token-url: token-url
     user-info-url: user-info-url
-
-redis:
-  host: localhost
-  port: 6379
