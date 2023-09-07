@@ -11,10 +11,8 @@ import org.springframework.web.servlet.view.RedirectView;
 public class RedirectController {
 
     @PostMapping("/api/categories")
-    public RedirectView redirect(@Valid @RequestBody CategoryRequest request) {
-        RedirectView redirectView = new RedirectView();
+    public RedirectView redirectToItemListPage(@Valid @RequestBody CategoryRequest request) {
         String redirectUrl = "/api/items?categoryId=" + request.getSelectedCategoryId();
-        redirectView.setUrl(redirectUrl);
-        return redirectView;
+        return new RedirectView(redirectUrl);
     }
 }
