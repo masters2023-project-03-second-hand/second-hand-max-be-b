@@ -6,6 +6,7 @@ import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
@@ -24,7 +25,6 @@ import kr.codesquad.secondhand.repository.wishitem.WishItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -45,6 +45,9 @@ public class ItemService {
 
     @Transactional
     public void register(List<MultipartFile> images, ItemRegisterRequest request, Long sellerId) {
+        if (images == null) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "이미지는 최소 1개이상 들어와야 합니다.");
+        }
         List<String> itemImageUrls = imageService.uploadImages(images);
         String thumbnailUrl = itemImageUrls.get(0);
 

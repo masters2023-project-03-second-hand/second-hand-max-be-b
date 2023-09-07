@@ -177,6 +177,28 @@ class ItemServiceTest extends ApplicationTestSupport {
         return supportRepository.save(FixtureFactory.createMember());
     }
 
+    @DisplayName("아이템을 삭제 요청 시 아이템과 이미지를 삭제한다.")
+    @Test
+    void given_whenDeleteItem_thenSuccess() throws InterruptedException {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        signup();
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
+
+        // when
+        itemService.delete(1L, 1L);
+        Thread.sleep(1000); // 비동기 로직을 위해 지연
+
+        // then
+        Optional<Item> item = supportRepository.findById(Item.class, 1L);
+        List<ItemImage> images = supportRepository.findAll(ItemImage.class);
+
+        assertAll(
+                () -> assertThat(item).isNotPresent(),
+                () -> assertThat(images).isEmpty()
+        );
+    }
+
     @DisplayName("상품 전체 목록을 조회할 때")
     @Nested
     class ReadAll {
@@ -251,26 +273,5 @@ class ItemServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getContents().get(7).getTitle()).isEqualTo("맛있는 거 - 3")
             );
         }
-    }
-
-    @DisplayName("아이템을 삭제 요청 시 아이템과 이미지를 삭제한다.")
-    @Test
-    void given_whenDeleteItem_thenSuccess() {
-        // given
-        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
-        signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
-
-        // when
-        itemService.delete(1L, 1L);
-
-        // then
-        Optional<Item> item = supportRepository.findById(Item.class, 1L);
-        List<ItemImage> images = supportRepository.findAll(ItemImage.class);
-
-        assertAll(
-                () -> assertThat(item).isNotPresent(),
-                () -> assertThat(images).isEmpty()
-        );
     }
 }

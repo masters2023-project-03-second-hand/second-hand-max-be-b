@@ -1,6 +1,5 @@
 package kr.codesquad.secondhand.application.auth;
 
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import kr.codesquad.secondhand.application.image.ImageService;
@@ -22,10 +21,8 @@ import kr.codesquad.secondhand.repository.member.MemberRepository;
 import kr.codesquad.secondhand.repository.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
@@ -39,7 +36,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final NaverRequester naverRequester;
     private final JwtProvider jwtProvider;
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
 
     @Transactional
@@ -62,12 +59,12 @@ public class AuthService {
     }
 
     @Transactional
-    public void signUp(SignUpRequest request, String code, Optional<MultipartFile> profile) {
+    public void signUp(SignUpRequest request, String code, MultipartFile profile) {
         verifyDuplicated(request);
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
-        if (profile.isPresent()) {
-            String profileUrl = imageService.uploadImage(profile.get());
+        if (profile != null) {
+            String profileUrl = imageService.uploadImage(profile);
             userProfile.changeProfileUrl(profileUrl);
         }
         Member savedMember = saveMember(request, userProfile);
@@ -76,7 +73,8 @@ public class AuthService {
 
     @Transactional
     public void logout(HttpServletRequest request, Long memberId) {
-        String accessToken = JwtExtractor.extract(request).orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_TOKEN));
+        String accessToken = JwtExtractor.extract(request)
+                .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_TOKEN));
         Long expiration = jwtProvider.getExpiration(accessToken);
         redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
         tokenRepository.deleteByMemberId(memberId);
