@@ -1,11 +1,8 @@
 package kr.codesquad.secondhand.presentation;
 
 import java.util.List;
-import java.util.Optional;
 import javax.validation.Valid;
 import kr.codesquad.secondhand.application.item.ItemService;
-import kr.codesquad.secondhand.exception.BadRequestException;
-import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
@@ -14,6 +11,7 @@ import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import kr.codesquad.secondhand.presentation.support.Auth;
+import kr.codesquad.secondhand.presentation.support.NotNullParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -40,14 +38,10 @@ public class ItemController {
 
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Void> registerItem(@RequestPart Optional<List<MultipartFile>> images,
+    public ApiResponse<Void> registerItem(@RequestPart(required = false) List<MultipartFile> images,
                                           @Valid @RequestPart ItemRegisterRequest item,
                                           @Auth Long memberId) {
-        itemService.register(
-                images.orElseThrow(() -> new BadRequestException(
-                        ErrorCode.INVALID_PARAMETER, "이미지는 최소 1개이상 들어와야 합니다.")),
-                item,
-                memberId);
+        itemService.register(images, item, memberId);
         return new ApiResponse<>(HttpStatus.CREATED.value());
     }
 
@@ -56,11 +50,9 @@ public class ItemController {
     public ApiResponse<CustomSlice<ItemResponse>> readAll(
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Long categoryId,
-            @RequestParam Optional<String> region,
+            @NotNullParam(message = "상품 조회시 지역정보는 반드시 들어와야 합니다.") String region,
             @RequestParam(required = false, defaultValue = "10") int size) {
-        String regionName = region
-                .orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER, "상품 조회시 지역정보는 반드시 들어와야 합니다."));
-        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, regionName, size));
+        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size));
     }
 
     @ResponseStatus(value = HttpStatus.OK)
@@ -72,11 +64,11 @@ public class ItemController {
 
     @ResponseStatus(value = HttpStatus.OK)
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Void> updateItem(@RequestPart Optional<List<MultipartFile>> images,
+    public ApiResponse<Void> updateItem(@RequestPart(required = false) List<MultipartFile> images,
                                         @Valid @RequestPart ItemUpdateRequest item,
                                         @PathVariable Long itemId,
                                         @Auth Long memberId) {
-        itemService.update(images.orElse(null), item, itemId, memberId);
+        itemService.update(images, item, itemId, memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 

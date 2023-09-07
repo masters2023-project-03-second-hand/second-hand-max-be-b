@@ -1,12 +1,9 @@
 package kr.codesquad.secondhand.presentation;
 
-import java.util.Optional;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import kr.codesquad.secondhand.application.auth.AuthService;
 import kr.codesquad.secondhand.application.auth.TokenService;
-import kr.codesquad.secondhand.exception.BadRequestException;
-import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.member.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
@@ -14,6 +11,7 @@ import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
 import kr.codesquad.secondhand.presentation.dto.token.AccessTokenResponse;
 import kr.codesquad.secondhand.presentation.dto.token.TokenRenewRequest;
 import kr.codesquad.secondhand.presentation.support.Auth;
+import kr.codesquad.secondhand.presentation.support.NotNullParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -37,22 +35,18 @@ public class AuthController {
     @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/naver/login")
     public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request,
-                                            @RequestParam Optional<String> code,
-                                            @RequestParam Optional<String> state) {
-        return new ApiResponse<>(HttpStatus.OK.value(),
-                authService.login(request,
-                        code.orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER))));
+                                            @NotNullParam(message = "code 값은 반드시 들어와야 합니다.") String code,
+                                            @RequestParam(required = false) String state) {
+        return new ApiResponse<>(HttpStatus.OK.value(), authService.login(request, code));
     }
 
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(value = "/naver/signup", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<Void> signUp(@RequestPart @Valid SignUpRequest signupData,
-                                    @RequestParam Optional<String> code,
-                                    @RequestParam Optional<String> state,
-                                    @RequestPart Optional<MultipartFile> profile) {
-        authService.signUp(signupData,
-                code.orElseThrow(() -> new BadRequestException(ErrorCode.INVALID_PARAMETER)),
-                profile);
+                                    @NotNullParam(message = "code 값은 반드시 들어와야 합니다.") String code,
+                                    @RequestParam(required = false) String state,
+                                    @RequestPart(required = false) MultipartFile profile) {
+        authService.signUp(signupData, code, profile);
         return new ApiResponse<>(HttpStatus.CREATED.value());
     }
 
