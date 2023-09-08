@@ -24,7 +24,6 @@ import kr.codesquad.secondhand.repository.member.MemberRepository;
 import kr.codesquad.secondhand.repository.wishitem.WishItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -132,7 +131,6 @@ public class ItemService {
         itemImageRepository.saveAllItemImages(itemImages);
     }
 
-    @Async("imageThreadExecutor")
     @Transactional
     public void delete(Long itemId, Long memberId) {
         Item item = findItem(itemId);
