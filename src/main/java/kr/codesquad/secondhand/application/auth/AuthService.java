@@ -3,6 +3,7 @@ package kr.codesquad.secondhand.application.auth;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import kr.codesquad.secondhand.application.image.ImageService;
+import kr.codesquad.secondhand.application.residence.ResidenceService;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.member.UserProfile;
 import kr.codesquad.secondhand.domain.token.RefreshToken;

@@ -94,6 +94,7 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`residence`
     `id`           BIGINT      NOT NULL AUTO_INCREMENT,
     `address_name` VARCHAR(50) NOT NULL COMMENT '읍/면/동 주소',
     `member_id`    BIGINT      NOT NULL,
+    `region_id`    BIGINT      NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
@@ -138,6 +139,16 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`wish_item`
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `second_hand`.`region`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `second_hand`.`region`
+(
+    `id`                BIGINT      NOT NULL AUTO_INCREMENT,
+    `full_address_name` VARCHAR(64) NOT NULL,
+    `address_name`      VARCHAR(16) NOT NULL,
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB;
 
 SET SQL_MODE = @OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS = @OLD_FOREIGN_KEY_CHECKS;

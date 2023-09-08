@@ -8,15 +8,14 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.repository.PaginationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class WishItemPaginationRepository {
+public class WishItemPaginationRepository implements PaginationRepository {
 
     private final JPAQueryFactory queryFactory;
 
@@ -61,18 +60,5 @@ public class WishItemPaginationRepository {
             return null;
         }
         return item.categoryName.eq(categoryName);
-    }
-
-    private Slice<ItemResponse> checkLastPage(int pageSize, List<ItemResponse> results) {
-
-        boolean hasNext = false;
-
-        // 조회한 결과 개수가 요청한 페이지 사이즈보다 다음 페이지 존재, next = true
-        if (results.size() > pageSize) {
-            hasNext = true;
-            results.remove(pageSize);
-        }
-
-        return new SliceImpl<>(results, PageRequest.ofSize(pageSize), hasNext);
     }
 }

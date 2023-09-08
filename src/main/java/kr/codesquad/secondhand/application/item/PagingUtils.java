@@ -3,7 +3,10 @@ package kr.codesquad.secondhand.application.item;
 import java.util.List;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 
-public class PagingUtils {
+public final class PagingUtils {
+
+    private PagingUtils() {
+    }
 
     public static Long setNextCursor(List<ItemResponse> content, boolean hasNext) {
         Long nextCursor = null;
