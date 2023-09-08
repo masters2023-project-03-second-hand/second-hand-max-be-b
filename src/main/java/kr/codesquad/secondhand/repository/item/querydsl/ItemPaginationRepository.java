@@ -107,7 +107,10 @@ public class ItemPaginationRepository {
         if (status == null) {
             return null;
         }
-        return item.status.eq(status);
+        if (status.getStatus().equals("판매완료")) {
+            return item.status.eq(status);
+        }
+        return item.status.ne(ItemStatus.SOLD_OUT);
     }
 
     private BooleanExpression equalMemberId(Long memberId) {
