@@ -6,6 +6,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.repository.PaginationRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,29 @@ public class ItemPaginationRepository implements PaginationRepository {
         return checkLastPage(pageSize, itemResponses);
     }
 
+    public Slice<ItemResponse> findByIdAndStatus(Long itemId, ItemStatus status, int pageSize, Long memberId) {
+        List<ItemResponse> itemResponses = queryFactory
+                .select(Projections.fields(ItemResponse.class,
+                        item.id.as("itemId"),
+                        item.thumbnailUrl,
+                        item.title,
+                        item.tradingRegion,
+                        item.createdAt,
+                        item.price,
+                        item.status,
+                        item.chatCount,
+                        item.wishCount))
+                .from(item)
+                .where(lessThanItemId(itemId),
+                        equalStatus(status),
+                        equalMemberId(memberId)
+                )
+                .orderBy(item.createdAt.desc())
+                .limit(pageSize + 1)
+                .fetch();
+        return checkLastPage(pageSize, itemResponses);
+    }
+
     private BooleanExpression lessThanItemId(Long itemId) {
         if (itemId == null) {
             return null;
@@ -63,5 +87,21 @@ public class ItemPaginationRepository implements PaginationRepository {
         }
 
         return item.tradingRegion.like(region + "%");
+    }
+
+    private BooleanExpression equalStatus(ItemStatus status) {
+        if (status == null) {
+            return null;
+        }
+        ItemStatus soldOut = ItemStatus.SOLD_OUT;
+
+        if (status.getStatus().equals(soldOut.getStatus())) {
+            return item.status.eq(status);
+        }
+        return item.status.ne(soldOut);
+    }
+
+    private BooleanExpression equalMemberId(Long memberId) {
+        return item.member.id.eq(memberId);
     }
 }
