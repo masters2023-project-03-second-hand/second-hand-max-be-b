@@ -25,7 +25,8 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/api/**")
-                .allowedOrigins("https://dev.d3fs8xkxojnwv0.amplifyapp.com/", "http://localhost:5173")
+                .allowedOrigins("https://dev.d3fs8xkxojnwv0.amplifyapp.com/", "http://localhost:5173",
+                        "https://second.codesquad-project.site")
                 .allowedMethods("HEAD", "OPTIONS", "GET", "POST", "PUT", "DELETE", "PATCH");
     }
 }
