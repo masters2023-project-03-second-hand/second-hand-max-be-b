@@ -12,7 +12,10 @@ import java.util.Date;
 public class TokenCreator {
 
     private static final String secretKey = "2901ujr9021urf0u902hf021y90fh9c210hg093hg091h3g90h30gh901hg09h01";
-    private static final JwtProvider jwtProvider = new JwtProvider(new JwtProperties(secretKey, 10000, 100000));
+    private static final JwtProvider jwtProvider = new JwtProvider(
+            new JwtProperties(secretKey, 10000, 100000),
+            RedisTemplateCreator.getRedisTemplate()
+            );
 
     public static String createToken(Long payload) {
         return jwtProvider.createAccessToken(payload);

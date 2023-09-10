@@ -1,14 +1,16 @@
 package kr.codesquad.secondhand.application.auth;
 
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import javax.servlet.http.HttpServletRequest;
 import kr.codesquad.secondhand.application.image.ImageService;
+import kr.codesquad.secondhand.application.residence.ResidenceService;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.member.UserProfile;
-import kr.codesquad.secondhand.domain.residence.Residence;
 import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.DuplicatedException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
+import kr.codesquad.secondhand.infrastructure.jwt.JwtExtractor;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import kr.codesquad.secondhand.presentation.dto.member.LoginRequest;
@@ -17,9 +19,9 @@ import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
 import kr.codesquad.secondhand.presentation.dto.member.UserResponse;
 import kr.codesquad.secondhand.presentation.dto.token.AuthToken;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
-import kr.codesquad.secondhand.repository.residence.ResidenceRepository;
 import kr.codesquad.secondhand.repository.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,11 +32,13 @@ import org.springframework.web.multipart.MultipartFile;
 public class AuthService {
 
     private final ImageService imageService;
+    private final ResidenceService residenceService;
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
-    private final ResidenceRepository residenceRepository;
     private final NaverRequester naverRequester;
     private final JwtProvider jwtProvider;
+    private final RedisTemplate<String, Object> redisTemplate;
+
 
     @Transactional
     public LoginResponse login(LoginRequest request, String code) {
@@ -56,16 +60,25 @@ public class AuthService {
     }
 
     @Transactional
-    public void signUp(SignUpRequest request, String code, Optional<MultipartFile> profile) {
+    public void signUp(SignUpRequest request, String code, MultipartFile profile) {
         verifyDuplicated(request);
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
-        if (profile.isPresent()) {
-            String profileUrl = imageService.uploadImage(profile.get());
-            userProfile.setProfileUrl(profileUrl);
+        if (profile != null) {
+            String profileUrl = imageService.uploadImage(profile);
+            userProfile.changeProfileUrl(profileUrl);
         }
         Member savedMember = saveMember(request, userProfile);
-        saveResidence(request, savedMember);
+        residenceService.saveResidence(request, savedMember);
+    }
+
+    @Transactional
+    public void logout(HttpServletRequest request, Long memberId) {
+        String accessToken = JwtExtractor.extract(request)
+                .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_TOKEN));
+        Long expiration = jwtProvider.getExpiration(accessToken);
+        redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+        tokenRepository.deleteByMemberId(memberId);
     }
 
     private Long verifyUser(LoginRequest request, UserProfile userProfile) {
@@ -84,10 +97,6 @@ public class AuthService {
     }
 
     private Member saveMember(SignUpRequest request, UserProfile userProfile) {
-        return memberRepository.save(Member.toEntity(request, userProfile));
-    }
-
-    private Residence saveResidence(SignUpRequest request, Member member) {
-        return residenceRepository.save(Residence.toEntity(request, member));
+        return memberRepository.save(request.toMemberEntity(userProfile));
     }
 }

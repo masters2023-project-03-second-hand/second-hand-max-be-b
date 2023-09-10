@@ -12,6 +12,7 @@ import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import kr.codesquad.secondhand.domain.image.ImageFile;
 import kr.codesquad.secondhand.domain.member.UserProfile;
@@ -129,7 +130,7 @@ public class AuthAcceptanceTest extends AcceptanceTestSupport {
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                     .queryParam("code", "code")
                     .queryParam("state", "state")
-                    .multiPart("request", Map.of("loginId", "bruni", "addrName", "범박동"),
+                    .multiPart("signupData", Map.of("loginId", "bruni", "addressNames", List.of("범박동")),
                             MediaType.APPLICATION_JSON_VALUE)
                     .multiPart("profile", createFakeFile(),
                             MediaType.IMAGE_PNG_VALUE);
@@ -153,8 +154,8 @@ public class AuthAcceptanceTest extends AcceptanceTestSupport {
                     .given().log().all()
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                     .queryParam("state", "state")
-                    .multiPart("request",
-                            Map.of("loginId", "bruni", "addrName", "범박동"),
+                    .multiPart("signupData",
+                            Map.of("loginId", "bruni", "addressName", List.of("범박동")),
                             MediaType.APPLICATION_JSON_VALUE)
                     .multiPart("profile",
                             createFakeFile(),

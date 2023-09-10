@@ -17,7 +17,7 @@ public class ItemUpdateRequest {
     @Size(max = 100, message = "상품 제목의 길이는 100자를 넘을 수 없습니다.")
     private String title;
 
-    private Integer price;
+    private Long price;
 
     @Size(max = 2000, message = "상품 내용의 길이는 2000자를 넘을 수 없습니다.")
     private String content;
@@ -35,4 +35,15 @@ public class ItemUpdateRequest {
     private String categoryName;
 
     private List<String> deleteImageUrls;
+
+    public List<String> getDeleteImageUrls() {
+        if (existsDeleteImageUrls()) {
+            return this.deleteImageUrls;
+        }
+        return List.of();
+    }
+
+    private boolean existsDeleteImageUrls() {
+        return this.deleteImageUrls != null && !this.deleteImageUrls.isEmpty();
+    }
 }

@@ -18,7 +18,7 @@ import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.exception.ErrorCode;
-import kr.codesquad.secondhand.exception.UnAuthorizedException;
+import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
@@ -157,7 +157,7 @@ class ItemServiceTest extends ApplicationTestSupport {
 
         // when & then
         assertThatThrownBy(() -> itemService.updateStatus(request, 1L, buyer.getId()))
-                .isInstanceOf(UnAuthorizedException.class)
+                .isInstanceOf(ForbiddenException.class)
                 .extracting("errorCode").isEqualTo(ErrorCode.UNAUTHORIZED);
     }
 
@@ -175,6 +175,28 @@ class ItemServiceTest extends ApplicationTestSupport {
 
     private Member signup() {
         return supportRepository.save(FixtureFactory.createMember());
+    }
+
+    @DisplayName("아이템을 삭제 요청 시 아이템과 이미지를 삭제한다.")
+    @Test
+    void given_whenDeleteItem_thenSuccess() throws InterruptedException {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        signup();
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
+
+        // when
+        itemService.delete(1L, 1L);
+        Thread.sleep(1000); // 비동기 로직을 위해 지연
+
+        // then
+        Optional<Item> item = supportRepository.findById(Item.class, 1L);
+        List<ItemImage> images = supportRepository.findAll(ItemImage.class);
+
+        assertAll(
+                () -> assertThat(item).isNotPresent(),
+                () -> assertThat(images).isEmpty()
+        );
     }
 
     @DisplayName("상품 전체 목록을 조회할 때")

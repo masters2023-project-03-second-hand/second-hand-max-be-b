@@ -1,13 +1,14 @@
 package kr.codesquad.secondhand.application.image;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import kr.codesquad.secondhand.domain.image.ImageFile;
+import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -28,5 +29,14 @@ public class ImageService {
                 .map(ImageFile::from)
                 .collect(Collectors.toList());
         return s3Uploader.uploadImageFiles(imageFiles);
+    }
+
+    public void deleteImage(ItemImage itemImage) {
+        s3Uploader.deleteImageFile(itemImage.getImageUrl());
+    }
+
+    @Async("imageThreadExecutor")
+    public void deleteImages(List<ItemImage> itemImages) {
+        itemImages.parallelStream().forEach(this::deleteImage);
     }
 }

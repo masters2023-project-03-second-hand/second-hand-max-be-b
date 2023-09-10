@@ -5,9 +5,9 @@ import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.category.CategoryListResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -17,12 +17,9 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
+    @ResponseStatus(value = HttpStatus.OK)
     @GetMapping
-    public ResponseEntity<ApiResponse<CategoryListResponse>> read() {
-        return ResponseEntity.ok()
-                .body(new ApiResponse<>(
-                        HttpStatus.OK.value(),
-                        categoryService.read()
-                ));
+    public ApiResponse<CategoryListResponse> read() {
+        return new ApiResponse<>(HttpStatus.OK.value(), categoryService.read());
     }
 }

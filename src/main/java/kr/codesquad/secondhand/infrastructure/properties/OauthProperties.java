@@ -1,4 +1,4 @@
-package kr.codesquad.secondhand.infrastructure;
+package kr.codesquad.secondhand.infrastructure.properties;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

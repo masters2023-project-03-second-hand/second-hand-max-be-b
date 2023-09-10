@@ -6,6 +6,7 @@ import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
@@ -20,6 +21,7 @@ import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.item.querydsl.ItemPaginationRepository;
 import kr.codesquad.secondhand.repository.itemimage.ItemImageRepository;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
+import kr.codesquad.secondhand.repository.wishitem.WishItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -37,18 +39,23 @@ public class ItemService {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
     private final ItemPaginationRepository itemPaginationRepository;
+    private final WishItemRepository wishItemRepository;
+
 
     @Transactional
     public void register(List<MultipartFile> images, ItemRegisterRequest request, Long sellerId) {
+        if (images == null) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "이미지는 최소 1개이상 들어와야 합니다.");
+        }
         List<String> itemImageUrls = imageService.uploadImages(images);
         String thumbnailUrl = itemImageUrls.get(0);
 
         Member seller = memberRepository.getReferenceById(sellerId);
 
-        Item savedItem = itemRepository.save(Item.toEntity(request, seller, thumbnailUrl));
+        Item savedItem = itemRepository.save(request.toEntity(seller, thumbnailUrl));
 
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.toEntity(url, savedItem))
+                .map(url -> ItemImage.from(url, savedItem))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
     }
@@ -63,17 +70,9 @@ public class ItemService {
                 itemPaginationRepository.findByIdAndCategoryName(itemId, categoryName, region, pageSize);
         List<ItemResponse> content = response.getContent();
 
-        Long nextCursor = setNextCursor(content, response.hasNext());
+        Long nextCursor = PagingUtils.setNextCursor(content, response.hasNext());
 
         return new CustomSlice<>(content, nextCursor, response.hasNext());
-    }
-
-    private Long setNextCursor(List<ItemResponse> content, boolean hasNext) {
-        Long nextCursor = null;
-        if (hasNext) {
-            nextCursor = content.get(content.size() - 1).getItemId();
-        }
-        return nextCursor;
     }
 
     @Transactional
@@ -96,12 +95,8 @@ public class ItemService {
             throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
         }
 
-        List<String> deleteImageUrls = List.of();
-
-        if (request.getDeleteImageUrls() != null && !request.getDeleteImageUrls().isEmpty()) {
-            deleteImageUrls = request.getDeleteImageUrls();
-            itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
-        }
+        List<String> deleteImageUrls = request.getDeleteImageUrls();
+        itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
 
         if (images != null) {
             saveImages(images, item);
@@ -131,8 +126,25 @@ public class ItemService {
     private void saveImages(List<MultipartFile> images, Item item) {
         List<String> itemImageUrls = imageService.uploadImages(images);
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.toEntity(url, item))
+                .map(url -> ItemImage.from(url, item))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
+    }
+
+    @Transactional
+    public void delete(Long itemId, Long memberId) {
+        Item item = findItem(itemId);
+        if (!item.isSeller(memberId)) {
+            throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
+        }
+
+        List<ItemImage> imageUrls = itemImageRepository.findByItemId(itemId);
+        imageService.deleteImages(imageUrls);
+
+        itemImageRepository.deleteByItemId(itemId);
+        wishItemRepository.deleteByItemId(itemId);
+        itemRepository.deleteById(itemId);
+
+        // todo: 삭제한 item과 관련된 채팅도 삭제하기
     }
 }

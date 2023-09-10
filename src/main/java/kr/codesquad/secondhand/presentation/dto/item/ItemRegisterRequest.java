@@ -3,6 +3,9 @@ package kr.codesquad.secondhand.presentation.dto.item;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import kr.codesquad.secondhand.domain.item.Item;
+import kr.codesquad.secondhand.domain.item.ItemStatus;
+import kr.codesquad.secondhand.domain.member.Member;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +19,7 @@ public class ItemRegisterRequest {
     @Size(max = 100, message = "상품 제목의 길이는 100자를 넘을 수 없습니다.")
     private String title;
 
-    private Integer price;
+    private Long price;
 
     @Size(max = 2000, message = "상품 내용의 길이는 2000자를 넘을 수 없습니다.")
     private String content;
@@ -32,4 +35,17 @@ public class ItemRegisterRequest {
 
     @NotBlank(message = "상품의 카테고리 이름은 비어있을 수 없습니다.")
     private String categoryName;
+
+    public Item toEntity(Member member, String thumbnailUrl) {
+        return Item.builder()
+                .title(this.title)
+                .content(this.content)
+                .price(this.price)
+                .tradingRegion(this.region)
+                .status(ItemStatus.of(this.status))
+                .categoryName(this.categoryName)
+                .thumbnailUrl(thumbnailUrl)
+                .member(member)
+                .build();
+    }
 }

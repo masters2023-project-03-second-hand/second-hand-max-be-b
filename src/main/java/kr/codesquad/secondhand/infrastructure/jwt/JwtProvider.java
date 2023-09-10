@@ -1,17 +1,21 @@
 package kr.codesquad.secondhand.infrastructure.jwt;
 
-import io.jsonwebtoken.*;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import kr.codesquad.secondhand.exception.ErrorCode;
-import kr.codesquad.secondhand.exception.UnAuthorizedException;
-import kr.codesquad.secondhand.infrastructure.properties.JwtProperties;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import javax.crypto.SecretKey;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.UnAuthorizedException;
+import kr.codesquad.secondhand.infrastructure.properties.JwtProperties;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
 
 
 @Component
@@ -20,11 +24,13 @@ public class JwtProvider {
     private final SecretKey secretKey;
     private final long accessTokenExpirationTime;
     private final long refreshTokenExpirationTime;
+    private final RedisTemplate redisTemplate;
 
-    public JwtProvider(JwtProperties jwtProperties) {
+    public JwtProvider(JwtProperties jwtProperties, RedisTemplate redisTemplate) {
         this.secretKey = Keys.hmacShaKeyFor(jwtProperties.getSecretKey().getBytes(StandardCharsets.UTF_8));
         this.accessTokenExpirationTime = jwtProperties.getAccessTokenExpirationTime();
         this.refreshTokenExpirationTime = jwtProperties.getRefreshTokenExpirationTime();
+        this.redisTemplate = redisTemplate;
     }
 
     public String createAccessToken(Long memberId) {
@@ -35,7 +41,7 @@ public class JwtProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .setIssuedAt(now)
                 .setExpiration(accessTokenExpiration)
-                .setClaims(Map.of("memberId", memberId))
+                .addClaims(Map.of("memberId", memberId))
                 .compact();
     }
 
@@ -47,7 +53,7 @@ public class JwtProvider {
                 .signWith(secretKey, SignatureAlgorithm.HS256)
                 .setIssuedAt(now)
                 .setExpiration(refreshTokenExpiration)
-                .setClaims(Map.of("memberId", memberId))
+                .addClaims(Map.of("memberId", memberId))
                 .compact();
     }
 
@@ -71,5 +77,22 @@ public class JwtProvider {
                 .parseClaimsJws(token)
                 .getBody();
         return Collections.unmodifiableMap(claims);
+    }
+
+    public Long getExpiration(String accessToken) {
+        Date expiration = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(accessToken)
+                .getBody()
+                .getExpiration();
+        long now = new Date().getTime();
+        return expiration.getTime() - now;
+    }
+
+    public void validateBlackToken(String accessToken) {
+        if (redisTemplate.hasKey(accessToken)) {
+            throw new UnAuthorizedException(ErrorCode.NOT_LOGIN);
+        }
     }
 }

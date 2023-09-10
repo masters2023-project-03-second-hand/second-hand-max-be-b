@@ -1,6 +1,6 @@
 version: '3'
 services:
-  mysql:  # 로컬 환경에서 동작시킬 DB
+  mysql: # 로컬 환경에서 동작시킬 DB
     image: mysql:8.0
     container_name: mysql-local
     ports:
@@ -26,5 +26,10 @@ services:
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
+  redis:
+    image: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
 
 # docker-compose -f docker.yml up -d
