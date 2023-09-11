@@ -74,4 +74,13 @@ public class ResidenceService {
 
         residenceRepository.save(Residence.from(memberId, region.getId(), addressName));
     }
+
+    @Transactional
+    public void remove(String addressName, Long memberId) {
+        if (residenceRepository.countByMemberId(memberId) <= MEMBER_HAS_RESIDENCE_MIN_COUNT) {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST, "사용자의 거주 지역은 최소 한 개는 있어야 합니다.");
+        }
+
+        residenceRepository.deleteByAddressName(addressName);
+    }
 }

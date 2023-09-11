@@ -9,6 +9,7 @@ import kr.codesquad.secondhand.presentation.dto.residence.ResidenceRequest;
 import kr.codesquad.secondhand.presentation.support.Auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,6 +35,13 @@ public class ResidenceController {
     public ApiResponse<Void> registerResidence(@Valid @RequestBody ResidenceRequest request,
                                                @Auth Long memberId) {
         residenceService.register(request.getAddress(), memberId);
+        return new ApiResponse<>(HttpStatus.OK.value());
+    }
+
+    @DeleteMapping
+    public ApiResponse<Void> removeResidence(@Valid @RequestBody ResidenceRequest request,
+                                             @Auth Long memberId) {
+        residenceService.remove(request.getAddress(), memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 }
