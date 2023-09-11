@@ -19,8 +19,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -41,7 +39,6 @@ public class WishItem {
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
-    @DateTimeFormat(iso = ISO.DATE_TIME)
     @Column(nullable = false, updatable = false)
     @CreatedDate
     private LocalDateTime createdAt;
@@ -51,5 +48,16 @@ public class WishItem {
         this.id = id;
         this.member = member;
         this.item = item;
+    }
+
+    public static WishItem from(Long itemId, Long memberId) {
+        return WishItem.builder()
+                .item(Item.builder()
+                        .id(itemId)
+                        .build())
+                .member(Member.builder()
+                        .id(memberId)
+                        .build())
+                .build();
     }
 }

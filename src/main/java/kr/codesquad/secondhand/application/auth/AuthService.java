@@ -1,6 +1,5 @@
 package kr.codesquad.secondhand.application.auth;
 
-import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.application.residence.ResidenceService;
@@ -18,10 +17,10 @@ import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
 import kr.codesquad.secondhand.presentation.dto.member.UserResponse;
 import kr.codesquad.secondhand.presentation.dto.token.AuthToken;
+import kr.codesquad.secondhand.repository.RedisRepository;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
 import kr.codesquad.secondhand.repository.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,8 +36,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final NaverRequester naverRequester;
     private final JwtProvider jwtProvider;
-    private final RedisTemplate<String, Object> redisTemplate;
-
+    private final RedisRepository redisRepository;
 
     @Transactional
     public LoginResponse login(LoginRequest request, String code) {
@@ -72,12 +70,18 @@ public class AuthService {
         residenceService.saveResidence(request, savedMember);
     }
 
+    private void verifyDuplicated(SignUpRequest request) {
+        if (memberRepository.existsByLoginId(request.getLoginId())) {
+            throw new DuplicatedException(ErrorCode.DUPLICATED_LOGIN_ID);
+        }
+    }
+
     @Transactional
     public void logout(HttpServletRequest request, Long memberId) {
         String accessToken = JwtExtractor.extract(request)
                 .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_TOKEN));
         Long expiration = jwtProvider.getExpiration(accessToken);
-        redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
+        redisRepository.set(accessToken, "logout", expiration);
         tokenRepository.deleteByMemberId(memberId);
     }
 
@@ -88,12 +92,6 @@ public class AuthService {
             throw new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA);
         }
         return member.getId();
-    }
-
-    private void verifyDuplicated(SignUpRequest request) {
-        if (memberRepository.existsByLoginId(request.getLoginId())) {
-            throw new DuplicatedException(ErrorCode.DUPLICATED_LOGIN_ID);
-        }
     }
 
     private Member saveMember(SignUpRequest request, UserProfile userProfile) {

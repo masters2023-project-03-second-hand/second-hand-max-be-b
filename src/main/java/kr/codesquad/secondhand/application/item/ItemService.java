@@ -33,6 +33,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ItemService {
 
+    private static final int IMAGE_LIST_MAX_SIZE = 10;
+
     private final ImageService imageService;
     private final ItemRepository itemRepository;
     private final ItemImageRepository itemImageRepository;
@@ -44,9 +46,10 @@ public class ItemService {
 
     @Transactional
     public void register(List<MultipartFile> images, ItemRegisterRequest request, Long sellerId) {
-        if (images == null) {
-            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "이미지는 최소 1개이상 들어와야 합니다.");
+        if (images == null || images.isEmpty() || images.size() > IMAGE_LIST_MAX_SIZE) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "이미지는 최소 1개이상 최대 10개까지 들어올 수 있습니다.");
         }
+
         List<String> itemImageUrls = imageService.uploadImages(images);
         String thumbnailUrl = itemImageUrls.get(0);
 

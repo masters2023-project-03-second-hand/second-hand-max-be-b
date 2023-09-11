@@ -29,7 +29,7 @@ public class ResidenceService {
     public void saveResidence(SignUpRequest request, Member member) {
         List<Long> regionIds = regionRepository.findAllIdsById(request.getAddressNames());
         List<String> addressNames = request.getAddressNames();
-
+        
         List<Residence> residences = new ArrayList<>();
         for (int i = 0; i < regionIds.size(); i++) {
             residences.add(Residence.builder()

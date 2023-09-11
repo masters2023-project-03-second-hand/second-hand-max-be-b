@@ -3,7 +3,6 @@ package kr.codesquad.secondhand.application.wishitem;
 import java.util.List;
 import kr.codesquad.secondhand.application.item.PagingUtils;
 import kr.codesquad.secondhand.domain.item.Item;
-import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.wishitem.WishItem;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.NotFoundException;
@@ -36,22 +35,13 @@ public class WishItemService {
                         String.format("%s 번호의 아이템을 찾을 수 없습니다.", itemId)));
         item.increaseWishCount();
 
-        wishItemRepository.save(WishItem.builder()
-                .item(Item.builder()
-                        .id(itemId)
-                        .build())
-                .member(Member.builder()
-                        .id(memberId)
-                        .build())
-                .build());
+        wishItemRepository.save(WishItem.from(itemId, memberId));
     }
 
     @Transactional
     public void removeWishItem(Long itemId, Long memberId) {
         Item item = itemRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException(
-                        ErrorCode.NOT_FOUND,
-                        String.format("%s 번호의 아이템을 찾을 수 없습니다.", itemId)));
+                .orElseThrow(() -> NotFoundException.itemNotFound(ErrorCode.NOT_FOUND, itemId));
         item.decreaseWishCount();
 
         wishItemRepository.deleteByItemIdAndMemberId(itemId, memberId);
