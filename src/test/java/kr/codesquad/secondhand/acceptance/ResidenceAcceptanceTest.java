@@ -19,6 +19,13 @@ import org.springframework.http.MediaType;
 
 public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
 
+    private Region saveResidence(String fullAddress, String address) {
+        return supportRepository.save(Region.builder()
+                .fullAddressName(fullAddress)
+                .addressName(address)
+                .build());
+    }
+
     @DisplayName("지역 목록을 조회할 때")
     @Nested
     class ReadAll {
@@ -94,10 +101,7 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
         void givenAddressName_whenRegisterResidence_thenSuccess() {
             // given
             Member member = signup();
-            supportRepository.save(Region.builder()
-                    .fullAddressName("경기도 부천시 범안동")
-                    .addressName("범안동")
-                    .build());
+            saveResidence("경기도 부천시 범안동", "범안동");
 
             var request = RestAssured
                     .given().log().all()
@@ -117,14 +121,9 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
         void givenAlreadyHasTwoResidenceMember_whenRegisterResidence_thenResponse400() {
             // given
             Member member = signup();
-            Region beoman = supportRepository.save(Region.builder()
-                    .fullAddressName("경기도 부천시 범안동")
-                    .addressName("범안동")
-                    .build());
-            Region okgil = supportRepository.save(Region.builder()
-                    .fullAddressName("경기도 부천시 옥길동")
-                    .addressName("옥길동")
-                    .build());
+            Region beoman = saveResidence("경기도 부천시 범안동", "범안동");
+            Region okgil = saveResidence("경기도 부천시 옥길동", "옥길동");
+
             supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동"));
             supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
 
@@ -145,6 +144,62 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
             return request
                     .when()
                     .post("/api/regions")
+                    .then().log().all()
+                    .extract();
+        }
+    }
+
+    @DisplayName("사용자의 거주 지역을 제거할 때")
+    @Nested
+    class Remove {
+
+        @DisplayName("읍면동 주소가 주어지면 제거에 성공한다.")
+        @Test
+        void givenAddressName_whenRemoveResidence_thenSuccess() {
+            // given
+            Member member = signup();
+            Region beoman = saveResidence("경기도 부천시 범안동", "범안동");
+            Region okgil = saveResidence("경기도 부천시 옥길동", "옥길동");
+            supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동"));
+            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
+            var request = RestAssured
+                    .given().log().all()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(member.getId()))
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(Map.of("fullAddress", "경기도 부천시 범안동", "address", "범안동"));
+
+            // when
+            var response = removeResidence(request);
+
+            // then
+            assertThat(response.statusCode()).isEqualTo(200);
+        }
+
+        @DisplayName("거주 지역을 한 곳만 가지고 있는 회원이 주어지면 400 응답을 한다.")
+        @Test
+        void givenMemberWhoHasOnlyOneResidence_whenRemoveResidence_thenResponse400() {
+            // given
+            Member member = signup();
+            Region beoman = saveResidence("경기도 부천시 범안동", "범안동");
+            supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동"));
+
+            var request = RestAssured
+                    .given().log().all()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(member.getId()))
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(Map.of("fullAddress", "경기도 부천시 범안동", "address", "범안동"));
+
+            // when
+            var response = removeResidence(request);
+
+            // then
+            assertThat(response.statusCode()).isEqualTo(400);
+        }
+
+        private ExtractableResponse<Response> removeResidence(RequestSpecification request) {
+            return request
+                    .when()
+                    .delete("/api/regions")
                     .then().log().all()
                     .extract();
         }
