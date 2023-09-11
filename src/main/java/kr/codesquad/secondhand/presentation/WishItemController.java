@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -22,7 +21,6 @@ public class WishItemController {
 
     private final WishItemService wishItemService;
 
-    @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/{itemId}")
     public ApiResponse<Void> changeWishStatusOfItem(@RequestParam("wish") String isWish,
                                                     @PathVariable Long itemId,
@@ -35,7 +33,6 @@ public class WishItemController {
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 
-    @ResponseStatus(value = HttpStatus.OK)
     @GetMapping
     public ApiResponse<CustomSlice<ItemResponse>> readAll(@RequestParam(required = false) Long categoryId,
                                                           @RequestParam(required = false) Long cursor,

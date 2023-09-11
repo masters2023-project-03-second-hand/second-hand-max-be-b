@@ -45,7 +45,6 @@ public class ItemController {
         return new ApiResponse<>(HttpStatus.CREATED.value());
     }
 
-    @ResponseStatus(value = HttpStatus.OK)
     @GetMapping
     public ApiResponse<CustomSlice<ItemResponse>> readAll(
             @RequestParam(required = false) Long cursor,
@@ -55,14 +54,12 @@ public class ItemController {
         return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size));
     }
 
-    @ResponseStatus(value = HttpStatus.OK)
     @GetMapping("/{itemId}")
     public ApiResponse<ItemDetailResponse> readItem(@PathVariable Long itemId,
                                                     @Auth Long memberId) {
         return new ApiResponse<>(HttpStatus.OK.value(), itemService.read(memberId, itemId));
     }
 
-    @ResponseStatus(value = HttpStatus.OK)
     @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<Void> updateItem(@RequestPart(required = false) List<MultipartFile> images,
                                         @Valid @RequestPart ItemUpdateRequest item,
@@ -72,7 +69,6 @@ public class ItemController {
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 
-    @ResponseStatus(value = HttpStatus.OK)
     @PutMapping("/{itemId}/status")
     public ApiResponse<Void> updateItemStatus(@Valid @RequestBody ItemStatusRequest status,
                                               @PathVariable Long itemId,
@@ -81,7 +77,6 @@ public class ItemController {
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 
-    @ResponseStatus(value = HttpStatus.OK)
     @DeleteMapping("/{itemId}")
     public ApiResponse<Void> deleteItem(@PathVariable Long itemId,
                                         @Auth Long memberId) {
