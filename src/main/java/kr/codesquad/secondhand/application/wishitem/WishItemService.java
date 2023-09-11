@@ -7,10 +7,12 @@ import kr.codesquad.secondhand.domain.wishitem.WishItem;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
+import kr.codesquad.secondhand.presentation.dto.category.CategoryListResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.wishitem.WishItemRepository;
+import kr.codesquad.secondhand.repository.wishitem.querydsl.WishItemCategoryRepository;
 import kr.codesquad.secondhand.repository.wishitem.querydsl.WishItemPaginationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
@@ -26,6 +28,7 @@ public class WishItemService {
     private final WishItemRepository wishItemRepository;
     private final CategoryRepository categoryRepository;
     private final WishItemPaginationRepository wishItemPaginationRepository;
+    private final WishItemCategoryRepository wishItemCategoryRepository;
 
     @Transactional
     public void registerWishItem(Long itemId, Long memberId) {
@@ -57,5 +60,9 @@ public class WishItemService {
         Long nextCursor = PagingUtils.setNextCursor(content, itemResponses.hasNext());
 
         return new CustomSlice<>(content, nextCursor, itemResponses.hasNext());
+    }
+
+    public List<String> readCategories(Long memberId) {
+        return wishItemCategoryRepository.findCategoryNameByMemberId(memberId);
     }
 }
