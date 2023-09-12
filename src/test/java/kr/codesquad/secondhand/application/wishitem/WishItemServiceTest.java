@@ -3,6 +3,8 @@ package kr.codesquad.secondhand.application.wishitem;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.category.Category;
@@ -128,5 +130,33 @@ class WishItemServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getPaging().isHasNext()).isFalse()
             );
         }
+    }
+
+    @DisplayName("관심상품 목록 화면의 카테고리 목록 조회에 성공한다.")
+    @Test
+    void given_whenReadWishItemCategories_thenSuccess() {
+        //given
+        Member member = signup();
+        List<Item> list = new ArrayList<>();
+        list.add(supportRepository.save(FixtureFactory.createItem("item1", "생활가전", member)));
+        list.add(supportRepository.save(FixtureFactory.createItem("item2", "식물", member)));
+        list.add(supportRepository.save(FixtureFactory.createItem("item4", "생활가전", member)));
+        list.add(supportRepository.save(FixtureFactory.createItem("item5", "중고차", member)));
+        list.add(supportRepository.save(FixtureFactory.createItem("item6", "가공식품", member)));
+        supportRepository.save(FixtureFactory.createItem("NonWishItem", "유아도서", member));
+
+        for (int i = 0; i < list.size(); i++) {
+            wishItemService.registerWishItem(i+1L, member.getId());
+        }
+
+        // when
+        List<String> response = wishItemService.readCategories(member.getId());
+
+        // then
+        assertAll(
+                () -> assertThat(response.size()).isEqualTo(4),
+                () -> assertThat(response.get(0)).isEqualTo("가공식품"),
+                () -> assertThat(response.contains("유아도서")).isFalse()
+        );
     }
 }

@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand.presentation;
 
+import java.util.List;
 import kr.codesquad.secondhand.application.wishitem.WishItemService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
@@ -40,5 +41,10 @@ public class WishItemController {
                                                           @Auth Long memberId) {
         return new ApiResponse<>(HttpStatus.OK.value(),
                 wishItemService.readAll(memberId, categoryId, cursor, pageSize));
+    }
+
+    @GetMapping("/categories")
+    public ApiResponse<List<String>> readCategories(@Auth Long memberId) {
+        return new ApiResponse<>(HttpStatus.OK.value(), wishItemService.readCategories(memberId));
     }
 }
