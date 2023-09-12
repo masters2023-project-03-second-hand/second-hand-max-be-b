@@ -41,4 +41,8 @@ public class Member {
     public boolean isSameEmail(String email) {
         return this.email.equals(email);
     }
+
+    public void changeProfileImage(String profileUrl) {
+        this.profileUrl = profileUrl;
+    }
 }
