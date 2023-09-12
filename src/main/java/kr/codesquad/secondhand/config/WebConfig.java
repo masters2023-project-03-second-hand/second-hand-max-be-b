@@ -3,9 +3,11 @@ package kr.codesquad.secondhand.config;
 import java.util.List;
 import kr.codesquad.secondhand.presentation.support.AuthArgumentResolver;
 import kr.codesquad.secondhand.presentation.support.NotNullParamArgumentResolver;
+import kr.codesquad.secondhand.presentation.support.converter.IsWishRequestConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.format.FormatterRegistry;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -16,6 +18,7 @@ public class WebConfig implements WebMvcConfigurer {
 
     private final AuthArgumentResolver authArgumentResolver;
     private final NotNullParamArgumentResolver notNullParamArgumentResolver;
+    private final IsWishRequestConverter isWishRequestConverter;
 
     @Value("${custom.front-local-url}")
     private String frontLocalUrl;
@@ -33,5 +36,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/api/**")
                 .allowedOrigins(frontLocalUrl, frontServerUrl)
                 .allowedMethods("HEAD", "OPTIONS", "GET", "POST", "PUT", "DELETE", "PATCH");
+    }
+
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(isWishRequestConverter);
     }
 }
