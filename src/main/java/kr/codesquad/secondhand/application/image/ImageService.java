@@ -32,11 +32,14 @@ public class ImageService {
     }
 
     public void deleteImage(ItemImage itemImage) {
-        s3Uploader.deleteImageFile(itemImage.getImageUrl());
+        s3Uploader.deleteImage(itemImage.getImageUrl());
     }
 
     @Async("imageThreadExecutor")
     public void deleteImages(List<ItemImage> itemImages) {
-        itemImages.parallelStream().forEach(this::deleteImage);
+        List<String> imageUrls = itemImages.parallelStream()
+                .map(ItemImage::getImageUrl)
+                .collect(Collectors.toList());
+        s3Uploader.deleteImages(imageUrls);
     }
 }
