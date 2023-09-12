@@ -21,6 +21,8 @@ public class JwtFilter extends OncePerRequestFilter {
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final List<String> excludeUrlPatterns =
             List.of("/api/auth/**/login", "/api/auth/**/signup");
+    private final List<String> excludeGetUrlPatterns =
+            List.of("/api/regions/*", "/api/items");
 
     private final JwtProvider jwtProvider;
     private final AuthenticationContext authenticationContext;
@@ -33,7 +35,7 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         HttpMethod method = HttpMethod.resolve(request.getMethod());
-        if (method == HttpMethod.GET && request.getRequestURI().matches("/api/regions/*")) {
+        if (method == HttpMethod.GET && excludeGetUrlPatterns.contains(request.getRequestURI())) {
             return true;
         }
 

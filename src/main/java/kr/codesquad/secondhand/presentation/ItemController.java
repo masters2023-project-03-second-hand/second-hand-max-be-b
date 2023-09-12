@@ -49,7 +49,7 @@ public class ItemController {
     public ApiResponse<CustomSlice<ItemResponse>> readAll(
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Long categoryId,
-            @NotNullParam(message = "상품 조회시 지역정보는 반드시 들어와야 합니다.") String region,
+            @RequestParam(required = false) String region,
             @RequestParam(required = false, defaultValue = "10") int size) {
         return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size));
     }

@@ -34,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ItemService {
 
     private static final int IMAGE_LIST_MAX_SIZE = 10;
+    private static final String DEFAULT_REGION = "역삼1동";
 
     private final ImageService imageService;
     private final ItemRepository itemRepository;
@@ -67,6 +68,9 @@ public class ItemService {
         String categoryName = null;
         if (categoryId != null) {
             categoryName = categoryRepository.findNameById(categoryId).orElse(null);
+        }
+        if (region == null) {
+            region = DEFAULT_REGION;
         }
 
         Slice<ItemResponse> response =
