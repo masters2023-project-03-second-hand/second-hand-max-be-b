@@ -3,6 +3,7 @@ package kr.codesquad.secondhand.presentation.filter;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -37,7 +38,9 @@ public class JwtFilter extends OncePerRequestFilter {
     protected boolean shouldNotFilter(HttpServletRequest request) {
         HttpMethod method = HttpMethod.resolve(request.getMethod());
         if (method == HttpMethod.GET && isExcludeGetUrl(request.getRequestURI())) {
-            authenticationContext.setMemberId(Map.of("memberId", -1L));
+            extractToken(request).ifPresentOrElse(
+                    token -> authenticationContext.setMemberId(jwtProvider.extractClaims(token)),
+                    () -> authenticationContext.setMemberId(Map.of("memberId", -1L)));
             return true;
         }
 
@@ -59,12 +62,16 @@ public class JwtFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = JwtExtractor.extract(request)
+        String token = extractToken(request)
                 .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_AUTH_HEADER));
         jwtProvider.validateBlackToken(token);
         jwtProvider.validateToken(token);
         authenticationContext.setMemberId(jwtProvider.extractClaims(token));
 
         filterChain.doFilter(request, response);
+    }
+
+    private Optional<String> extractToken(HttpServletRequest request) {
+        return JwtExtractor.extract(request);
     }
 }

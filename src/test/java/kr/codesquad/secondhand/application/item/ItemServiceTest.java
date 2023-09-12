@@ -19,7 +19,6 @@ import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
-import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
@@ -295,9 +294,9 @@ class ItemServiceTest extends ApplicationTestSupport {
             assertThat(response.getContents().size()).isEqualTo(10);
         }
 
-        @DisplayName("로그인하지 않은 사용자가 특정 지역의 상품목록 화면 조회시 예외를 던진다.")
+        @DisplayName("로그인하지 않은 사용자가 특정 지역의 상품목록 화면 조회시 역삼1동의 상품목록이 보여진다.")
         @Test
-        void givenNonLoginMember_whenReadAllItemsByRegion_thenThrowsException() {
+        void givenNonLoginMember_whenReadAllItemsByRegion_thenSuccess() {
             // given
             Member member = signup();
             supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
@@ -307,10 +306,11 @@ class ItemServiceTest extends ApplicationTestSupport {
                 supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
             }
 
-            // when & then
-            assertThatThrownBy(() -> itemService.readAll(null, null, "범박동", 10, null))
-                    .isInstanceOf(UnAuthorizedException.class)
-                    .extracting("errorCode").isEqualTo(ErrorCode.NOT_LOGIN);
+            // when
+            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "역삼1동", 10, -1L);
+
+            // then
+            assertThat(response.getContents()).hasSize(10);
         }
     }
 }

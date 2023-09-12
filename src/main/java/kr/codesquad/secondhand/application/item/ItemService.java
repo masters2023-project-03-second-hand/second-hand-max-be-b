@@ -35,7 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ItemService {
 
     private static final int IMAGE_LIST_MAX_SIZE = 10;
-    private static final Long NOT_LOGIN__MEMBER_ID = -1L;
+    private static final Long NOT_LOGIN_MEMBER_ID = -1L;
     private static final String NOT_LOGIN_DEFAULT_REGION = "역삼1동";
 
     private final ImageService imageService;
@@ -67,7 +67,7 @@ public class ItemService {
     }
 
     public CustomSlice<ItemResponse> readAll(Long itemId, Long categoryId, String region, int pageSize, Long memberId) {
-        if (memberId == NOT_LOGIN__MEMBER_ID && !region.equals(NOT_LOGIN_DEFAULT_REGION)) {
+        if (memberId == NOT_LOGIN_MEMBER_ID && !region.equals(NOT_LOGIN_DEFAULT_REGION)) {
             throw new UnAuthorizedException(ErrorCode.NOT_LOGIN);
         }
         String categoryName = null;
