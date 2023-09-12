@@ -2,12 +2,12 @@ package kr.codesquad.secondhand.application.image;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest.KeyVersion;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import java.util.ArrayList;
 import kr.codesquad.secondhand.domain.image.ImageFile;
-import kr.codesquad.secondhand.exception.ErrorCode;
-import kr.codesquad.secondhand.exception.InternalServerException;
 import kr.codesquad.secondhand.infrastructure.properties.AwsProperties;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class S3Uploader {
 
     private static final String PUBLIC_IMAGE_DIR = "public/";
+    private static final int FILE_NAME_INDEX = 5;
 
     private final AmazonS3Client s3Client;
     private final String bucket;
@@ -68,14 +69,19 @@ public class S3Uploader {
         return metadata;
     }
 
-    public void deleteImageFile(String imageUrl) {
-        try {
-            String decodedImageUrl = URLDecoder.decode(imageUrl, StandardCharsets.UTF_8);
-            String fileName = decodedImageUrl.substring(decodedImageUrl.lastIndexOf('/') + 1);
+    public void deleteImage(String imageUrl) {
+        String fileName = PUBLIC_IMAGE_DIR + imageUrl.split("/")[FILE_NAME_INDEX];
+        s3Client.deleteObject(bucket, fileName);
+    }
 
-            s3Client.deleteObject(bucket, fileName);
-        } catch (Exception e) {
-            throw new InternalServerException(ErrorCode.DELETE_FAIL);
-        }
+    public void deleteImages(List<String> imageUrls) {
+        List<DeleteObjectsRequest.KeyVersion> keys = imageUrls.parallelStream()
+                .map(imageUrl -> new KeyVersion(PUBLIC_IMAGE_DIR + imageUrl.split("/")[FILE_NAME_INDEX]))
+                .collect(Collectors.toList());
+
+        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucket)
+                .withKeys(keys)
+                .withQuiet(false);
+        s3Client.deleteObjects(deleteObjectsRequest);
     }
 }
