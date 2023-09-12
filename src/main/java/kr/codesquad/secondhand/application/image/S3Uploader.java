@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 public class S3Uploader {
 
     private static final String PUBLIC_IMAGE_DIR = "public/";
-    private static final int FILE_NAME_INDEX = 5;
+    private static final int FILE_NAME_INDEX = 5;   // s3에 저장된 fileName 가져오기 위한 인덱스
 
     private final AmazonS3Client s3Client;
     private final String bucket;
