@@ -6,6 +6,7 @@ import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.presentation.support.Auth;
+import kr.codesquad.secondhand.presentation.support.converter.IsWish;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,14 +24,10 @@ public class WishItemController {
     private final WishItemService wishItemService;
 
     @PostMapping("/{itemId}")
-    public ApiResponse<Void> changeWishStatusOfItem(@RequestParam("wish") String isWish,
+    public ApiResponse<Void> changeWishStatusOfItem(@RequestParam("wish") IsWish isWish,
                                                     @PathVariable Long itemId,
                                                     @Auth Long memberId) {
-        if (isWish.equals("yes")) {
-            wishItemService.registerWishItem(itemId, memberId);
-            return new ApiResponse<>(HttpStatus.OK.value());
-        }
-        wishItemService.removeWishItem(itemId, memberId);
+        isWish.invoke(wishItemService, itemId, memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 
