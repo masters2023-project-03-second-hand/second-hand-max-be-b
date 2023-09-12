@@ -19,6 +19,7 @@ import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
+import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
@@ -213,7 +214,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "범박동", 10);
+            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "범박동", 10, member.getId());
 
             // then
             assertAll(
@@ -228,12 +229,13 @@ class ItemServiceTest extends ApplicationTestSupport {
         @Test
         void givenSavedItemData_whenReadAllItemsOfSecondPage_thenSuccess() {
             // given
+            Member member = signup();
             for (int i = 1; i <= 20; i++) {
                 supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", signup()));
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10);
+            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10, member.getId());
 
             // then
             assertAll(
@@ -263,7 +265,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8);
+            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8, member.getId());
 
             // then
             assertAll(
@@ -272,6 +274,43 @@ class ItemServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("맛없는 거 - 5"),
                     () -> assertThat(response.getContents().get(7).getTitle()).isEqualTo("맛있는 거 - 3")
             );
+        }
+
+        @DisplayName("로그인하지 않은 사용자가 상품목록 화면 조회에 성공한다.")
+        @Test
+        void givenNonLoginMember_whenReadAllItems_thenSuccess() {
+            // given
+            Member member = signup();
+            supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
+            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
+
+            for (int i = 1; i <= 10; i++) {
+                supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
+            }
+
+            // when
+            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "역삼1동", 10, null);
+
+            // then
+            assertThat(response.getContents().size()).isEqualTo(10);
+        }
+
+        @DisplayName("로그인하지 않은 사용자가 특정 지역의 상품목록 화면 조회시 예외를 던진다.")
+        @Test
+        void givenNonLoginMember_whenReadAllItemsByRegion_thenThrowsException() {
+            // given
+            Member member = signup();
+            supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
+            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
+
+            for (int i = 1; i <= 10; i++) {
+                supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
+            }
+
+            // when & then
+            assertThatThrownBy(() -> itemService.readAll(null, null, "범박동", 10, null))
+                    .isInstanceOf(UnAuthorizedException.class)
+                    .extracting("errorCode").isEqualTo(ErrorCode.NOT_LOGIN);
         }
     }
 }
