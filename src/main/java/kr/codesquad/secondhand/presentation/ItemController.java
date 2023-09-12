@@ -50,8 +50,9 @@ public class ItemController {
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false) String region,
-            @RequestParam(required = false, defaultValue = "10") int size) {
-        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size));
+            @RequestParam(required = false, defaultValue = "10") int size,
+            @Auth Long memberId) {
+        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size, memberId));
     }
 
     @GetMapping("/{itemId}")

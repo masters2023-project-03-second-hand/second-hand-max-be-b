@@ -10,6 +10,7 @@ import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
+import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
@@ -64,7 +65,10 @@ public class ItemService {
         itemImageRepository.saveAllItemImages(itemImages);
     }
 
-    public CustomSlice<ItemResponse> readAll(Long itemId, Long categoryId, String region, int pageSize) {
+    public CustomSlice<ItemResponse> readAll(Long itemId, Long categoryId, String region, int pageSize, Long memberId) {
+        if (memberId == null && !region.equals(DEFAULT_REGION)) {
+            throw new UnAuthorizedException(ErrorCode.NOT_LOGIN);
+        }
         String categoryName = null;
         if (categoryId != null) {
             categoryName = categoryRepository.findNameById(categoryId).orElse(null);
