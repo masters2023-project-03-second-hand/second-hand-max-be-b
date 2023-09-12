@@ -67,7 +67,7 @@ public class AuthService {
             userProfile.changeProfileUrl(profileUrl);
         }
         Member savedMember = saveMember(request, userProfile);
-        residenceService.saveResidence(request, savedMember);
+        residenceService.saveResidence(request.getAddressNames(), savedMember);
     }
 
     private void verifyDuplicated(SignUpRequest request) {

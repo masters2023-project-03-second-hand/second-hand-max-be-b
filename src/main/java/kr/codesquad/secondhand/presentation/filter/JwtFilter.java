@@ -11,17 +11,16 @@ import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtExtractor;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
 import kr.codesquad.secondhand.presentation.support.AuthenticationContext;
+import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 public class JwtFilter extends OncePerRequestFilter {
 
-    private static final String BEARER = "bearer";
-
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final List<String> excludeUrlPatterns =
-            List.of("/api/auth/**/login", "/api/auth/**/signup", "/api/regions/**");
+            List.of("/api/auth/**/login", "/api/auth/**/signup");
 
     private final JwtProvider jwtProvider;
     private final AuthenticationContext authenticationContext;
@@ -33,6 +32,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
+        HttpMethod method = HttpMethod.resolve(request.getMethod());
+        if (method == HttpMethod.GET && request.getRequestURI().matches("/api/regions/*")) {
+            return true;
+        }
+
         return excludeUrlPatterns.stream()
                 .anyMatch(pattern -> pathMatcher.match(pattern, request.getRequestURI()));
     }

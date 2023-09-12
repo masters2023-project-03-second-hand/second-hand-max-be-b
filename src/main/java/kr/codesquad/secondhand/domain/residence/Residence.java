@@ -43,4 +43,16 @@ public class Residence {
         this.member = member;
         this.region = region;
     }
+
+    public static Residence from(Long memberId, Long regionId, String addressName) {
+        return Residence.builder()
+                .addressName(addressName)
+                .member(Member.builder()
+                        .id(memberId)
+                        .build())
+                .region(Region.builder()
+                        .id(regionId)
+                        .build())
+                .build();
+    }
 }
