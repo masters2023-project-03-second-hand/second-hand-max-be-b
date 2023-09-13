@@ -22,7 +22,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
     private final List<String> excludeUrlPatterns =
-            List.of("/api/auth/**/login", "/api/auth/**/signup", "/api/auth/token", "/api/categories");
+            List.of("/api/auth/**", "/api/categories");
     private final List<String> excludeGetUrlPatterns =
             List.of("/api/regions/**", "/api/items/**");
 

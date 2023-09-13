@@ -77,12 +77,12 @@ public class AuthService {
     }
 
     @Transactional
-    public void logout(HttpServletRequest request, Long memberId) {
-        String accessToken = JwtExtractor.extract(request)
-                .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_TOKEN));
-        Long expiration = jwtProvider.getExpiration(accessToken);
-        redisRepository.set(accessToken, "logout", expiration);
-        tokenRepository.deleteByMemberId(memberId);
+    public void logout(HttpServletRequest request, String refreshToken) {
+        JwtExtractor.extract(request).ifPresent(token -> {
+            Long expiration = jwtProvider.getExpiration(token);
+            redisRepository.set(token, "logout", expiration);
+        });
+        tokenRepository.deleteByToken(refreshToken);
     }
 
     private Long verifyUser(LoginRequest request, UserProfile userProfile) {
