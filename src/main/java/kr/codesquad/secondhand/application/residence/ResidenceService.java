@@ -31,8 +31,8 @@ public class ResidenceService {
     private final ResidenceRepository residenceRepository;
 
     @Transactional
-    public void saveResidence(List<String> addressNames, Member member) {
-        List<Long> regionIds = regionRepository.findAllIdsById(addressNames);
+    public void saveResidence(List<Long> regionIds, Member member) {
+        List<String> addressNames = regionRepository.findAddressNamesByIds(regionIds);
 
         List<Residence> residences = new ArrayList<>();
         for (int i = 0; i < regionIds.size(); i++) {
