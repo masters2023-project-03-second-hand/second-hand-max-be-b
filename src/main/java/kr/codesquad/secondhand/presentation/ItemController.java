@@ -1,6 +1,7 @@
 package kr.codesquad.secondhand.presentation;
 
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import kr.codesquad.secondhand.application.item.ItemService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
@@ -49,9 +50,10 @@ public class ItemController {
     public ApiResponse<CustomSlice<ItemResponse>> readAll(
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Long categoryId,
-            @NotNullParam(message = "상품 조회시 지역정보는 반드시 들어와야 합니다.") String region,
-            @RequestParam(required = false, defaultValue = "10") int size) {
-        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size));
+            @RequestParam(required = false, defaultValue = "역삼1동") String region,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            @Auth Long memberId) {
+        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size, memberId));
     }
 
     @GetMapping("/{itemId}")

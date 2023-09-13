@@ -1,5 +1,9 @@
 package kr.codesquad.secondhand.infrastructure.jwt;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.util.Map;
 import kr.codesquad.secondhand.RedisTemplateCreator;
 import kr.codesquad.secondhand.TokenCreator;
 import kr.codesquad.secondhand.exception.ErrorCode;
@@ -7,11 +11,6 @@ import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.infrastructure.properties.JwtProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 
 class JwtProviderTest {
