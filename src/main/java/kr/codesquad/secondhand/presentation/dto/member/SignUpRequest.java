@@ -16,7 +16,7 @@ public class SignUpRequest {
     @Size(min = 2, max = 12, message = "아이디는 2자 ~ 12자여야 합니다.")
     private String loginId;
     @Size(min = 1, max = 2, message = "주소는 최소 1개, 최대 2개까지 들어올 수 있습니다.")
-    private List<String> addressNames;
+    private List<Long> addressIds;
 
     public Member toMemberEntity(UserProfile userProfile) {
         return Member.builder()

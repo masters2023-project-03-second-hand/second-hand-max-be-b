@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import kr.codesquad.secondhand.domain.image.ImageFile;
 import kr.codesquad.secondhand.domain.member.UserProfile;
+import kr.codesquad.secondhand.domain.residence.Region;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -124,13 +125,15 @@ public class AuthAcceptanceTest extends AcceptanceTestSupport {
             // given
             mockingOAuth();
             given(s3Uploader.uploadImageFile(any(ImageFile.class))).willReturn("profileUrl");
+            supportRepository.save(Region.builder().addressName("범안동").fullAddressName("경기도 부천시 범안동").build());
+            supportRepository.save(Region.builder().addressName("옥길동").fullAddressName("경기도 부천시 옥길동").build());
 
             var request = RestAssured
                     .given().log().all()
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                     .queryParam("code", "code")
                     .queryParam("state", "state")
-                    .multiPart("signupData", Map.of("loginId", "bruni", "addressNames", List.of("범박동")),
+                    .multiPart("signupData", Map.of("loginId", "bruni", "addressIds", List.of(1L, 2L)),
                             MediaType.APPLICATION_JSON_VALUE)
                     .multiPart("profile", createFakeFile(),
                             MediaType.IMAGE_PNG_VALUE);
@@ -155,7 +158,7 @@ public class AuthAcceptanceTest extends AcceptanceTestSupport {
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                     .queryParam("state", "state")
                     .multiPart("signupData",
-                            Map.of("loginId", "bruni", "addressName", List.of("범박동")),
+                            Map.of("loginId", "bruni", "addressIds", List.of(1L)),
                             MediaType.APPLICATION_JSON_VALUE)
                     .multiPart("profile",
                             createFakeFile(),
