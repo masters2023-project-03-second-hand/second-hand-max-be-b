@@ -35,7 +35,7 @@ public class ResidenceService {
         List<String> addressNames = regionRepository.findAddressNamesByIds(regionIds);
 
         List<Residence> residences = new ArrayList<>();
-        for (int i = 0; i < regionIds.size(); i++) {
+        for (int i = 0; i < addressNames.size(); i++) {
             residences.add(Residence.builder()
                     .addressName(addressNames.get(i))
                     .member(member)
