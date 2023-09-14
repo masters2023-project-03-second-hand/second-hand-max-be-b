@@ -19,7 +19,7 @@ import org.springframework.http.MediaType;
 
 public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
 
-    private Region saveResidence(String fullAddress, String address) {
+    private Region saveRegion(String fullAddress, String address) {
         return supportRepository.save(Region.builder()
                 .fullAddressName(fullAddress)
                 .addressName(address)
@@ -101,13 +101,13 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
         void givenAddressName_whenRegisterResidence_thenSuccess() {
             // given
             Member member = signup();
-            saveResidence("경기도 부천시 범안동", "범안동");
+            Region beomAn = saveRegion("경기도 부천시 범안동", "범안동");
 
             var request = RestAssured
                     .given().log().all()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(member.getId()))
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(Map.of("fullAddress", "경기도 부천시 범안동", "address", "범안동"));
+                    .body(Map.of("addressId", beomAn.getId()));
 
             // when
             var response = registerResidence(request);
@@ -121,8 +121,9 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
         void givenAlreadyHasTwoResidenceMember_whenRegisterResidence_thenResponse400() {
             // given
             Member member = signup();
-            Region beoman = saveResidence("경기도 부천시 범안동", "범안동");
-            Region okgil = saveResidence("경기도 부천시 옥길동", "옥길동");
+            Region beoman = saveRegion("경기도 부천시 범안동", "범안동");
+            Region okgil = saveRegion("경기도 부천시 옥길동", "옥길동");
+            Region oryu = saveRegion("경기도 부천시 오류동", "오류동");
 
             supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동"));
             supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
@@ -131,7 +132,7 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
                     .given().log().all()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(member.getId()))
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(Map.of("fullAddress", "경기도 부천시 오류동", "address", "오류동"));
+                    .body(Map.of("addressId", oryu.getId()));
 
             // when
             var response = registerResidence(request);
@@ -158,15 +159,15 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
         void givenAddressName_whenRemoveResidence_thenSuccess() {
             // given
             Member member = signup();
-            Region beoman = saveResidence("경기도 부천시 범안동", "범안동");
-            Region okgil = saveResidence("경기도 부천시 옥길동", "옥길동");
+            Region beoman = saveRegion("경기도 부천시 범안동", "범안동");
+            Region okgil = saveRegion("경기도 부천시 옥길동", "옥길동");
             supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동"));
             supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
             var request = RestAssured
                     .given().log().all()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(member.getId()))
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(Map.of("fullAddress", "경기도 부천시 범안동", "address", "범안동"));
+                    .body(Map.of("addressId", okgil.getId()));
 
             // when
             var response = removeResidence(request);
@@ -180,14 +181,14 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
         void givenMemberWhoHasOnlyOneResidence_whenRemoveResidence_thenResponse400() {
             // given
             Member member = signup();
-            Region beoman = saveResidence("경기도 부천시 범안동", "범안동");
+            Region beoman = saveRegion("경기도 부천시 범안동", "범안동");
             supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동"));
 
             var request = RestAssured
                     .given().log().all()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(member.getId()))
                     .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(Map.of("fullAddress", "경기도 부천시 범안동", "address", "범안동"));
+                    .body(Map.of("addressId", beoman.getId()));
 
             // when
             var response = removeResidence(request);

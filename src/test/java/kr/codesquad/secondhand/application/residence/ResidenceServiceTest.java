@@ -87,13 +87,13 @@ class ResidenceServiceTest extends ApplicationTestSupport {
         void givenAddressName_whenRegisterResidence_thenSuccess() {
             // given
             Member member = supportRepository.save(FixtureFactory.createMember());
-            supportRepository.save(Region.builder()
+            Region beomBak = supportRepository.save(Region.builder()
                     .fullAddressName("경기도 부천시 범박동")
                     .addressName("범박동")
                     .build());
 
             // when & then
-            assertThatCode(() -> residenceService.register("범박동", member.getId())).doesNotThrowAnyException();
+            assertThatCode(() -> residenceService.register(beomBak.getId(), member.getId())).doesNotThrowAnyException();
         }
 
         @DisplayName("사용자가 이미 두 개의 거주지역을 가지고 있으면 예외를 던진다.")
@@ -109,11 +109,15 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 옥길동")
                     .addressName("옥길동")
                     .build());
+            Region guaean = supportRepository.save(Region.builder()
+                    .fullAddressName("경기도 부천시 괴안동")
+                    .addressName("괴안동")
+                    .build());
             supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동"));
             supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
 
             // when & then
-            assertThatThrownBy(() -> residenceService.register("괴안동", member.getId()))
+            assertThatThrownBy(() -> residenceService.register(guaean.getId(), member.getId()))
                     .isInstanceOf(BadRequestException.class)
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_REQUEST);
         }
@@ -140,7 +144,7 @@ class ResidenceServiceTest extends ApplicationTestSupport {
             supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
 
             // when & then
-            assertThatCode(() -> residenceService.remove("범박동", member.getId()))
+            assertThatCode(() -> residenceService.remove(beombak.getId(), member.getId()))
                     .doesNotThrowAnyException();
         }
 
@@ -156,7 +160,7 @@ class ResidenceServiceTest extends ApplicationTestSupport {
             supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동"));
 
             // when & then
-            assertThatThrownBy(() -> residenceService.remove("범박동", member.getId()))
+            assertThatThrownBy(() -> residenceService.remove(beombak.getId(), member.getId()))
                     .isInstanceOf(BadRequestException.class)
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_REQUEST);
         }
