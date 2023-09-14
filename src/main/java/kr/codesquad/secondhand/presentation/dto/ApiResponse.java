@@ -16,6 +16,6 @@ public class ApiResponse<T> {
     }
 
     public ApiResponse(int statusCode) {
-        this.statusCode = statusCode;
+        this(statusCode, null);
     }
 }
