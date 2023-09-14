@@ -10,6 +10,12 @@ on:
       - develop
       - main
 
+permissions:
+  contents: read
+  checks: write
+  id-token: write
+  pull-requests: write
+
 jobs:
   backend-deploy:
     runs-on: ubuntu-latest
@@ -35,6 +41,22 @@ jobs:
       # Spring boot application 빌드
       - name: Build with gradle
         run: ./gradlew clean build
+
+      # 테스트 결과를 PR에 코멘트로 등록
+      - name: Register comment about test report on PR
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: '**/build/test-results/test/TEST-*.xml'
+          token: ${{ github.token }}
+      
+      # 테스트 실패 시, 실패한 코드 라인에 Check 코멘트를 등록
+      - name: Register 'Check' comment about failed test
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          token: ${{ github.token }}
 
       # docker image 빌드
       - name: Build docker image
