@@ -9,6 +9,7 @@ import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
+import kr.codesquad.secondhand.presentation.dto.member.AddressData;
 import kr.codesquad.secondhand.presentation.dto.residence.RegionResponse;
 import kr.codesquad.secondhand.repository.residence.RegionRepository;
 import kr.codesquad.secondhand.repository.residence.ResidenceRepository;
@@ -64,23 +65,29 @@ public class ResidenceService {
     }
 
     @Transactional
-    public void register(String addressName, Long memberId) {
+    public void register(Long addressId, Long memberId) {
         if (residenceRepository.countByMemberId(memberId) >= MEMBER_HAS_RESIDENCE_MAX_COUNT) {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST, "사용자의 거주 지역은 최대 두 개까지 설정 가능합니다.");
         }
 
-        Region region = regionRepository.findByAddressName(addressName)
-                .orElseThrow(() -> NotFoundException.regionNotFound(ErrorCode.NOT_FOUND, addressName));
+        Region region = regionRepository.findById(addressId)
+                .orElseThrow(() -> NotFoundException.regionNotFound(ErrorCode.NOT_FOUND, addressId));
 
-        residenceRepository.save(Residence.from(memberId, region.getId(), addressName));
+        residenceRepository.save(Residence.from(memberId, region.getId(), region.getAddressName()));
     }
 
     @Transactional
-    public void remove(String addressName, Long memberId) {
+    public void remove(Long addressId, Long memberId) {
         if (residenceRepository.countByMemberId(memberId) <= MEMBER_HAS_RESIDENCE_MIN_COUNT) {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST, "사용자의 거주 지역은 최소 한 개는 있어야 합니다.");
         }
+        Region region = regionRepository.findById(addressId)
+                .orElseThrow(() -> NotFoundException.regionNotFound(ErrorCode.NOT_FOUND, addressId));
 
-        residenceRepository.deleteByAddressName(addressName);
+        residenceRepository.deleteByAddressName(region.getAddressName());
+    }
+
+    public List<AddressData> readResidenceOfMember(Long memberId) {
+        return residenceRepository.findByMemberId(memberId);
     }
 }

@@ -34,14 +34,14 @@ public class ResidenceController {
     @PostMapping
     public ApiResponse<Void> registerResidence(@Valid @RequestBody ResidenceRequest request,
                                                @Auth Long memberId) {
-        residenceService.register(request.getAddress(), memberId);
+        residenceService.register(request.getAddressId(), memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 
     @DeleteMapping
     public ApiResponse<Void> removeResidence(@Valid @RequestBody ResidenceRequest request,
                                              @Auth Long memberId) {
-        residenceService.remove(request.getAddress(), memberId);
+        residenceService.remove(request.getAddressId(), memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 }
