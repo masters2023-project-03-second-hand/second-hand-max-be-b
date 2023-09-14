@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand.application.auth;
 
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.application.residence.ResidenceService;
@@ -12,6 +13,7 @@ import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtExtractor;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
+import kr.codesquad.secondhand.presentation.dto.member.AddressData;
 import kr.codesquad.secondhand.presentation.dto.member.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
@@ -51,9 +53,11 @@ public class AuthService {
                 .memberId(memberId)
                 .token(refreshToken)
                 .build());
+
+        List<AddressData> addressData = residenceService.readResidenceOfMember(memberId);
         return new LoginResponse(
                 new AuthToken(jwtProvider.createAccessToken(memberId), refreshToken),
-                new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl())
+                new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl(), addressData)
         );
     }
 

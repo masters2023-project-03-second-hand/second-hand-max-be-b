@@ -15,8 +15,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import kr.codesquad.secondhand.domain.image.ImageFile;
+import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.member.UserProfile;
 import kr.codesquad.secondhand.domain.residence.Region;
+import kr.codesquad.secondhand.domain.residence.Residence;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -46,7 +48,16 @@ public class AuthAcceptanceTest extends AcceptanceTestSupport {
             // given
             mockingOAuth();
 
-            signup();
+            Member member = signup();
+            Region beoman = supportRepository.save(Region.builder()
+                    .fullAddressName("경기도 부천시 범안동")
+                    .addressName("범안동")
+                    .build());
+            supportRepository.save(Residence.builder()
+                    .region(beoman)
+                    .member(member)
+                    .addressName("범안동")
+                    .build());
 
             var request = RestAssured
                     .given().log().all()
@@ -64,7 +75,8 @@ public class AuthAcceptanceTest extends AcceptanceTestSupport {
                     () -> assertThat(response.jsonPath().getString("data.jwt.accessToken")).isNotNull(),
                     () -> assertThat(response.jsonPath().getString("data.jwt.refreshToken")).isNotNull(),
                     () -> assertThat(response.jsonPath().getString("data.user.loginId")).isNotNull(),
-                    () -> assertThat(response.jsonPath().getString("data.user.profileUrl")).isNotNull()
+                    () -> assertThat(response.jsonPath().getString("data.user.profileUrl")).isNotNull(),
+                    () -> assertThat(response.jsonPath().getString("data.user.addresses")).isNotNull()
             );
         }
 

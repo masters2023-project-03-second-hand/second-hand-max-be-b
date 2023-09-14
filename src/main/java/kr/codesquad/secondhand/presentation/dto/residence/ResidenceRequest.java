@@ -1,6 +1,6 @@
 package kr.codesquad.secondhand.presentation.dto.residence;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -8,9 +8,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ResidenceRequest {
 
-    @NotBlank(message = "지역의 전체 이름은 들어와야합니다.")
-    private String fullAddress;
-
-    @NotBlank(message = "읍/면/동 이름은 들어와야 합니다.")
-    private String address;
+    @NotNull(message = "지역의 아이디 값은 반드시 들어와야합니다.")
+    private Long addressId;
 }
