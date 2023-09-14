@@ -12,6 +12,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -44,4 +45,13 @@ public class ChatLog {
     @JoinColumn(nullable = false, name = "chat_room_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private ChatRoom chatRoom;
+
+    @Builder
+    private ChatLog(Long id, String message, boolean isRead, boolean isSender, ChatRoom chatRoom) {
+        this.id = id;
+        this.message = message;
+        this.isRead = isRead;
+        this.isSender = isSender;
+        this.chatRoom = chatRoom;
+    }
 }

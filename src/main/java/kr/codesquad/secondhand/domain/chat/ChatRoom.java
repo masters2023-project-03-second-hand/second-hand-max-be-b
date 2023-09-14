@@ -16,6 +16,7 @@ import javax.persistence.Table;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.CreatedDate;
@@ -57,4 +58,31 @@ public class ChatRoom {
     @JoinColumn(nullable = false, name = "item_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
+
+    @Builder
+    private ChatRoom(Long id, String subject, WhoIsLast status, Member sender, Member receiver, Item item) {
+        this.id = id;
+        this.subject = subject;
+        this.status = status;
+        this.lastSendTime = LocalDateTime.now();
+        this.sender = sender;
+        this.receiver = receiver;
+        this.item = item;
+    }
+
+    public static ChatRoom from(Long creatorId, Long itemId, Long sellerId) {
+        return ChatRoom.builder()
+                .subject("")
+                .item(Item.builder()
+                        .id(itemId)
+                        .build())
+                .sender(Member.builder()
+                        .id(creatorId)
+                        .build())
+                .receiver(Member.builder()
+                        .id(sellerId)
+                        .build())
+                .status(WhoIsLast.FROM)
+                .build();
+    }
 }
