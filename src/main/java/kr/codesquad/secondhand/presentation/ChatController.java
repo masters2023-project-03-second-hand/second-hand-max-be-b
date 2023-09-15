@@ -3,8 +3,12 @@ package kr.codesquad.secondhand.presentation;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import kr.codesquad.secondhand.application.chat.ChatLogService;
+import kr.codesquad.secondhand.application.chat.ChatRoomService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
+import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatLogResponse;
+import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
+import kr.codesquad.secondhand.presentation.support.Auth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -23,6 +27,7 @@ public class ChatController {
 
     private final Map<DeferredResult<ApiResponse<ChatLogResponse>>, Long> chatRequests = new ConcurrentHashMap<>();
     private final ChatLogService chatLogService;
+    private final ChatRoomService chatRoomService;
 
     @GetMapping("/chats/{chatRoomId}")
     public DeferredResult<ApiResponse<ChatLogResponse>> readAll(
@@ -40,5 +45,14 @@ public class ChatController {
         }
 
         return deferredResult;
+    }
+
+    @GetMapping("/chats")
+    public ApiResponse<CustomSlice<ChatRoomResponse>> readList(
+            @RequestParam(required = false) Long cursor,
+            @RequestParam(required = false, defaultValue = "10") int size,
+            @Auth Long memberId
+    ) {
+        return new ApiResponse<>(HttpStatus.OK.value(), chatRoomService.read(cursor, size, memberId));
     }
 }
