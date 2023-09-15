@@ -44,7 +44,8 @@ public class AuthService {
     public LoginResponse login(LoginRequest request, String code) {
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
-        Long memberId = verifyUser(request, userProfile);
+        Member member = verifyUser(request, userProfile);
+        Long memberId = member.getId();
 
         String refreshToken = jwtProvider.createRefreshToken(memberId);
         tokenRepository.deleteByMemberId(memberId);
@@ -57,7 +58,7 @@ public class AuthService {
         List<AddressData> addressData = residenceService.readResidenceOfMember(memberId);
         return new LoginResponse(
                 new AuthToken(jwtProvider.createAccessToken(memberId), refreshToken),
-                new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl(), addressData)
+                new UserResponse(member.getLoginId(), member.getProfileUrl(), addressData)
         );
     }
 
@@ -89,13 +90,13 @@ public class AuthService {
         tokenRepository.deleteByToken(refreshToken);
     }
 
-    private Long verifyUser(LoginRequest request, UserProfile userProfile) {
+    private Member verifyUser(LoginRequest request, UserProfile userProfile) {
         Member member = memberRepository.findByLoginId(request.getLoginId())
                 .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA));
         if (!member.isSameEmail(userProfile.getEmail())) {
             throw new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA);
         }
-        return member.getId();
+        return member;
     }
 
     private Member saveMember(SignUpRequest request, UserProfile userProfile) {
