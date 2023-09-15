@@ -58,6 +58,17 @@ jobs:
           report_paths: '**/build/test-results/test/TEST-*.xml'
           token: ${{ github.token }}
 
+      # 테스트 커버리지를 PR에 코멘트로 등록합니다
+      - name: Comment test coverage on PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.2
+        with:
+          title: 📝 테스트 커버리지 리포트
+          paths: ${{ github.workspace }}/build/jacoco/index.xml
+          token: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
+          min-coverage-overall: 50
+          min-coverage-changed-files: 50
+
       # docker image 빌드
       - name: Build docker image
         run: docker build -t 23yong/second-hand .
