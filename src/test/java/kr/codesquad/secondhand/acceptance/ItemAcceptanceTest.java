@@ -1,6 +1,9 @@
 package kr.codesquad.secondhand.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.allOf;
+import static org.hamcrest.Matchers.everyItem;
+import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.BDDMockito.anyList;
 import static org.mockito.BDDMockito.given;
@@ -222,6 +225,42 @@ public class ItemAcceptanceTest extends AcceptanceTestSupport {
                     .extract();
 
             assertThat(response.statusCode()).isEqualTo(401);
+        }
+    }
+
+    @DisplayName("판매내역을 조회할 때")
+    @Nested
+    class ReadAllSalesHistory {
+
+        @DisplayName("판매 상품의 판매 상태가 주어지면 상태에 맞게 최근 등록한 판매 상품부터 상품 조회에 성공한다.")
+        @Test
+        void givenStatusOfItem_whenReadAll_thenSuccess() {
+            // given
+            Member member = signup();
+            for (int i = 1; i <= 20; i++) {
+                supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", member));
+            }
+
+            var request = RestAssured
+                    .given().log().all()
+                    .queryParam("status", "ON_SALE")
+                    .header(org.springframework.http.HttpHeaders.AUTHORIZATION,
+                            "Bearer " + jwtProvider.createAccessToken(member.getId()));
+
+            // when
+            var response = request
+                    .when()
+                    .get("/api/sales/history")
+                    .then().log().all()
+                    .body("data.contents.status", everyItem(allOf(is("판매중"))))
+                    .extract();
+
+            // then
+            assertAll(
+                    () -> assertThat(response.statusCode()).isEqualTo(200),
+                    () -> assertThat(response.jsonPath().getString("data.contents[0].itemId")).isEqualTo("20"),
+                    () -> assertThat(response.jsonPath().getString("data.contents[0].title")).isEqualTo("선풍기 - 20")
+            );
         }
     }
 }

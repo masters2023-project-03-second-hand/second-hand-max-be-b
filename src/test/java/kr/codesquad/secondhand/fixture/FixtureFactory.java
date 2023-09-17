@@ -33,6 +33,18 @@ public class FixtureFactory {
                 .build();
     }
 
+    public static Item createItem(String title, String categoryName, Member member, ItemStatus status) {
+        return Item.builder()
+                .title(title)
+                .status(status)
+                .price(10000L)
+                .categoryName(categoryName)
+                .member(member)
+                .thumbnailUrl("url")
+                .tradingRegion("범박동")
+                .build();
+    }
+
     public static Item createDefaultRegionItem(String title, String categoryName, Member member) {
         return Item.builder()
                 .title(title)
