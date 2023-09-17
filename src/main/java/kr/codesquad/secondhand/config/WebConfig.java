@@ -1,6 +1,7 @@
 package kr.codesquad.secondhand.config;
 
 import java.util.List;
+import kr.codesquad.secondhand.presentation.interceptor.RegionNotLoginInterceptor;
 import kr.codesquad.secondhand.presentation.support.AuthArgumentResolver;
 import kr.codesquad.secondhand.presentation.support.NotNullParamArgumentResolver;
 import kr.codesquad.secondhand.presentation.support.converter.IsWishRequestConverter;
@@ -10,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final AuthArgumentResolver authArgumentResolver;
     private final NotNullParamArgumentResolver notNullParamArgumentResolver;
     private final IsWishRequestConverter isWishRequestConverter;
+    private final RegionNotLoginInterceptor regionNotLoginInterceptor;
 
     @Value("${custom.front-local-url}")
     private String frontLocalUrl;
@@ -41,5 +44,11 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(isWishRequestConverter);
+    }
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(regionNotLoginInterceptor)
+                .addPathPatterns("/api/items");
     }
 }

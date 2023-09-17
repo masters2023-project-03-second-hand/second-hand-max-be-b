@@ -1,7 +1,6 @@
 package kr.codesquad.secondhand.presentation;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import kr.codesquad.secondhand.application.item.ItemService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
@@ -12,7 +11,6 @@ import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import kr.codesquad.secondhand.presentation.support.Auth;
-import kr.codesquad.secondhand.presentation.support.NotNullParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -51,9 +49,8 @@ public class ItemController {
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false, defaultValue = "역삼1동") String region,
-            @RequestParam(required = false, defaultValue = "10") int size,
-            @Auth Long memberId) {
-        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size, memberId));
+            @RequestParam(required = false, defaultValue = "10") int size) {
+        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size));
     }
 
     @GetMapping("/{itemId}")

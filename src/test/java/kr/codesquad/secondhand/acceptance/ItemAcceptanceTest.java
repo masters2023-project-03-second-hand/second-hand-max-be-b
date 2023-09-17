@@ -33,6 +33,12 @@ public class ItemAcceptanceTest extends AcceptanceTestSupport {
         }
     }
 
+    private void saveDefaultRegionItems(Member member) {
+        for (int i = 1; i <= 20; i++) {
+            supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
+        }
+    }
+
     @DisplayName("상품 등록할 때")
     @Nested
     class Register {
@@ -169,6 +175,53 @@ public class ItemAcceptanceTest extends AcceptanceTestSupport {
                     () -> assertThat(response.getInt("data.paging.nextCursor")).isEqualTo(11),
                     () -> assertThat(response.getBoolean("data.paging.hasNext")).isTrue()
             );
+        }
+
+        @DisplayName("로그인하지 않은 사용자가 상품 목록 조회에 성공한다.")
+        @Test
+        void givenNotLoginMember_whenReadAllItems_thenSuccess() {
+            // given
+            saveDefaultRegionItems(signup());
+
+            var request = RestAssured
+                    .given().log().all()
+                    .queryParam("size", 5);
+
+            // when & then
+            var response = request
+                    .when()
+                    .get("/api/items")
+                    .then().log().all()
+                    .statusCode(200)
+                    .extract().response().jsonPath();
+
+            assertAll(
+                    () -> assertThat(response.getString("data.contents[0].title")).isEqualTo("선풍기 - 20"),
+                    () -> assertThat(response.getString("data.contents[4].title")).isEqualTo("선풍기 - 16"),
+                    () -> assertThat(response.getInt("data.paging.nextCursor")).isEqualTo(16),
+                    () -> assertThat(response.getBoolean("data.paging.hasNext")).isTrue()
+            );
+        }
+
+        @DisplayName("로그인하지 않은 사용자가 역삼1동 외의 지역을 검색 시 401응답을 한다.")
+        @Test
+        void givenNotLoginMember_whenReadAllItems_thenResponse401() {
+            // given
+            saveDefaultRegionItems(signup());
+
+            var request = RestAssured
+                    .given().log().all()
+                    .queryParam("size", 5)
+                    .queryParam("region", "범안동");
+
+            // when & then
+            var response = request
+                    .when()
+                    .get("/api/items")
+                    .then().log().all()
+                    .extract();
+
+            assertThat(response.statusCode()).isEqualTo(401);
         }
     }
 }

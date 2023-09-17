@@ -213,7 +213,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "범박동", 10, member.getId());
+            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "범박동", 10);
 
             // then
             assertAll(
@@ -234,7 +234,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10, member.getId());
+            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10);
 
             // then
             assertAll(
@@ -264,7 +264,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8, member.getId());
+            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8);
 
             // then
             assertAll(
@@ -273,44 +273,6 @@ class ItemServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("맛없는 거 - 5"),
                     () -> assertThat(response.getContents().get(7).getTitle()).isEqualTo("맛있는 거 - 3")
             );
-        }
-
-        @DisplayName("로그인하지 않은 사용자가 상품목록 화면 조회에 성공한다.")
-        @Test
-        void givenNonLoginMember_whenReadAllItems_thenSuccess() {
-            // given
-            Member member = signup();
-            supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
-            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
-
-            for (int i = 1; i <= 10; i++) {
-                supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
-            }
-
-            // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "역삼1동", 10, null);
-
-            // then
-            assertThat(response.getContents().size()).isEqualTo(10);
-        }
-
-        @DisplayName("로그인하지 않은 사용자가 특정 지역의 상품목록 화면 조회시 역삼1동의 상품목록이 보여진다.")
-        @Test
-        void givenNonLoginMember_whenReadAllItemsByRegion_thenSuccess() {
-            // given
-            Member member = signup();
-            supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
-            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
-
-            for (int i = 1; i <= 10; i++) {
-                supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
-            }
-
-            // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "역삼1동", 10, -1L);
-
-            // then
-            assertThat(response.getContents()).hasSize(10);
         }
     }
 }
