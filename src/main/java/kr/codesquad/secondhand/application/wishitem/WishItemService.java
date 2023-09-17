@@ -8,6 +8,7 @@ import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.support.converter.IsWish;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.wishitem.WishItemRepository;
@@ -30,7 +31,15 @@ public class WishItemService {
     private final WishItemCategoryRepository wishItemCategoryRepository;
 
     @Transactional
-    public void registerWishItem(Long itemId, Long memberId) {
+    public void changeWishStatusOfItem(Long itemId, Long memberId, IsWish isWish) {
+        if (isWish == IsWish.YES) {
+            registerWishItem(itemId, memberId);
+            return;
+        }
+        removeWishItem(itemId, memberId);
+    }
+
+    private void registerWishItem(Long itemId, Long memberId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(
                         ErrorCode.NOT_FOUND,
@@ -40,8 +49,7 @@ public class WishItemService {
         wishItemRepository.save(WishItem.from(itemId, memberId));
     }
 
-    @Transactional
-    public void removeWishItem(Long itemId, Long memberId) {
+    private void removeWishItem(Long itemId, Long memberId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> NotFoundException.itemNotFound(ErrorCode.NOT_FOUND, itemId));
         item.decreaseWishCount();

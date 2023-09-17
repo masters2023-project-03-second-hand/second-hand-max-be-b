@@ -27,7 +27,7 @@ public class WishItemController {
     public ApiResponse<Void> changeWishStatusOfItem(@RequestParam("wish") IsWish isWish,
                                                     @PathVariable Long itemId,
                                                     @Auth Long memberId) {
-        isWish.invoke(wishItemService, itemId, memberId);
+        wishItemService.changeWishStatusOfItem(itemId, memberId, isWish);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 
