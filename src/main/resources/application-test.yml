@@ -34,3 +34,9 @@ oauth2:
   provider:
     token-url: token-url
     user-info-url: user-info-url
+
+custom:
+  default-profile:
+    https://e7.pngegg.com/pngimages/1000/665/png-clipart-computer-icons-profile-s-free-angle-sphere.png
+  front-local-url: http://localhost:5173
+  front-server-url: https://second.codesquad-project.site

@@ -10,6 +10,12 @@ plugins {
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
     // QueryDSL
     id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
+    // Jacoco
+    id 'jacoco'
+}
+
+jacoco {
+    toolVersion = "0.8.9"
 }
 
 group = 'kr.codesquad'
@@ -101,5 +107,36 @@ tasks.register('copySecret', Copy) {
     }
     into('src/main/resources')
 }
-
 /** Git Submodules end **/
+
+
+/** Jacoco start **/
+test {
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+
+        // QueryDSL Q클래스 제외
+        def Qdomains = []
+        for (qPattern in "**/QA".."**/QZ") {
+            Qdomains.add(qPattern + "*")
+        }
+
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it,
+                        exclude: [] + Qdomains)
+            }))
+        }
+
+        xml.destination file("${buildDir}/jacoco/index.xml")
+        html.destination file("${buildDir}/jacoco/index.html")
+    }
+}
+/** Jacoco end **/

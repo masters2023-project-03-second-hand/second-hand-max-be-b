@@ -33,6 +33,18 @@ public class FixtureFactory {
                 .build();
     }
 
+    public static Item createDefaultRegionItem(String title, String categoryName, Member member) {
+        return Item.builder()
+                .title(title)
+                .status(ItemStatus.ON_SALE)
+                .price(10000L)
+                .categoryName(categoryName)
+                .member(member)
+                .thumbnailUrl("url")
+                .tradingRegion("역삼1동")
+                .build();
+    }
+
     public static Member createMember() {
         return Member.builder()
                 .email("23Yong@secondhand.com")

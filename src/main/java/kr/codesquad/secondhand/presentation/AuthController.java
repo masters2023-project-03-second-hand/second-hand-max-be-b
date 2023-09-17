@@ -9,8 +9,8 @@ import kr.codesquad.secondhand.presentation.dto.member.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
 import kr.codesquad.secondhand.presentation.dto.token.AccessTokenResponse;
+import kr.codesquad.secondhand.presentation.dto.token.LogoutRequest;
 import kr.codesquad.secondhand.presentation.dto.token.TokenRenewRequest;
-import kr.codesquad.secondhand.presentation.support.Auth;
 import kr.codesquad.secondhand.presentation.support.NotNullParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -32,7 +32,6 @@ public class AuthController {
     private final AuthService authService;
     private final TokenService tokenService;
 
-    @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/naver/login")
     public ApiResponse<LoginResponse> login(@RequestBody @Valid LoginRequest request,
                                             @NotNullParam(message = "code 값은 반드시 들어와야 합니다.") String code,
@@ -50,16 +49,15 @@ public class AuthController {
         return new ApiResponse<>(HttpStatus.CREATED.value());
     }
 
-    @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/token")
     public ApiResponse<AccessTokenResponse> renewAccessToken(@Valid @RequestBody TokenRenewRequest request) {
         return new ApiResponse<>(HttpStatus.OK.value(), tokenService.renewAccessToken(request.getRefreshToken()));
     }
 
-    @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/logout")
-    public ApiResponse<Void> logout(HttpServletRequest request, @Auth Long memberId) {
-        authService.logout(request, memberId);
+    public ApiResponse<Void> logout(HttpServletRequest request,
+                                    @Valid @RequestBody LogoutRequest logoutRequest) {
+        authService.logout(request, logoutRequest.getRefreshToken());
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 }

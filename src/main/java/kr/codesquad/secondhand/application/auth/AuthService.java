@@ -1,6 +1,6 @@
 package kr.codesquad.secondhand.application.auth;
 
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.application.residence.ResidenceService;
@@ -13,15 +13,16 @@ import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtExtractor;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtProvider;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
+import kr.codesquad.secondhand.presentation.dto.member.AddressData;
 import kr.codesquad.secondhand.presentation.dto.member.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
 import kr.codesquad.secondhand.presentation.dto.member.UserResponse;
 import kr.codesquad.secondhand.presentation.dto.token.AuthToken;
+import kr.codesquad.secondhand.repository.RedisRepository;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
 import kr.codesquad.secondhand.repository.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,14 +38,14 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final NaverRequester naverRequester;
     private final JwtProvider jwtProvider;
-    private final RedisTemplate<String, Object> redisTemplate;
-
+    private final RedisRepository redisRepository;
 
     @Transactional
     public LoginResponse login(LoginRequest request, String code) {
         OauthTokenResponse tokenResponse = naverRequester.getToken(code);
         UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
-        Long memberId = verifyUser(request, userProfile);
+        Member member = verifyUser(request, userProfile);
+        Long memberId = member.getId();
 
         String refreshToken = jwtProvider.createRefreshToken(memberId);
         tokenRepository.deleteByMemberId(memberId);
@@ -53,9 +54,11 @@ public class AuthService {
                 .memberId(memberId)
                 .token(refreshToken)
                 .build());
+
+        List<AddressData> addressData = residenceService.readResidenceOfMember(memberId);
         return new LoginResponse(
                 new AuthToken(jwtProvider.createAccessToken(memberId), refreshToken),
-                new UserResponse(userProfile.getEmail(), userProfile.getProfileUrl())
+                new UserResponse(member.getLoginId(), member.getProfileUrl(), addressData)
         );
     }
 
@@ -69,31 +72,31 @@ public class AuthService {
             userProfile.changeProfileUrl(profileUrl);
         }
         Member savedMember = saveMember(request, userProfile);
-        residenceService.saveResidence(request, savedMember);
-    }
-
-    @Transactional
-    public void logout(HttpServletRequest request, Long memberId) {
-        String accessToken = JwtExtractor.extract(request)
-                .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_TOKEN));
-        Long expiration = jwtProvider.getExpiration(accessToken);
-        redisTemplate.opsForValue().set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
-        tokenRepository.deleteByMemberId(memberId);
-    }
-
-    private Long verifyUser(LoginRequest request, UserProfile userProfile) {
-        Member member = memberRepository.findByLoginId(request.getLoginId())
-                .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA));
-        if (!member.isSameEmail(userProfile.getEmail())) {
-            throw new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA);
-        }
-        return member.getId();
+        residenceService.saveResidence(request.getAddressIds(), savedMember);
     }
 
     private void verifyDuplicated(SignUpRequest request) {
         if (memberRepository.existsByLoginId(request.getLoginId())) {
             throw new DuplicatedException(ErrorCode.DUPLICATED_LOGIN_ID);
         }
+    }
+
+    @Transactional
+    public void logout(HttpServletRequest request, String refreshToken) {
+        JwtExtractor.extract(request).ifPresent(token -> {
+            Long expiration = jwtProvider.getExpiration(token);
+            redisRepository.set(token, "logout", expiration);
+        });
+        tokenRepository.deleteByToken(refreshToken);
+    }
+
+    private Member verifyUser(LoginRequest request, UserProfile userProfile) {
+        Member member = memberRepository.findByLoginId(request.getLoginId())
+                .orElseThrow(() -> new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA));
+        if (!member.isSameEmail(userProfile.getEmail())) {
+            throw new UnAuthorizedException(ErrorCode.INVALID_LOGIN_DATA);
+        }
+        return member;
     }
 
     private Member saveMember(SignUpRequest request, UserProfile userProfile) {

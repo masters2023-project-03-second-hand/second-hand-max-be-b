@@ -5,8 +5,11 @@ import java.util.List;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.residence.Region;
 import kr.codesquad.secondhand.domain.residence.Residence;
+import kr.codesquad.secondhand.exception.BadRequestException;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
-import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
+import kr.codesquad.secondhand.presentation.dto.member.AddressData;
 import kr.codesquad.secondhand.presentation.dto.residence.RegionResponse;
 import kr.codesquad.secondhand.repository.residence.RegionRepository;
 import kr.codesquad.secondhand.repository.residence.ResidenceRepository;
@@ -21,17 +24,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ResidenceService {
 
+    private static final int MEMBER_HAS_RESIDENCE_MIN_COUNT = 1;
+    private static final int MEMBER_HAS_RESIDENCE_MAX_COUNT = 2;
+
     private final RegionPaginationRepository regionPaginationRepository;
     private final RegionRepository regionRepository;
     private final ResidenceRepository residenceRepository;
 
     @Transactional
-    public void saveResidence(SignUpRequest request, Member member) {
-        List<Long> regionIds = regionRepository.findAllIdsById(request.getAddressNames());
-        List<String> addressNames = request.getAddressNames();
+    public void saveResidence(List<Long> regionIds, Member member) {
+        List<String> addressNames = regionRepository.findAddressNamesByIds(regionIds);
 
         List<Residence> residences = new ArrayList<>();
-        for (int i = 0; i < regionIds.size(); i++) {
+        for (int i = 0; i < addressNames.size(); i++) {
             residences.add(Residence.builder()
                     .addressName(addressNames.get(i))
                     .member(member)
@@ -57,5 +62,32 @@ public class ResidenceService {
             nextCursor = content.get(content.size() - 1).getAddressId();
         }
         return nextCursor;
+    }
+
+    @Transactional
+    public void register(Long addressId, Long memberId) {
+        if (residenceRepository.countByMemberId(memberId) >= MEMBER_HAS_RESIDENCE_MAX_COUNT) {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST, "사용자의 거주 지역은 최대 두 개까지 설정 가능합니다.");
+        }
+
+        Region region = regionRepository.findById(addressId)
+                .orElseThrow(() -> NotFoundException.regionNotFound(ErrorCode.NOT_FOUND, addressId));
+
+        residenceRepository.save(Residence.from(memberId, region.getId(), region.getAddressName()));
+    }
+
+    @Transactional
+    public void remove(Long addressId, Long memberId) {
+        if (residenceRepository.countByMemberId(memberId) <= MEMBER_HAS_RESIDENCE_MIN_COUNT) {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST, "사용자의 거주 지역은 최소 한 개는 있어야 합니다.");
+        }
+        Region region = regionRepository.findById(addressId)
+                .orElseThrow(() -> NotFoundException.regionNotFound(ErrorCode.NOT_FOUND, addressId));
+
+        residenceRepository.deleteByAddressName(region.getAddressName());
+    }
+
+    public List<AddressData> readResidenceOfMember(Long memberId) {
+        return residenceRepository.findByMemberId(memberId);
     }
 }
