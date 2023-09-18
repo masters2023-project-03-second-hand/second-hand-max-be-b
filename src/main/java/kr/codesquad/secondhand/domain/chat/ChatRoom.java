@@ -47,11 +47,11 @@ public class ChatRoom {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @JoinColumn(nullable = false, name = "from_id")
+    @JoinColumn(nullable = false, name = "sender_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Member sender;
 
-    @JoinColumn(nullable = false, name = "to_id")
+    @JoinColumn(nullable = false, name = "receiver_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Member receiver;
 
