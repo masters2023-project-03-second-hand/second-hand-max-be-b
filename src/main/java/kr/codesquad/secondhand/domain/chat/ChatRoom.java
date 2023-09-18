@@ -85,4 +85,8 @@ public class ChatRoom {
                 .status(WhoIsLast.FROM)
                 .build();
     }
+
+    public boolean isSender(Long memberId) {
+        return sender.getId().equals(memberId);
+    }
 }
