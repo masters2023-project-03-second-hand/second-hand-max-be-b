@@ -123,6 +123,35 @@ class ItemServiceTest extends ApplicationTestSupport {
         );
     }
 
+    @DisplayName("상품을 수정할 때 새로운 상품 이미지가 주어지면 상품 수정에 성공한다.")
+    @Test
+    void givenNewImage_whenUpdateItem_thenSuccess() {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1"));
+        Member member = signup();
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        MockMultipartFile image = new MockMultipartFile(
+                "new-image",
+                "new-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "new-image-content".getBytes(StandardCharsets.UTF_8)
+        );
+
+        // when
+        itemService.update(List.of(image), FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
+
+        // then
+        Optional<Item> item = supportRepository.findById(Item.class, 1L);
+        List<ItemImage> images = supportRepository.findAll(ItemImage.class);
+
+        assertAll(
+                () -> assertThat(item).isPresent(),
+                () -> assertThat(item.get().getTitle()).isEqualTo("수정제목"),
+                () -> assertThat(item.get().getThumbnailUrl()).isEqualTo("url1"),
+                () -> assertThat(images).hasSize(1)
+        );
+    }
+
     @DisplayName("상품의 상태 수정에 성공한다.")
     @Test
     void given_whenUpdateStatus_thenSuccess() {
