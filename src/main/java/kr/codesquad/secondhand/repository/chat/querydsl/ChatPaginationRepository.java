@@ -7,6 +7,7 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.JPAExpressions;
+import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,7 +36,7 @@ public class ChatPaginationRepository implements PaginationRepository {
                         loginIdExpression,
                         profileExpression))
                 .from(chatRoom)
-                .where(latestThanId(chatRoomId),
+                .where(beforeThanId(chatRoomId),
                         equalsMemberId(memberId)
                 )
                 .orderBy(chatRoom.lastSendTime.desc())
@@ -48,29 +49,30 @@ public class ChatPaginationRepository implements PaginationRepository {
         return new CaseBuilder()
                 .when(chatRoom.sender.id.eq(memberId))
                 .then(chatRoom.receiver.loginId)
-                .otherwise(chatRoom.sender.loginId);
+                .otherwise(chatRoom.sender.loginId)
+                .as("chatPartnerName");
     }
 
     private Expression<String> createPartnerProfileExpression(Long memberId) {
         return new CaseBuilder()
                 .when(chatRoom.sender.id.eq(memberId))
                 .then(chatRoom.receiver.profileUrl)
-                .otherwise(chatRoom.sender.profileUrl);
+                .otherwise(chatRoom.sender.profileUrl)
+                .as("chatPartnerProfile");
     }
 
-    private LocalDateTime findLastSendTimeById(Long chatRoomId) {
+    private JPQLQuery<LocalDateTime> findLastSendTimeById(Long chatRoomId) {
         return JPAExpressions
                 .select(chatRoom.lastSendTime)
                 .from(chatRoom)
-                .where(chatRoom.id.eq(chatRoomId))
-                .fetchFirst();
+                .where(chatRoom.id.eq(chatRoomId));
     }
 
-    private BooleanExpression latestThanId(Long chatRoomId) {
+    private BooleanExpression beforeThanId(Long chatRoomId) {
         if (chatRoomId == null) {
             return null;
         }
-        return chatRoom.lastSendTime.lt(findLastSendTimeById(chatRoomId));
+        return chatRoom.lastSendTime.before(findLastSendTimeById(chatRoomId));
     }
 
     private BooleanExpression equalsMemberId(Long memberId) {

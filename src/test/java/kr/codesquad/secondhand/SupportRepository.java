@@ -34,4 +34,13 @@ public class SupportRepository {
         return em.createQuery(String.format("SELECT entity FROM %s entity", entityTypeName))
                 .getResultList();
     }
+
+    public List<?> save(List<?> entity) {
+        for (int i = 0; i < entity.size(); i++) {
+            em.persist(entity.get(i));
+        }
+        em.flush();
+        em.clear();
+        return entity;
+    }
 }

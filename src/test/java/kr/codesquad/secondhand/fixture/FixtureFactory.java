@@ -1,6 +1,9 @@
 package kr.codesquad.secondhand.fixture;
 
+import java.util.ArrayList;
 import java.util.List;
+import kr.codesquad.secondhand.domain.chat.ChatRoom;
+import kr.codesquad.secondhand.domain.chat.WhoIsLast;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.member.Member;
@@ -64,5 +67,35 @@ public class FixtureFactory {
                 "가전/잡화",
                 List.of("url1", "url2")
         );
+    }
+
+    public static List<Member> createPartner() {
+        List<Member> members = new ArrayList<>();
+        for (int i = 1; i <= 30; i++) {
+            members.add(
+                    Member.builder()
+                            .email(i + "test@secondhand.com")
+                            .loginId(i + "testId")
+                            .profileUrl("image-url")
+                            .build()
+            );
+        }
+        return members;
+    }
+
+    public static List<ChatRoom> createChatRooms(Member member, List<Member> partners, Item item) {
+        List<ChatRoom> chatRooms = new ArrayList<>();
+        for (Member partner : partners) {
+            chatRooms.add(
+                    ChatRoom.builder()
+                            .subject("대화내용")
+                            .status(WhoIsLast.FROM)
+                            .sender(partner)
+                            .receiver(member)
+                            .item(item)
+                            .build()
+            );
+        }
+        return chatRooms;
     }
 }
