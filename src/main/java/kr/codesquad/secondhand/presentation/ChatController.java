@@ -69,4 +69,10 @@ public class ChatController {
         }
         return new ApiResponse<>(HttpStatus.OK.value());
     }
+
+    @PostMapping("/items/{itemId}/chats")
+    public ApiResponse<Map<String, Long>> createChatRoom(@PathVariable Long itemId, @Auth Long senderId) {
+        Long chatRoomId = chatRoomService.createChatRoom(itemId, senderId);
+        return new ApiResponse<>(HttpStatus.CREATED.value(), Map.of("chatRoomId", chatRoomId));
+    }
 }

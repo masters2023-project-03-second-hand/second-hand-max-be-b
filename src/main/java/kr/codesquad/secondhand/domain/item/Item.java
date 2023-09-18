@@ -125,4 +125,8 @@ public class Item extends AuditingFields {
     public void decreaseWishCount() {
         this.wishCount--;
     }
+
+    public void increaseChatCount() {
+        this.chatCount++;
+    }
 }
