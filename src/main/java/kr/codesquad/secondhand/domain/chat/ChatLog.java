@@ -54,4 +54,13 @@ public class ChatLog {
         this.isSender = isSender;
         this.chatRoom = chatRoom;
     }
+
+    public static ChatLog from(ChatRoom chatRoom, String message, boolean isSender) {
+        return ChatLog.builder()
+                .message(message)
+                .isSender(isSender)
+                .isRead(false)
+                .chatRoom(chatRoom)
+                .build();
+    }
 }

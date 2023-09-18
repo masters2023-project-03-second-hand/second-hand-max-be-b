@@ -7,19 +7,20 @@ import kr.codesquad.secondhand.application.chat.ChatRoomService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatLogResponse;
+import kr.codesquad.secondhand.presentation.dto.chat.ChatRequest;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
 import kr.codesquad.secondhand.presentation.support.Auth;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
-@Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController
@@ -54,5 +55,18 @@ public class ChatController {
             @Auth Long memberId
     ) {
         return new ApiResponse<>(HttpStatus.OK.value(), chatRoomService.read(cursor, size, memberId));
+    }
+
+    @PostMapping("/chats/{chatRoomId}")
+    public ApiResponse<Void> sendMessage(@RequestBody ChatRequest request,
+                                         @PathVariable Long chatRoomId,
+                                         @Auth Long senderId) {
+        chatLogService.sendMessage(request.getMessage(), chatRoomId, senderId);
+
+        for (var entry : chatRequests.entrySet()) {
+            ChatLogResponse messages = chatLogService.getMessages(chatRoomId, entry.getValue());
+            entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
+        }
+        return new ApiResponse<>(HttpStatus.OK.value());
     }
 }
