@@ -14,6 +14,7 @@ import kr.codesquad.secondhand.domain.wishitem.WishItem;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.support.converter.IsWish;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -32,7 +33,7 @@ class WishItemServiceTest extends ApplicationTestSupport {
         supportRepository.save(FixtureFactory.createItem("초코 브라우니", "식품", member));
 
         // when
-        wishItemService.registerWishItem(1L, 1L);
+        wishItemService.changeWishStatusOfItem(1L, 1L, IsWish.YES);
 
         // then
         Optional<WishItem> wishItem = supportRepository.findById(WishItem.class, 1L);
@@ -55,7 +56,7 @@ class WishItemServiceTest extends ApplicationTestSupport {
         supportRepository.save(WishItem.builder().item(item).member(member).build());
 
         // when
-        wishItemService.removeWishItem(1L, 1L);
+        wishItemService.changeWishStatusOfItem(1L, 1L, IsWish.NO);
 
         // then
         Optional<WishItem> wishItem = supportRepository.findById(WishItem.class, 1L);
@@ -69,6 +70,34 @@ class WishItemServiceTest extends ApplicationTestSupport {
 
     private Member signup() {
         return supportRepository.save(FixtureFactory.createMember());
+    }
+
+    @DisplayName("관심상품 목록 화면의 카테고리 목록 조회에 성공한다.")
+    @Test
+    void given_whenReadWishItemCategories_thenSuccess() {
+        //given
+        Member member = signup();
+        List<Item> list = new ArrayList<>();
+        list.add(supportRepository.save(FixtureFactory.createItem("item1", "생활가전", member)));
+        list.add(supportRepository.save(FixtureFactory.createItem("item2", "식물", member)));
+        list.add(supportRepository.save(FixtureFactory.createItem("item4", "생활가전", member)));
+        list.add(supportRepository.save(FixtureFactory.createItem("item5", "중고차", member)));
+        list.add(supportRepository.save(FixtureFactory.createItem("item6", "가공식품", member)));
+        supportRepository.save(FixtureFactory.createItem("NonWishItem", "유아도서", member));
+
+        for (int i = 0; i < list.size(); i++) {
+            wishItemService.changeWishStatusOfItem(i + 1L, member.getId(), IsWish.YES);
+        }
+
+        // when
+        List<String> response = wishItemService.readCategories(member.getId());
+
+        // then
+        assertAll(
+                () -> assertThat(response.size()).isEqualTo(4),
+                () -> assertThat(response.get(0)).isEqualTo("가공식품"),
+                () -> assertThat(response.contains("유아도서")).isFalse()
+        );
     }
 
     @DisplayName("관심 상품 목록을 조회할 때")
@@ -130,33 +159,5 @@ class WishItemServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getPaging().isHasNext()).isFalse()
             );
         }
-    }
-
-    @DisplayName("관심상품 목록 화면의 카테고리 목록 조회에 성공한다.")
-    @Test
-    void given_whenReadWishItemCategories_thenSuccess() {
-        //given
-        Member member = signup();
-        List<Item> list = new ArrayList<>();
-        list.add(supportRepository.save(FixtureFactory.createItem("item1", "생활가전", member)));
-        list.add(supportRepository.save(FixtureFactory.createItem("item2", "식물", member)));
-        list.add(supportRepository.save(FixtureFactory.createItem("item4", "생활가전", member)));
-        list.add(supportRepository.save(FixtureFactory.createItem("item5", "중고차", member)));
-        list.add(supportRepository.save(FixtureFactory.createItem("item6", "가공식품", member)));
-        supportRepository.save(FixtureFactory.createItem("NonWishItem", "유아도서", member));
-
-        for (int i = 0; i < list.size(); i++) {
-            wishItemService.registerWishItem(i+1L, member.getId());
-        }
-
-        // when
-        List<String> response = wishItemService.readCategories(member.getId());
-
-        // then
-        assertAll(
-                () -> assertThat(response.size()).isEqualTo(4),
-                () -> assertThat(response.get(0)).isEqualTo("가공식품"),
-                () -> assertThat(response.contains("유아도서")).isFalse()
-        );
     }
 }

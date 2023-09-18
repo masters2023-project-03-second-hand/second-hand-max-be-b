@@ -10,7 +10,6 @@ import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
-import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
@@ -35,8 +34,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class ItemService {
 
     private static final int IMAGE_LIST_MAX_SIZE = 10;
-    private static final Long NOT_LOGIN_MEMBER_ID = -1L;
-    private static final String NOT_LOGIN_DEFAULT_REGION = "역삼1동";
 
     private final ImageService imageService;
     private final ItemRepository itemRepository;
@@ -49,8 +46,11 @@ public class ItemService {
 
     @Transactional
     public void register(List<MultipartFile> images, ItemRegisterRequest request, Long sellerId) {
-        if (images == null || images.isEmpty() || images.size() > IMAGE_LIST_MAX_SIZE) {
-            throw new BadRequestException(ErrorCode.INVALID_PARAMETER, "이미지는 최소 1개이상 최대 10개까지 들어올 수 있습니다.");
+        if (images == null || images.isEmpty()) {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST, "이미지는 최소 1개 이상 들어와야 합니다.");
+        }
+        if (images.size() > IMAGE_LIST_MAX_SIZE) {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST, "이미지는 최대 10개까지 들어올 수 있습니다.");
         }
 
         List<String> itemImageUrls = imageService.uploadImages(images);
@@ -66,10 +66,7 @@ public class ItemService {
         itemImageRepository.saveAllItemImages(itemImages);
     }
 
-    public CustomSlice<ItemResponse> readAll(Long itemId, Long categoryId, String region, int pageSize, Long memberId) {
-        if (memberId == NOT_LOGIN_MEMBER_ID && !region.equals(NOT_LOGIN_DEFAULT_REGION)) {
-            throw new UnAuthorizedException(ErrorCode.NOT_LOGIN);
-        }
+    public CustomSlice<ItemResponse> readAll(Long itemId, Long categoryId, String region, int pageSize) {
         String categoryName = null;
         if (categoryId != null) {
             categoryName = categoryRepository.findNameById(categoryId).orElse(null);

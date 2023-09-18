@@ -123,6 +123,35 @@ class ItemServiceTest extends ApplicationTestSupport {
         );
     }
 
+    @DisplayName("상품을 수정할 때 새로운 상품 이미지가 주어지면 상품 수정에 성공한다.")
+    @Test
+    void givenNewImage_whenUpdateItem_thenSuccess() {
+        // given
+        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1"));
+        Member member = signup();
+        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        MockMultipartFile image = new MockMultipartFile(
+                "new-image",
+                "new-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "new-image-content".getBytes(StandardCharsets.UTF_8)
+        );
+
+        // when
+        itemService.update(List.of(image), FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
+
+        // then
+        Optional<Item> item = supportRepository.findById(Item.class, 1L);
+        List<ItemImage> images = supportRepository.findAll(ItemImage.class);
+
+        assertAll(
+                () -> assertThat(item).isPresent(),
+                () -> assertThat(item.get().getTitle()).isEqualTo("수정제목"),
+                () -> assertThat(item.get().getThumbnailUrl()).isEqualTo("url1"),
+                () -> assertThat(images).hasSize(1)
+        );
+    }
+
     @DisplayName("상품의 상태 수정에 성공한다.")
     @Test
     void given_whenUpdateStatus_thenSuccess() {
@@ -213,7 +242,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "범박동", 10, member.getId());
+            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "범박동", 10);
 
             // then
             assertAll(
@@ -234,7 +263,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10, member.getId());
+            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10);
 
             // then
             assertAll(
@@ -264,7 +293,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8, member.getId());
+            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8);
 
             // then
             assertAll(
@@ -273,44 +302,6 @@ class ItemServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("맛없는 거 - 5"),
                     () -> assertThat(response.getContents().get(7).getTitle()).isEqualTo("맛있는 거 - 3")
             );
-        }
-
-        @DisplayName("로그인하지 않은 사용자가 상품목록 화면 조회에 성공한다.")
-        @Test
-        void givenNonLoginMember_whenReadAllItems_thenSuccess() {
-            // given
-            Member member = signup();
-            supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
-            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
-
-            for (int i = 1; i <= 10; i++) {
-                supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
-            }
-
-            // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "역삼1동", 10, null);
-
-            // then
-            assertThat(response.getContents().size()).isEqualTo(10);
-        }
-
-        @DisplayName("로그인하지 않은 사용자가 특정 지역의 상품목록 화면 조회시 역삼1동의 상품목록이 보여진다.")
-        @Test
-        void givenNonLoginMember_whenReadAllItemsByRegion_thenSuccess() {
-            // given
-            Member member = signup();
-            supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
-            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
-
-            for (int i = 1; i <= 10; i++) {
-                supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
-            }
-
-            // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "역삼1동", 10, -1L);
-
-            // then
-            assertThat(response.getContents()).hasSize(10);
         }
     }
 }
