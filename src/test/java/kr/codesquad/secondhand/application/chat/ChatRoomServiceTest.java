@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.util.List;
-import kr.codesquad.secondhand.SupportRepository;
 import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
-import kr.codesquad.secondhand.domain.chat.ChatRoom;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
@@ -48,7 +46,6 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getContents().get(0).getLastSendMessage()).isEqualTo("30번 채팅방"),
                     () -> assertThat(response.getContents().get(9).getChatPartnerName()).isEqualTo("21testId")
             );
-
         }
 
         @DisplayName("마지막 페이지에서 최근 전송된 채팅 순으로 보여진다.")
@@ -63,7 +60,6 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             // when
             CustomSlice<ChatRoomResponse> response = chatRoomService.read(11L, 10, 1L);
 
-
             // then
             assertAll(
                     () -> assertThat(response.getPaging().isHasNext()).isFalse(),
@@ -71,7 +67,6 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getContents().get(0).getChatPartnerName()).isEqualTo("10testId"),
                     () -> assertThat(response.getContents().get(9).getChatPartnerName()).isEqualTo("1testId")
             );
-
         }
 
         private Member signup() {
@@ -79,7 +74,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
         }
 
         private List<Member> getPartners() {
-            return (List<Member>) supportRepository.save(FixtureFactory.createPartner());
+            return supportRepository.save(FixtureFactory.createPartner());
         }
     }
 }
