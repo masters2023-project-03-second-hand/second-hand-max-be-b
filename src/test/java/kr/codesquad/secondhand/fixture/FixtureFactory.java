@@ -85,12 +85,12 @@ public class FixtureFactory {
 
     public static List<ChatRoom> createChatRooms(Member member, List<Member> partners, Item item) {
         List<ChatRoom> chatRooms = new ArrayList<>();
-        for (Member partner : partners) {
+        for (int i = 0; i < partners.size(); i++) {
             chatRooms.add(
                     ChatRoom.builder()
-                            .subject("대화내용")
+                            .subject(i+1 + "번 채팅방")
                             .status(WhoIsLast.FROM)
-                            .sender(partner)
+                            .sender(partners.get(i))
                             .receiver(member)
                             .item(item)
                             .build()

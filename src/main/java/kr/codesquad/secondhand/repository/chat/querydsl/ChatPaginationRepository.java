@@ -61,18 +61,18 @@ public class ChatPaginationRepository implements PaginationRepository {
                 .as("chatPartnerProfile");
     }
 
-    private JPQLQuery<LocalDateTime> findLastSendTimeById(Long chatRoomId) {
-        return JPAExpressions
-                .select(chatRoom.lastSendTime)
-                .from(chatRoom)
-                .where(chatRoom.id.eq(chatRoomId));
-    }
-
     private BooleanExpression beforeThanId(Long chatRoomId) {
         if (chatRoomId == null) {
             return null;
         }
         return chatRoom.lastSendTime.before(findLastSendTimeById(chatRoomId));
+    }
+
+    private JPQLQuery<LocalDateTime> findLastSendTimeById(Long chatRoomId) {
+        return JPAExpressions
+                .select(chatRoom.lastSendTime)
+                .from(chatRoom)
+                .where(chatRoom.id.eq(chatRoomId));
     }
 
     private BooleanExpression equalsMemberId(Long memberId) {

@@ -35,12 +35,12 @@ public class SupportRepository {
                 .getResultList();
     }
 
-    public List<?> save(List<?> entity) {
-        for (int i = 0; i < entity.size(); i++) {
-            em.persist(entity.get(i));
+    public <T> List<T> save(List<T> entities) {
+        for (int i = 0; i < entities.size(); i++) {
+            em.persist(entities.get(i));
         }
         em.flush();
         em.clear();
-        return entity;
+        return entities;
     }
 }

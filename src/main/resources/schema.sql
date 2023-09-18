@@ -106,8 +106,8 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`chat_room`
 (
     `id`             BIGINT        NOT NULL AUTO_INCREMENT,
     `created_at`     TIMESTAMP     NOT NULL,
-    `sender_id`        BIGINT        NOT NULL COMMENT '송신자 (최초 메시지 송신자)',
-    `receiver_id`          BIGINT        NOT NULL COMMENT '수신자 (최초 메시지 수신자)',
+    `sender_id`      BIGINT        NOT NULL COMMENT '송신자 (최초 메시지 송신자)',
+    `receiver_id`    BIGINT        NOT NULL COMMENT '수신자 (최초 메시지 수신자)',
     `item_id`        BIGINT        NOT NULL,
     `subject`        VARCHAR(1000) NOT NULL COMMENT '마지막으로 보낸 메시지',
     `status`         VARCHAR(45)   NOT NULL COMMENT '누가 마지막으로 메시지를 보냈는지 (from, to)',

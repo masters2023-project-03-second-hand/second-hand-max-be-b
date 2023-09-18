@@ -35,7 +35,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             Member member = signup();
             List<Member> partners = getPartners();
             Item item = supportRepository.save(FixtureFactory.createItem("item", "가전/잡화", member));
-            List<ChatRoom> chatRooms = (List<ChatRoom>) supportRepository.save(FixtureFactory.createChatRooms(member, partners, item));
+            supportRepository.save(FixtureFactory.createChatRooms(member, partners, item));
 
             // when
             CustomSlice<ChatRoomResponse> response = chatRoomService.read(null, 10, 1L);
@@ -45,6 +45,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getPaging().isHasNext()).isTrue(),
                     () -> assertThat(response.getPaging().getNextCursor()).isEqualTo(21),
                     () -> assertThat(response.getContents().get(0).getChatPartnerName()).isEqualTo("30testId"),
+                    () -> assertThat(response.getContents().get(0).getLastSendMessage()).isEqualTo("30번 채팅방"),
                     () -> assertThat(response.getContents().get(9).getChatPartnerName()).isEqualTo("21testId")
             );
 
@@ -57,16 +58,18 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             Member member = signup();
             List<Member> partners = getPartners();
             Item item = supportRepository.save(FixtureFactory.createItem("item", "가전/잡화", member));
-            List<ChatRoom> chatRooms = FixtureFactory.createChatRooms(member, partners, item);
+            supportRepository.save(FixtureFactory.createChatRooms(member, partners, item));
 
             // when
-            CustomSlice<ChatRoomResponse> response = chatRoomService.read(21L, 10, 1L);
+            CustomSlice<ChatRoomResponse> response = chatRoomService.read(11L, 10, 1L);
 
 
             // then
             assertAll(
                     () -> assertThat(response.getPaging().isHasNext()).isFalse(),
-                    () -> assertThat(response.getPaging().getNextCursor()).isNull()
+                    () -> assertThat(response.getPaging().getNextCursor()).isNull(),
+                    () -> assertThat(response.getContents().get(0).getChatPartnerName()).isEqualTo("10testId"),
+                    () -> assertThat(response.getContents().get(9).getChatPartnerName()).isEqualTo("1testId")
             );
 
         }
