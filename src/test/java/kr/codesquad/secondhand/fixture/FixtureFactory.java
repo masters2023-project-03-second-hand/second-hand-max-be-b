@@ -1,6 +1,9 @@
 package kr.codesquad.secondhand.fixture;
 
+import java.util.ArrayList;
 import java.util.List;
+import kr.codesquad.secondhand.domain.chat.ChatRoom;
+import kr.codesquad.secondhand.domain.chat.WhoIsLast;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.member.Member;
@@ -76,5 +79,47 @@ public class FixtureFactory {
                 "가전/잡화",
                 List.of("url1", "url2")
         );
+    }
+
+    public static List<Member> createPartner() {
+        List<Member> members = new ArrayList<>();
+        for (int i = 1; i <= 30; i++) {
+            members.add(
+                    Member.builder()
+                            .email(i + "test@secondhand.com")
+                            .loginId(i + "testId")
+                            .profileUrl("image-url")
+                            .build()
+            );
+        }
+        return members;
+    }
+
+    public static List<ChatRoom> createChatRooms(Member member, List<Member> partners, Item item) {
+        List<ChatRoom> chatRooms = new ArrayList<>();
+        int tmp = partners.size() / 2;
+        for (int i = 0; i < tmp; i++) {
+            chatRooms.add(
+                    ChatRoom.builder()
+                            .subject(i + 1 + "번 채팅방")
+                            .status(WhoIsLast.FROM)
+                            .sender(partners.get(i))
+                            .receiver(member)
+                            .item(item)
+                            .build()
+            );
+        }
+        for (int i = tmp; i < partners.size(); i++) {
+            chatRooms.add(
+                    ChatRoom.builder()
+                            .subject(i + 1 + "번 채팅방")
+                            .status(WhoIsLast.FROM)
+                            .sender(member)
+                            .receiver(partners.get(i))
+                            .item(item)
+                            .build()
+            );
+        }
+        return chatRooms;
     }
 }
