@@ -7,7 +7,6 @@ import java.util.List;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.chat.ChatLog;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
-import kr.codesquad.secondhand.domain.chat.WhoIsLast;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
@@ -77,7 +76,6 @@ class ChatLogServiceTest extends ApplicationTestSupport {
         return supportRepository.save(ChatRoom.builder()
                 .item(item)
                 .subject("")
-                .status(WhoIsLast.FROM)
                 .receiver(receiver)
                 .sender(sender)
                 .build());

@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import io.restassured.RestAssured;
 import java.util.Map;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
-import kr.codesquad.secondhand.domain.chat.WhoIsLast;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
@@ -29,7 +28,6 @@ public class ChatAcceptanceTest extends AcceptanceTestSupport {
         return supportRepository.save(ChatRoom.builder()
                 .item(item)
                 .subject("")
-                .status(WhoIsLast.FROM)
                 .receiver(receiver)
                 .sender(sender)
                 .build());

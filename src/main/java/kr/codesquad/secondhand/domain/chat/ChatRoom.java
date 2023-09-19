@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -36,10 +34,6 @@ public class ChatRoom {
     @Column(nullable = false, length = 1000)
     private String subject;
 
-    @Column(nullable = false, length = 45)
-    @Enumerated(EnumType.STRING)
-    private WhoIsLast status;
-
     @Column(nullable = false)
     private LocalDateTime lastSendTime;
 
@@ -60,10 +54,9 @@ public class ChatRoom {
     private Item item;
 
     @Builder
-    private ChatRoom(Long id, String subject, WhoIsLast status, Member sender, Member receiver, Item item) {
+    private ChatRoom(Long id, String subject, Member sender, Member receiver, Item item) {
         this.id = id;
         this.subject = subject;
-        this.status = status;
         this.lastSendTime = LocalDateTime.now();
         this.sender = sender;
         this.receiver = receiver;
@@ -82,7 +75,6 @@ public class ChatRoom {
                 .receiver(Member.builder()
                         .id(sellerId)
                         .build())
-                .status(WhoIsLast.FROM)
                 .build();
     }
 
