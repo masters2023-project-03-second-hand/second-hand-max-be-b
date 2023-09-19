@@ -125,7 +125,7 @@ tasks.named('test') {
 
 /** Jacoco start **/
 jacocoTestReport {
-    dependsOn test
+    dependsOn "createDocument"
 
     reports {
         xml.required.set(true)
@@ -178,6 +178,8 @@ tasks.register('displaceDocument', Copy) {
 }
 
 bootJar {
+    bootJarMainClassName.dependsOn createDocument
+    jar.dependsOn createDocument
     dependsOn createDocument
 }
 /** REST Docs end **/
