@@ -23,16 +23,17 @@ public class MemberService {
     private String defaultProfileImage;
 
     @Transactional
-    public void modifyProfileImage(MultipartFile profileImage, Long memberId) {
+    public String modifyProfileImage(MultipartFile profileImage, Long memberId) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "회원을 찾을 수 없습니다."));
 
         if (profileImage == null || profileImage.isEmpty()) {
             member.changeProfileImage(defaultProfileImage);
-            return;
+            return defaultProfileImage;
         }
 
         String updatedProfileImageUrl = imageService.uploadImage(profileImage);
         member.changeProfileImage(updatedProfileImageUrl);
+        return updatedProfileImageUrl;
     }
 }

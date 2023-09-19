@@ -1,7 +1,6 @@
 package kr.codesquad.secondhand.application.member;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.mockito.BDDMockito.any;
 import static org.mockito.BDDMockito.given;
 
@@ -35,16 +34,18 @@ class MemberServiceTest extends ApplicationTestSupport {
         void givenUpdatedProfileImage_whenModifyProfileImage_thenSuccess() {
             // given
             Member member = supportRepository.save(FixtureFactory.createMember());
-            given(s3Uploader.uploadImageFile(any(ImageFile.class))).willReturn("profileUrl");
+            given(s3Uploader.uploadImageFile(any(ImageFile.class))).willReturn("updatedProfileUrl");
 
             MockMultipartFile profileImage = new MockMultipartFile("profile-image",
                     "profile-image.jpeg",
                     MediaType.IMAGE_JPEG_VALUE,
                     "profile-image-content".getBytes(StandardCharsets.UTF_8));
 
-            // when & then
-            assertThatCode(() -> memberService.modifyProfileImage(profileImage, member.getId()))
-                    .doesNotThrowAnyException();
+            // when
+            String updatedProfileUrl = memberService.modifyProfileImage(profileImage, member.getId());
+
+            // then
+            assertThat(updatedProfileUrl).isEqualTo("updatedProfileUrl");
         }
 
         @DisplayName("변경할 프로필 사진이 주어지지 않을 때 기본 이미지로 프로필 변경에 성공한다.")
@@ -54,10 +55,10 @@ class MemberServiceTest extends ApplicationTestSupport {
             Member member = supportRepository.save(FixtureFactory.createMember());
 
             // when
-            memberService.modifyProfileImage(null, member.getId());
+            String updatedProfileUrl = memberService.modifyProfileImage(null, member.getId());
+
             // then
-            Member savedMember = supportRepository.findById(Member.class, member.getId()).get();
-            assertThat(savedMember.getProfileUrl()).isEqualTo(defaultProfileUrl);
+            assertThat(updatedProfileUrl).isEqualTo(defaultProfileUrl);
         }
     }
 }
