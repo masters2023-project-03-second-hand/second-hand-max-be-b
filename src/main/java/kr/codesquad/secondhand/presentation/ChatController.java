@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand.presentation;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import kr.codesquad.secondhand.application.chat.ChatLogService;
@@ -36,7 +37,7 @@ public class ChatController {
             @PathVariable Long chatRoomId,
             @RequestParam(required = false, defaultValue = "0") long messageIndex) {
         DeferredResult<ApiResponse<ChatLogResponse>> deferredResult =
-                new DeferredResult<>(1000L, new ApiResponse<>(HttpStatus.OK.value()));
+                new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), List.of()));
         chatRequests.put(deferredResult, messageIndex);
 
         deferredResult.onCompletion(() -> chatRequests.remove(deferredResult));
