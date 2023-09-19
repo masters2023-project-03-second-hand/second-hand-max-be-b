@@ -165,20 +165,18 @@ asciidoctor {
 }
 
 asciidoctor.doFirst {
-    delete file('src/main/resources/static/docs/*')
+    delete file('build/resources/main/static/docs')
 }
 
 bootJar {
     dependsOn asciidoctor
 
-    copy {
-        from '${asciidoctor.outputDir}'
-        into file('src/main/resources/static/docs')
+    from("build/docs/asciidoc") {
+        into "build/resources/main/static/docs"
     }
 
-    copy {
-        from file('src/main/resources/static')
-        into file('build/resources/main/static')
+    from("${asciidoctor.outputDir}") {
+        into 'src/main/resources/static/docs'
     }
 }
 /** REST Docs end **/
