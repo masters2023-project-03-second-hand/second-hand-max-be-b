@@ -3,7 +3,6 @@ package kr.codesquad.secondhand.fixture;
 import java.util.ArrayList;
 import java.util.List;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
-import kr.codesquad.secondhand.domain.chat.WhoIsLast;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.member.Member;
@@ -102,7 +101,6 @@ public class FixtureFactory {
             chatRooms.add(
                     ChatRoom.builder()
                             .subject(i + 1 + "번 채팅방")
-                            .status(WhoIsLast.FROM)
                             .sender(partners.get(i))
                             .receiver(member)
                             .item(item)
@@ -113,7 +111,6 @@ public class FixtureFactory {
             chatRooms.add(
                     ChatRoom.builder()
                             .subject(i + 1 + "번 채팅방")
-                            .status(WhoIsLast.FROM)
                             .sender(member)
                             .receiver(partners.get(i))
                             .item(item)

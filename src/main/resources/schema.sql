@@ -110,7 +110,6 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`chat_room`
     `receiver_id`    BIGINT        NOT NULL COMMENT '수신자 (최초 메시지 수신자)',
     `item_id`        BIGINT        NOT NULL,
     `subject`        VARCHAR(1000) NOT NULL COMMENT '마지막으로 보낸 메시지',
-    `status`         VARCHAR(45)   NOT NULL COMMENT '누가 마지막으로 메시지를 보냈는지 (from, to)',
     `last_send_time` TIMESTAMP     NULL COMMENT '마지막 메시지 전송 시간',
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;

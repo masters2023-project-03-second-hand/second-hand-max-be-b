@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand.presentation;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import kr.codesquad.secondhand.application.chat.ChatLogService;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
 
@@ -35,7 +37,7 @@ public class ChatController {
             @PathVariable Long chatRoomId,
             @RequestParam(required = false, defaultValue = "0") long messageIndex) {
         DeferredResult<ApiResponse<ChatLogResponse>> deferredResult =
-                new DeferredResult<>(1000L, new ApiResponse<>(HttpStatus.OK.value()));
+                new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), List.of()));
         chatRequests.put(deferredResult, messageIndex);
 
         deferredResult.onCompletion(() -> chatRequests.remove(deferredResult));
@@ -68,5 +70,12 @@ public class ChatController {
             entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
         }
         return new ApiResponse<>(HttpStatus.OK.value());
+    }
+
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @PostMapping("/items/{itemId}/chats")
+    public ApiResponse<Map<String, Long>> createChatRoom(@PathVariable Long itemId, @Auth Long senderId) {
+        Long chatRoomId = chatRoomService.createChatRoom(itemId, senderId);
+        return new ApiResponse<>(HttpStatus.CREATED.value(), Map.of("chatRoomId", chatRoomId));
     }
 }

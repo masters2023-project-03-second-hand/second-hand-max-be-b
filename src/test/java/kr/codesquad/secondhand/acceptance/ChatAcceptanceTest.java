@@ -1,11 +1,11 @@
 package kr.codesquad.secondhand.acceptance;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
 
 import io.restassured.RestAssured;
 import java.util.Map;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
-import kr.codesquad.secondhand.domain.chat.WhoIsLast;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
@@ -28,7 +28,6 @@ public class ChatAcceptanceTest extends AcceptanceTestSupport {
         return supportRepository.save(ChatRoom.builder()
                 .item(item)
                 .subject("")
-                .status(WhoIsLast.FROM)
                 .receiver(receiver)
                 .sender(sender)
                 .build());
@@ -59,6 +58,36 @@ public class ChatAcceptanceTest extends AcceptanceTestSupport {
 
             // then
             assertThat(response.statusCode()).isEqualTo(200);
+        }
+    }
+
+    @DisplayName("채팅방이 생성될 때")
+    @Nested
+    class CreateChatRoom {
+
+        @DisplayName("채팅방 생성에 성공한다.")
+        @Test
+        void given_whenCreateChatRoom_thenSuccess() {
+            // given
+            Member member = signup();
+            Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전", member));
+
+            var request = RestAssured
+                    .given().log().all()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(member.getId()));
+
+            // when
+            var response = request
+                    .when()
+                    .post("/api/items/" + item.getId() + "/chats")
+                    .then().log().all()
+                    .extract();
+
+            // then
+            assertAll(
+                    () -> assertThat(response.statusCode()).isEqualTo(201),
+                    () -> assertThat(response.jsonPath().getString("data.chatRoomId"))
+            );
         }
     }
 }

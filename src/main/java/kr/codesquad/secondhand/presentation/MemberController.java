@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand.presentation;
 
+import java.util.Map;
 import kr.codesquad.secondhand.application.member.MemberService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.support.Auth;
@@ -17,9 +18,9 @@ public class MemberController {
     private final MemberService memberService;
 
     @PutMapping("/api/members/{loginId}")
-    public ApiResponse<Void> modifyProfileImage(@RequestPart MultipartFile updateImageFile,
-                                                @Auth Long memberId) {
-        memberService.modifyProfileImage(updateImageFile, memberId);
-        return new ApiResponse<>(HttpStatus.OK.value());
+    public ApiResponse<Map<String, String>> modifyProfileImage(@RequestPart MultipartFile updateImageFile,
+                                                               @Auth Long memberId) {
+        String updatedProfileImageUrl = memberService.modifyProfileImage(updateImageFile, memberId);
+        return new ApiResponse<>(HttpStatus.OK.value(), Map.of("profileImageUrl", updatedProfileImageUrl));
     }
 }

@@ -77,4 +77,28 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             return supportRepository.save(FixtureFactory.createPartner());
         }
     }
+
+    @DisplayName("채팅방을 생성할 때")
+    @Nested
+    class Create {
+
+        @DisplayName("채팅방 생성에 성공한다.")
+        @Test
+        void given_whenCreateChatRoom_thenSuccess() {
+            // given
+            Member member = supportRepository.save(FixtureFactory.createMember());
+            Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전", member));
+
+            // when
+            Long chatRoomId = chatRoomService.createChatRoom(item.getId(), member.getId());
+
+            // then
+            Item foundItem = supportRepository.findById(Item.class, item.getId()).get();
+
+            assertAll(
+                    () -> assertThat(chatRoomId).isNotNull(),
+                    () -> assertThat(foundItem.getChatCount()).isEqualTo(1)
+            );
+        }
+    }
 }
