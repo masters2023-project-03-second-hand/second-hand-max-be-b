@@ -30,7 +30,7 @@ public class ChatCountRepository {
                 .fetch();
 
         return results.stream()
-                .collect(Collectors.toMap(                       // todo : Long.class 생략 가능한지 확인
+                .collect(Collectors.toMap(
                         tuple -> tuple.get(0,Long.class),  // ChatRoomId
                         tuple -> tuple.get(1, Long.class)  // newMessageCount
                 ));
