@@ -12,6 +12,8 @@ plugins {
     id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
     // Jacoco
     id 'jacoco'
+    // RESTDocs
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
 jacoco {
@@ -29,6 +31,7 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    asciidoctorExt
 }
 
 repositories {
@@ -72,6 +75,10 @@ dependencies {
 
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // REST Docs
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 }
 
 tasks.named('test') {
@@ -140,3 +147,38 @@ jacocoTestReport {
     }
 }
 /** Jacoco end **/
+
+/** REST Docs start **/
+ext {
+    snippetsDir = file('build/generated-snippets')
+}
+
+test {
+    outputs.dir snippetsDir
+}
+
+asciidoctor {
+    inputs.dir snippetsDir
+    configurations 'asciidoctorExt'
+    dependsOn test
+    baseDirFollowsSourceFile()
+}
+
+asciidoctor.doFirst {
+    delete file('src/main/resources/static/docs/*')
+}
+
+bootJar {
+    dependsOn asciidoctor
+
+    copy {
+        from '${asciidoctor.outputDir}'
+        into file('src/main/resources/static/docs')
+    }
+
+    copy {
+        from file('src/main/resources/static')
+        into file('build/resources/main/static')
+    }
+}
+/** REST Docs end **/
