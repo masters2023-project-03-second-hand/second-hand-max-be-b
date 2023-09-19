@@ -116,7 +116,7 @@ tasks.register('copySecret', Copy) {
 }
 /** Git Submodules end **/
 
-
+// Test common
 tasks.named('test') {
     outputs.dir snippetsDir
     useJUnitPlatform()
