@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.10">
-<title>API 명세</title>
+<title>카테고리</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -436,34 +436,103 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 @media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
 </style>
 </head>
-<body class="article">
+<body class="article toc2 toc-left">
 <div id="header">
+<div id="toc" class="toc2">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#Category">카테고리</a>
+<ul class="sectlevel2">
+<li><a href="#_카테고리_목록_조회">카테고리 목록 조회</a>
+<ul class="sectlevel3">
+<li><a href="#_response_fields">Response Fields</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_api_명세">API 명세</h2>
+<h2 id="Category">카테고리</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_카테고리_목록_조회">카테고리 목록 조회</h3>
+<div class="listingblock">
+<div class="title">HTTP REQUEST</div>
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /api/categories HTTP/1.1
+Host: localhost:8080</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="title">HTTP RESPONSE</div>
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Vary: Origin
+Vary: Access-Control-Request-Method
+Vary: Access-Control-Request-Headers
+Content-Type: application/json
+Content-Length: 188
 
+{
+  "statusCode" : 200,
+  "message" : "성공했습니다.",
+  "data" : {
+    "categories" : [ {
+      "id" : 1,
+      "imageUrl" : "image-url",
+      "name" : "가전잡화"
+    } ]
+  }
+}</code></pre>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_second_hand"><a class="link" href="#_second_hand">second-hand</a></h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>중고 거래 플랫폼</p>
+<div class="sect3">
+<h4 id="_response_fields">Response Fields</h4>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 33.3333%;">
+<col style="width: 33.3333%;">
+<col style="width: 33.3334%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Path</th>
+<th class="tableblock halign-left valign-top">Type</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>statusCode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답코드</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>message</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">응답 메시지</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.categories[*].id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">카테고리 아이디</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.categories[*].name</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">카테고리 이름</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.categories[*].imageUrl</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>String</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">카테고리 이미지 URL</p></td>
+</tr>
+</tbody>
+</table>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p><a href="auth.html">인증 API</a></p>
-</li>
-<li>
-<p><a href="category.html">카테고리 API</a></p>
-</li>
-<li>
-<p><a href="item.html">상품 API</a></p>
-</li>
-</ul>
 </div>
 </div>
 </div>
@@ -471,7 +540,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2023-09-20 19:03:29 +0900
+Last updated 2023-09-20 21:37:48 +0900
 </div>
 </div>
 </body>
