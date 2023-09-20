@@ -37,10 +37,11 @@ public class ItemController {
 
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Void> registerItem(@RequestPart(required = false) List<MultipartFile> images,
+    public ApiResponse<Void> registerItem(@RequestPart MultipartFile thumbnailImage,
+                                          @RequestPart(required = false) List<MultipartFile> images,
                                           @Valid @RequestPart ItemRegisterRequest item,
                                           @Auth Long memberId) {
-        itemService.register(images, item, memberId);
+        itemService.register(thumbnailImage, images, item, memberId);
         return new ApiResponse<>(HttpStatus.CREATED.value());
     }
 

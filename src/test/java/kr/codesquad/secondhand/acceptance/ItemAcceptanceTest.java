@@ -56,6 +56,9 @@ public class ItemAcceptanceTest extends AcceptanceTestSupport {
                     .given().log().all()
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(1L))
+                    .multiPart("thumbnailImage",
+                            createFakeFile(),
+                            MediaType.IMAGE_PNG_VALUE)
                     .multiPart("images",
                             createFakeFile(),
                             MediaType.IMAGE_PNG_VALUE)

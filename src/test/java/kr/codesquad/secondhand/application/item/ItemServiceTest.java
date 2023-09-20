@@ -3,6 +3,7 @@ package kr.codesquad.secondhand.application.item;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.anyList;
 import static org.mockito.BDDMockito.given;
 
@@ -13,6 +14,7 @@ import java.util.Optional;
 import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.category.Category;
+import kr.codesquad.secondhand.domain.image.ImageFile;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
@@ -43,10 +45,11 @@ class ItemServiceTest extends ApplicationTestSupport {
     void given_whenRegisterItem_thenSuccess() {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        given(s3Uploader.uploadImageFile(any(ImageFile.class))).willReturn("thumbnailUrl");
         signup();
 
         // when
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
+        itemService.register(createThumbnailImage(), createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
 
         // then
         Optional<Item> item = supportRepository.findById(Item.class, 1L);
@@ -64,7 +67,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
 
         // when
         ItemDetailResponse response = itemService.read(member.getId(), 1L);
@@ -83,7 +86,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member seller = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), seller.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", seller));
         Member buyer = supportRepository.save(Member.builder()
                 .email("joy@secondhand.com")
                 .loginId("joy")
@@ -106,7 +109,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
 
         // when
         itemService.update(null, FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
@@ -129,7 +132,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1"));
         Member member = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
         MockMultipartFile image = new MockMultipartFile(
                 "new-image",
                 "new-image.png",
@@ -158,7 +161,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
         ItemStatusRequest request = new ItemStatusRequest("예약중");
 
         // when
@@ -176,7 +179,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
         ItemStatusRequest request = new ItemStatusRequest("예약중");
         Member buyer = supportRepository.save(Member.builder()
                 .email("joy@secondhand.com")
@@ -188,6 +191,13 @@ class ItemServiceTest extends ApplicationTestSupport {
         assertThatThrownBy(() -> itemService.updateStatus(request, 1L, buyer.getId()))
                 .isInstanceOf(ForbiddenException.class)
                 .extracting("errorCode").isEqualTo(ErrorCode.UNAUTHORIZED);
+    }
+
+    private MultipartFile createThumbnailImage() {
+        return new MockMultipartFile("test-image",
+                "test-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "content".getBytes(StandardCharsets.UTF_8));
     }
 
     private List<MultipartFile> createFakeImage() {
@@ -211,8 +221,8 @@ class ItemServiceTest extends ApplicationTestSupport {
     void given_whenDeleteItem_thenSuccess() throws InterruptedException {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
-        signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
+        Member member = signup();
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
 
         // when
         itemService.delete(1L, 1L);
