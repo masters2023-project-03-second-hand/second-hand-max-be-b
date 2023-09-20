@@ -103,58 +103,6 @@ class ItemServiceTest extends ApplicationTestSupport {
         );
     }
 
-    @DisplayName("상품을 수정하면 상품정보가 db에 업데이트되고 삭제 이미지가 db에서 제거된다.")
-    @Test
-    void given_whenUpdateItem_thenSuccess() {
-        // given
-        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
-        Member member = signup();
-        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
-
-        // when
-        itemService.update(null, FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
-
-        // then
-        Optional<Item> item = supportRepository.findById(Item.class, 1L);
-        List<ItemImage> images = supportRepository.findAll(ItemImage.class);
-
-        assertAll(
-                () -> assertThat(item).isPresent(),
-                () -> assertThat(item.get().getTitle()).isEqualTo("수정제목"),
-                () -> assertThat(item.get().getThumbnailUrl()).isEqualTo("url3"),
-                () -> assertThat(images).hasSize(1)
-        );
-    }
-
-    @DisplayName("상품을 수정할 때 새로운 상품 이미지가 주어지면 상품 수정에 성공한다.")
-    @Test
-    void givenNewImage_whenUpdateItem_thenSuccess() {
-        // given
-        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1"));
-        Member member = signup();
-        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
-        MockMultipartFile image = new MockMultipartFile(
-                "new-image",
-                "new-image.png",
-                MediaType.IMAGE_PNG_VALUE,
-                "new-image-content".getBytes(StandardCharsets.UTF_8)
-        );
-
-        // when
-        itemService.update(List.of(image), FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
-
-        // then
-        Optional<Item> item = supportRepository.findById(Item.class, 1L);
-        List<ItemImage> images = supportRepository.findAll(ItemImage.class);
-
-        assertAll(
-                () -> assertThat(item).isPresent(),
-                () -> assertThat(item.get().getTitle()).isEqualTo("수정제목"),
-                () -> assertThat(item.get().getThumbnailUrl()).isEqualTo("url1"),
-                () -> assertThat(images).hasSize(1)
-        );
-    }
-
     @DisplayName("상품의 상태 수정에 성공한다.")
     @Test
     void given_whenUpdateStatus_thenSuccess() {
@@ -236,6 +184,96 @@ class ItemServiceTest extends ApplicationTestSupport {
                 () -> assertThat(item).isNotPresent(),
                 () -> assertThat(images).isEmpty()
         );
+    }
+
+    @DisplayName("상품을 수정할 때")
+    @Nested
+    class Update {
+
+        @DisplayName("상품을 수정하면 상품정보가 db에 업데이트되고 삭제 이미지가 db에서 제거된다.")
+        @Test
+        void given_whenUpdateItem_thenSuccess() {
+            // given
+            Member member = signup();
+            Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+            for (int i = 1; i <= 4; i++) {
+                supportRepository.save(ItemImage.builder()
+                        .item(item)
+                        .imageUrl("url" + i)
+                        .build());
+            }
+
+            // when
+            itemService.update(null, null, FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
+
+            // then
+            Optional<Item> resultItem = supportRepository.findById(Item.class, 1L);
+            List<ItemImage> images = supportRepository.findAll(ItemImage.class);
+
+            assertAll(
+                    () -> assertThat(resultItem).isPresent(),
+                    () -> assertThat(resultItem.get().getTitle()).isEqualTo("수정제목"),
+                    () -> assertThat(images).hasSize(2)
+            );
+        }
+
+        @DisplayName("상품을 수정할 때 새로운 상품 이미지가 주어지면 상품 수정에 성공한다.")
+        @Test
+        void givenNewImage_whenUpdateItem_thenSuccess() {
+            // given
+            given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("new-url"));
+            Member member = signup();
+            Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+            for (int i = 1; i <= 4; i++) {
+                supportRepository.save(ItemImage.builder()
+                        .item(item)
+                        .imageUrl("url" + i)
+                        .build());
+            }
+            MockMultipartFile image = new MockMultipartFile(
+                    "new-image",
+                    "new-image.png",
+                    MediaType.IMAGE_PNG_VALUE,
+                    "new-image-content".getBytes(StandardCharsets.UTF_8)
+            );
+
+            // when
+            itemService.update(null, List.of(image),
+                    FixtureFactory.createItemUpdateRequest(), item.getId(), member.getId());
+
+            // then
+            Optional<Item> resultItem = supportRepository.findById(Item.class, item.getId());
+            List<ItemImage> images = supportRepository.findAll(ItemImage.class);
+
+            assertAll(
+                    () -> assertThat(resultItem).isPresent(),
+                    () -> assertThat(resultItem.get().getTitle()).isEqualTo("수정제목"),
+                    () -> assertThat(images).anyMatch(itemImage -> itemImage.getImageUrl().equals("new-url"))
+            );
+        }
+
+        @DisplayName("상품을 수정할 때 새로운 썸네일 이미지가 주어지면 상품 수정에 성공한다.")
+        @Test
+        void givenNewThumbnail_whenUpdateItem_thenSuccess() {
+            // given
+            given(s3Uploader.uploadImageFile(any(ImageFile.class))).willReturn("new-thumbnail");
+
+            Member member = signup();
+            Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+
+            // when
+            itemService.update(createThumbnailImage(), null,
+                    FixtureFactory.createItemUpdateRequest(), item.getId(), member.getId());
+
+            // then
+            Optional<Item> resultItem = supportRepository.findById(Item.class, item.getId());
+
+            assertAll(
+                    () -> assertThat(resultItem).isPresent(),
+                    () -> assertThat(resultItem.get().getTitle()).isEqualTo("수정제목"),
+                    () -> assertThat(resultItem.get().getThumbnailUrl()).isEqualTo("new-thumbnail")
+            );
+        }
     }
 
     @DisplayName("상품 전체 목록을 조회할 때")

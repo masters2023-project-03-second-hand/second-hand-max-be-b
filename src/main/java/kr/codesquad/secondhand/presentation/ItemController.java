@@ -37,7 +37,7 @@ public class ItemController {
 
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Void> registerItem(@RequestPart MultipartFile thumbnailImage,
+    public ApiResponse<Void> registerItem(@RequestPart(required = false) MultipartFile thumbnailImage,
                                           @RequestPart(required = false) List<MultipartFile> images,
                                           @Valid @RequestPart ItemRegisterRequest item,
                                           @Auth Long memberId) {
@@ -60,12 +60,13 @@ public class ItemController {
         return new ApiResponse<>(HttpStatus.OK.value(), itemService.read(memberId, itemId));
     }
 
-    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Void> updateItem(@RequestPart(required = false) List<MultipartFile> images,
+    @PatchMapping(value = "/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Void> updateItem(@RequestPart(required = false) MultipartFile thumbnailImage,
+                                        @RequestPart(required = false) List<MultipartFile> images,
                                         @Valid @RequestPart ItemUpdateRequest item,
                                         @PathVariable Long itemId,
                                         @Auth Long memberId) {
-        itemService.update(images, item, itemId, memberId);
+        itemService.update(thumbnailImage, images, item, itemId, memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 

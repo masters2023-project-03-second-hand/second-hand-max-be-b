@@ -98,24 +98,39 @@ public class ItemService {
     }
 
     @Transactional
-    public void update(List<MultipartFile> images, ItemUpdateRequest request, Long itemId, Long sellerId) {
+    public void update(MultipartFile thumbnailImage,
+                       List<MultipartFile> images,
+                       ItemUpdateRequest request,
+                       Long itemId,
+                       Long sellerId) {
         Item item = findItem(itemId);
         if (!item.isSeller(sellerId)) {
             throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
         }
 
-        List<String> deleteImageUrls = request.getDeleteImageUrls();
-        itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
+        itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, request.getDeleteImageUrls());
 
-        if (images != null) {
+        if (images != null && !images.isEmpty()) {
             saveImages(images, item);
         }
 
-        if (item.isThumbnailDeleted(deleteImageUrls)) {
-            String thumbnail = itemImageRepository.findByItemId(itemId).get(0).getImageUrl();
-            item.changeThumbnail(thumbnail);
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            replaceThumbnail(item, imageService.uploadImage(thumbnailImage));
         }
+
         item.update(request);
+    }
+
+    private void saveImages(List<MultipartFile> images, Item item) {
+        List<String> itemImageUrls = imageService.uploadImages(images);
+        List<ItemImage> itemImages = itemImageUrls.stream()
+                .map(url -> ItemImage.from(url, item))
+                .collect(Collectors.toList());
+        itemImageRepository.saveAllItemImages(itemImages);
+    }
+
+    private void replaceThumbnail(Item item, String thumbnailUrl) {
+        item.changeThumbnail(thumbnailUrl);
     }
 
     @Transactional
@@ -130,14 +145,6 @@ public class ItemService {
     private Item findItem(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
-    }
-
-    private void saveImages(List<MultipartFile> images, Item item) {
-        List<String> itemImageUrls = imageService.uploadImages(images);
-        List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.from(url, item))
-                .collect(Collectors.toList());
-        itemImageRepository.saveAllItemImages(itemImages);
     }
 
     @Transactional
