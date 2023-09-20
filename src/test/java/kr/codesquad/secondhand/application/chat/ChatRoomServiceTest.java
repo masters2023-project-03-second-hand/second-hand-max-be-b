@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import java.util.List;
 import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
+import kr.codesquad.secondhand.domain.chat.ChatRoom;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
@@ -21,14 +22,17 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
 
     @Autowired
     private ChatRoomService chatRoomService;
+    @Autowired
+    private ChatLogService chatLogService;
 
-    @DisplayName("채팅 전체 목록을 조회할 떄")
+
+    @DisplayName("채팅방 전체 목록을 조회할 떄")
     @Nested
     class Read {
 
         @DisplayName("첫 페이지에서 최근 전송된 채팅 순으로 보여진다.")
         @Test
-        void givenChatsData_whenFirstPage_thenSuccess() {
+        void givenChatRooms_whenFirstPage_thenSuccess() {
             // given
             Member member = signup();
             List<Member> partners = getPartners();
@@ -50,7 +54,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
 
         @DisplayName("마지막 페이지에서 최근 전송된 채팅 순으로 보여진다.")
         @Test
-        void givenChatsDate_whenLastPage_thenSuccess() {
+        void givenChatRooms_whenLastPage_thenSuccess() {
             // given
             Member member = signup();
             List<Member> partners = getPartners();
@@ -67,6 +71,37 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getContents().get(0).getChatPartnerName()).isEqualTo("10testId"),
                     () -> assertThat(response.getContents().get(9).getChatPartnerName()).isEqualTo("1testId")
             );
+        }
+
+        @DisplayName("사용자가 읽지 않은 메시지 개수를 확인할 수 있다.")
+        @Test
+        void givenSender_whenCountNewMessage_thenSuccess() {
+            // given
+            Member sender = signup();
+            Member receiver = supportRepository.save(Member.builder()
+                    .email("he2joo@secondhand.com")
+                    .loginId("joy")
+                    .profileUrl("image-url")
+                    .build());
+            Item item = supportRepository.save(FixtureFactory.createItem("구매하는 상품", "가전/잡화", receiver));
+
+            ChatRoom chatRoom = supportRepository.save(ChatRoom.builder()
+                    .item(item)
+                    .subject("")
+                    .seller(receiver)
+                    .buyer(sender)
+                    .build());
+
+            chatLogService.sendMessage("선풍기 사려 그러는데요!", chatRoom.getId(), sender.getId());
+            chatLogService.sendMessage("혹시 할인 되나요..?", chatRoom.getId(), sender.getId());
+
+            // when
+            CustomSlice<ChatRoomResponse> senderResponse = chatRoomService.read(null, 10, 1L);
+            CustomSlice<ChatRoomResponse> receiverResponse = chatRoomService.read(null, 10, 2L);
+
+            // then
+            assertThat(senderResponse.getContents().get(0).getNewMessageCount()).isEqualTo(0);
+            assertThat(receiverResponse.getContents().get(0).getNewMessageCount()).isEqualTo(2);
         }
 
         private Member signup() {

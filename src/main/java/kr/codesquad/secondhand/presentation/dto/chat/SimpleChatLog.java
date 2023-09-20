@@ -12,7 +12,7 @@ public class SimpleChatLog {
     private boolean isMe;
     private String message;
 
-    public static SimpleChatLog from(Long messageIndex, ChatLog chatLog) {
-        return new SimpleChatLog(messageIndex, chatLog.isSender(), chatLog.getMessage());
+    public static SimpleChatLog from(Long messageIndex, ChatLog chatLog, boolean isMe) {
+        return new SimpleChatLog(messageIndex, isMe, chatLog.getMessage());
     }
 }

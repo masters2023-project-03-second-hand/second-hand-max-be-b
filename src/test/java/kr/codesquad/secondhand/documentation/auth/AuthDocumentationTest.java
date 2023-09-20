@@ -11,6 +11,7 @@ import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.docu
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessRequest;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.preprocessResponse;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.prettyPrint;
+import static org.springframework.restdocs.payload.JsonFieldType.BOOLEAN;
 import static org.springframework.restdocs.payload.JsonFieldType.NUMBER;
 import static org.springframework.restdocs.payload.JsonFieldType.STRING;
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
@@ -65,7 +66,7 @@ public class AuthDocumentationTest extends DocumentationTestSupport {
                 new AuthToken("access-token", "refresh-token"),
                 new UserResponse("23Yong",
                         "profileUrl",
-                        List.of(new AddressData(1L, "경기도 부천시 범안동", "범안동"))
+                        List.of(new AddressData(1L, "경기도 부천시 범안동", "범안동", true))
                 )
         );
 
@@ -89,7 +90,8 @@ public class AuthDocumentationTest extends DocumentationTestSupport {
                 .andExpect(jsonPath("data.user.profileUrl").value("profileUrl"))
                 .andExpect(jsonPath("data.user.addresses[0].addressId").value(1))
                 .andExpect(jsonPath("data.user.addresses[0].fullAddressName").value("경기도 부천시 범안동"))
-                .andExpect(jsonPath("data.user.addresses[0].addressName").value("범안동"));
+                .andExpect(jsonPath("data.user.addresses[0].addressName").value("범안동"))
+                .andExpect(jsonPath("data.user.addresses[0].selected").value(true));
 
         // docs
         resultActions.andDo(document("auth/naver/login",
@@ -111,7 +113,8 @@ public class AuthDocumentationTest extends DocumentationTestSupport {
                         fieldWithPath("data.user.profileUrl").type(STRING).description("프로필 이미지 URL"),
                         fieldWithPath("data.user.addresses[*].addressId").type(NUMBER).description("지역 아이디"),
                         fieldWithPath("data.user.addresses[*].fullAddressName").type(STRING).description("주소전체이름"),
-                        fieldWithPath("data.user.addresses[*].addressName").type(STRING).description("읍면동 이름")
+                        fieldWithPath("data.user.addresses[*].addressName").type(STRING).description("읍면동 이름"),
+                        fieldWithPath("data.user.addresses[0].selected").type(BOOLEAN).description("사용자가 선택한 거주지역")
                 )
         ));
     }

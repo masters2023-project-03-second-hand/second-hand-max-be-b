@@ -45,6 +45,7 @@ public class ResidenceService {
                             .build())
                     .build());
         }
+        residences.get(0).changeIsSelected(true);
         residenceRepository.saveAll(residences);
     }
 
@@ -73,7 +74,7 @@ public class ResidenceService {
         Region region = regionRepository.findById(addressId)
                 .orElseThrow(() -> NotFoundException.regionNotFound(ErrorCode.NOT_FOUND, addressId));
 
-        residenceRepository.save(Residence.from(memberId, region.getId(), region.getAddressName()));
+        residenceRepository.save(Residence.from(memberId, region.getId(), region.getAddressName(), false));
     }
 
     @Transactional
@@ -85,6 +86,10 @@ public class ResidenceService {
                 .orElseThrow(() -> NotFoundException.regionNotFound(ErrorCode.NOT_FOUND, addressId));
 
         residenceRepository.deleteByAddressName(region.getAddressName());
+
+        Long remainAddressId = residenceRepository.findByMemberId(memberId).get(0).getAddressId();
+        Residence residence = residenceRepository.findById(remainAddressId).get();
+        residence.changeIsSelected(true);
     }
 
     public List<AddressData> readResidenceOfMember(Long memberId) {

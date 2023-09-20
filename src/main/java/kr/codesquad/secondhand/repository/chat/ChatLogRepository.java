@@ -12,6 +12,6 @@ public interface ChatLogRepository extends JpaRepository<ChatLog, Long> {
     List<ChatLog> findAllByChatRoomId(Long chatRoomId);
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE ChatLog chatLog SET chatLog.isRead = true WHERE chatLog.chatRoom.id = :chatRoomId")
-    void updateIsReadStatus(@Param("chatRoomId") Long chatRoomId);
+    @Query("UPDATE ChatLog chatLog SET chatLog.readCount = 0 WHERE chatLog.chatRoom.id = :chatRoomId")
+    void updateReadCountByChatRoomId(@Param("chatRoomId") Long chatRoomId);
 }

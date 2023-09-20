@@ -18,18 +18,18 @@ import org.springframework.http.MediaType;
 public class ChatAcceptanceTest extends AcceptanceTestSupport {
 
     private ChatRoom prepareToChatAndReturnChatRoom(Member sender) {
-        Member receiver = supportRepository.save(Member.builder()
+        Member seller = supportRepository.save(Member.builder()
                 .email("joy@naver.com")
                 .loginId("joy")
                 .profileUrl("profile")
                 .build());
 
-        Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전", receiver));
+        Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전", seller));
         return supportRepository.save(ChatRoom.builder()
                 .item(item)
                 .subject("")
-                .receiver(receiver)
-                .sender(sender)
+                .seller(seller)
+                .buyer(sender)
                 .build());
     }
 

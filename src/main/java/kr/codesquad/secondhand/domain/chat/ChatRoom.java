@@ -41,25 +41,25 @@ public class ChatRoom {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @JoinColumn(nullable = false, name = "sender_id")
+    @JoinColumn(nullable = false, name = "buyer_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Member sender;
+    private Member buyer;
 
-    @JoinColumn(nullable = false, name = "receiver_id")
+    @JoinColumn(nullable = false, name = "seller_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Member receiver;
+    private Member seller;
 
     @JoinColumn(nullable = false, name = "item_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
     @Builder
-    private ChatRoom(Long id, String subject, Member sender, Member receiver, Item item) {
+    private ChatRoom(Long id, String subject, Member buyer, Member seller, Item item) {
         this.id = id;
         this.subject = subject;
         this.lastSendTime = LocalDateTime.now();
-        this.sender = sender;
-        this.receiver = receiver;
+        this.buyer = buyer;
+        this.seller = seller;
         this.item = item;
     }
 
@@ -69,16 +69,16 @@ public class ChatRoom {
                 .item(Item.builder()
                         .id(itemId)
                         .build())
-                .sender(Member.builder()
+                .buyer(Member.builder()
                         .id(creatorId)
                         .build())
-                .receiver(Member.builder()
+                .seller(Member.builder()
                         .id(sellerId)
                         .build())
                 .build();
     }
 
     public boolean isSender(Long memberId) {
-        return sender.getId().equals(memberId);
+        return buyer.getId().equals(memberId);
     }
 }
