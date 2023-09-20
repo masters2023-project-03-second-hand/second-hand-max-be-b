@@ -31,17 +31,16 @@ public class ChatCountRepository {
 
         return results.stream()
                 .collect(Collectors.toMap(
-                        tuple -> tuple.get(0,Long.class),  // ChatRoomId
+                        tuple -> tuple.get(0, Long.class),  // ChatRoomId
                         tuple -> tuple.get(1, Long.class)  // newMessageCount
                 ));
     }
 
     private BooleanExpression isUnread() {
-        return chatLog.isRead.eq(false);
+        return chatLog.readCount.eq(1);
     }
 
     private BooleanExpression equalsMemberId(Long memberId) {
-        return chatRoom.sender.id.eq(memberId).and(chatLog.isSender.eq(false))
-                .or(chatRoom.receiver.id.eq(memberId).and(chatLog.isSender.eq(true)));
+        return chatLog.senderId.ne(memberId);
     }
 }

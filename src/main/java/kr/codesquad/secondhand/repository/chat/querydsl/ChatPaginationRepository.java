@@ -47,17 +47,17 @@ public class ChatPaginationRepository implements PaginationRepository {
 
     private Expression<String> createPartnerNameExpression(Long memberId) {
         return new CaseBuilder()
-                .when(chatRoom.sender.id.eq(memberId))
-                .then(chatRoom.receiver.loginId)
-                .otherwise(chatRoom.sender.loginId)
+                .when(chatRoom.buyer.id.eq(memberId))
+                .then(chatRoom.seller.loginId)
+                .otherwise(chatRoom.buyer.loginId)
                 .as("chatPartnerName");
     }
 
     private Expression<String> createPartnerProfileExpression(Long memberId) {
         return new CaseBuilder()
-                .when(chatRoom.sender.id.eq(memberId))
-                .then(chatRoom.receiver.profileUrl)
-                .otherwise(chatRoom.sender.profileUrl)
+                .when(chatRoom.buyer.id.eq(memberId))
+                .then(chatRoom.seller.profileUrl)
+                .otherwise(chatRoom.buyer.profileUrl)
                 .as("chatPartnerProfile");
     }
 
@@ -76,7 +76,7 @@ public class ChatPaginationRepository implements PaginationRepository {
     }
 
     private BooleanExpression equalsMemberId(Long memberId) {
-        return chatRoom.sender.id.eq(memberId)
-                .or(chatRoom.receiver.id.eq(memberId));
+        return chatRoom.buyer.id.eq(memberId)
+                .or(chatRoom.seller.id.eq(memberId));
     }
 }
