@@ -10,6 +10,6 @@
 
 중고 거래 플랫폼
 
-* link:auth.html[인증 API]
-* link:category.html[카테고리 API]
-* link:item.html[상품 API]
+include::auth.adoc[]
+include::category.adoc[]
+include::item.adoc[]
