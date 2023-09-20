@@ -12,6 +12,8 @@ plugins {
     id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
     // Jacoco
     id 'jacoco'
+    // RESTDocs
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
 }
 
 jacoco {
@@ -29,10 +31,15 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    asciidoctorExt
 }
 
 repositories {
     mavenCentral()
+}
+
+ext {
+    set('snippetsDir', file("build/generated-snippets"))
 }
 
 dependencies {
@@ -72,10 +79,10 @@ dependencies {
 
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-}
 
-tasks.named('test') {
-    useJUnitPlatform()
+    // REST Docs
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 }
 
 /** QueryDSL start **/
@@ -109,14 +116,16 @@ tasks.register('copySecret', Copy) {
 }
 /** Git Submodules end **/
 
-
-/** Jacoco start **/
-test {
-    finalizedBy jacocoTestReport
+// Test common
+tasks.named('test') {
+    outputs.dir snippetsDir
+    useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
 }
 
+/** Jacoco start **/
 jacocoTestReport {
-    dependsOn test
+    dependsOn "createDocument"
 
     reports {
         xml.required.set(true)
@@ -140,3 +149,37 @@ jacocoTestReport {
     }
 }
 /** Jacoco end **/
+
+/** REST Docs start **/
+asciidoctor {
+    inputs.dir snippetsDir
+    configurations 'asciidoctorExt'
+    baseDirFollowsSourceFile()
+
+    dependsOn test
+}
+
+asciidoctor.doFirst {
+    delete file('src/main/resources/static/docs')
+}
+
+tasks.register('createDocument', Copy) {
+    dependsOn asciidoctor
+
+    from file("build/docs/asciidoc")
+    into file("src/main/resources/static")
+}
+
+tasks.register('displaceDocument', Copy) {
+    dependsOn createDocument
+
+    from("${asciidoctor.outputDir}")
+    into("build/resources/main/static")
+}
+
+bootJar {
+    bootJarMainClassName.dependsOn createDocument
+    jar.dependsOn createDocument
+    dependsOn createDocument
+}
+/** REST Docs end **/
