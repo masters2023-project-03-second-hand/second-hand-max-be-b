@@ -101,8 +101,8 @@ public class FixtureFactory {
             chatRooms.add(
                     ChatRoom.builder()
                             .subject(i + 1 + "번 채팅방")
-                            .sender(partners.get(i))
-                            .receiver(member)
+                            .buyer(partners.get(i))
+                            .seller(member)
                             .item(item)
                             .build()
             );
@@ -111,8 +111,8 @@ public class FixtureFactory {
             chatRooms.add(
                     ChatRoom.builder()
                             .subject(i + 1 + "번 채팅방")
-                            .sender(member)
-                            .receiver(partners.get(i))
+                            .buyer(member)
+                            .seller(partners.get(i))
                             .item(item)
                             .build()
             );

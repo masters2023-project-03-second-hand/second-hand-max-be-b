@@ -26,7 +26,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
     private ChatLogService chatLogService;
 
 
-    @DisplayName("채팅 전체 목록을 조회할 떄")
+    @DisplayName("채팅방 전체 목록을 조회할 떄")
     @Nested
     class Read {
 
@@ -88,8 +88,8 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             ChatRoom chatRoom = supportRepository.save(ChatRoom.builder()
                     .item(item)
                     .subject("")
-                    .receiver(receiver)
-                    .sender(sender)
+                    .seller(receiver)
+                    .buyer(sender)
                     .build());
 
             chatLogService.sendMessage("선풍기 사려 그러는데요!", chatRoom.getId(), sender.getId());
