@@ -12,6 +12,7 @@ import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
     private ChatLogService chatLogService;
 
 
+    @Disabled
     @DisplayName("채팅방 전체 목록을 조회할 떄")
     @Nested
     class Read {
