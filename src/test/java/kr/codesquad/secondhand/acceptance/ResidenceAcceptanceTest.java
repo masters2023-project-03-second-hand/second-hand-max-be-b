@@ -125,8 +125,8 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
             Region okgil = saveRegion("경기도 부천시 옥길동", "옥길동");
             Region oryu = saveRegion("경기도 부천시 오류동", "오류동");
 
-            supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동"));
-            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
+            supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동", true));
+            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동", false));
 
             var request = RestAssured
                     .given().log().all()
@@ -161,8 +161,8 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
             Member member = signup();
             Region beoman = saveRegion("경기도 부천시 범안동", "범안동");
             Region okgil = saveRegion("경기도 부천시 옥길동", "옥길동");
-            supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동"));
-            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
+            supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동", true));
+            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동", false));
             var request = RestAssured
                     .given().log().all()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(member.getId()))
@@ -182,7 +182,7 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
             // given
             Member member = signup();
             Region beoman = saveRegion("경기도 부천시 범안동", "범안동");
-            supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동"));
+            supportRepository.save(Residence.from(member.getId(), beoman.getId(), "범안동", true));
 
             var request = RestAssured
                     .given().log().all()

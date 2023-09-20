@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS `second_hand`.`residence`
     `address_name` VARCHAR(50) NOT NULL COMMENT '읍/면/동 주소',
     `member_id`    BIGINT      NOT NULL,
     `region_id`    BIGINT      NOT NULL,
+    `is_selected`  TINYINT     NOT NULL,
     PRIMARY KEY (`id`)
 ) ENGINE = InnoDB;
 

@@ -113,8 +113,8 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 괴안동")
                     .addressName("괴안동")
                     .build());
-            supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동"));
-            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
+            supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동", true));
+            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동", false));
 
             // when & then
             assertThatThrownBy(() -> residenceService.register(guaean.getId(), member.getId()))
@@ -140,8 +140,8 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 옥길동")
                     .addressName("옥길동")
                     .build());
-            supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동"));
-            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동"));
+            supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동", true));
+            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동", false));
 
             // when & then
             assertThatCode(() -> residenceService.remove(beombak.getId(), member.getId()))
@@ -157,7 +157,7 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 범박동")
                     .addressName("범박동")
                     .build());
-            supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동"));
+            supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동", true));
 
             // when & then
             assertThatThrownBy(() -> residenceService.remove(beombak.getId(), member.getId()))

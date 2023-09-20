@@ -12,4 +12,5 @@ public class AddressData {
     private Long addressId;
     private String fullAddressName;
     private String addressName;
+    private boolean isSelected;
 }
