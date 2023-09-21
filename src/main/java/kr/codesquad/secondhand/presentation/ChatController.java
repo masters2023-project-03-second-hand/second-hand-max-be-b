@@ -65,7 +65,7 @@ public class ChatController {
 
         deferredResult.onCompletion(() -> chatRoomRequests.remove(deferredResult));
 
-        if (!chatRoomService.isUpToDate(messageIndex)) {
+        if (chatRoomService.existsMessageAfterMessageIndex(messageIndex)) {
             CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(cursor, size, memberId);
             deferredResult.setResult(new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
         }

@@ -61,13 +61,10 @@ public class ChatRoomService {
         return chatRoom.getId();
     }
 
-    public boolean isUpToDate(Long messageIndex) {
+    public boolean existsMessageAfterMessageIndex(Long messageIndex) {
         if (messageIndex == null) {
-            return false;
+            return true;
         }
-        if (chatLogRepository.existsByIdGreaterThan(messageIndex)) {
-            return false;
-        }
-        return true;
+        return chatLogRepository.existsByIdGreaterThan(messageIndex);
     }
 }
