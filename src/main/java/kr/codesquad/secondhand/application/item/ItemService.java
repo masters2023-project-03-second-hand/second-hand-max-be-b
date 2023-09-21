@@ -33,7 +33,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ItemService {
 
-    private static final int IMAGE_LIST_MAX_SIZE = 10;
+    private static final int IMAGE_LIST_MAX_SIZE = 9;
 
     private final ImageService imageService;
     private final ItemRepository itemRepository;
@@ -45,16 +45,19 @@ public class ItemService {
 
 
     @Transactional
-    public void register(List<MultipartFile> images, ItemRegisterRequest request, Long sellerId) {
-        if (images == null || images.isEmpty()) {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST, "이미지는 최소 1개 이상 들어와야 합니다.");
+    public void register(MultipartFile thumbnailImage,
+                         List<MultipartFile> images,
+                         ItemRegisterRequest request,
+                         Long sellerId) {
+        if (thumbnailImage == null || thumbnailImage.isEmpty()) {
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST, "썸네일 이미지는 반드시 들어와야 합니다.");
         }
         if (images.size() > IMAGE_LIST_MAX_SIZE) {
-            throw new BadRequestException(ErrorCode.INVALID_REQUEST, "이미지는 최대 10개까지 들어올 수 있습니다.");
+            throw new BadRequestException(ErrorCode.INVALID_REQUEST, "썸네일 이미지 외의 이미지는 최대 9개까지 들어올 수 있습니다.");
         }
 
+        String thumbnailUrl = imageService.uploadImage(thumbnailImage);
         List<String> itemImageUrls = imageService.uploadImages(images);
-        String thumbnailUrl = itemImageUrls.get(0);
 
         Member seller = memberRepository.getReferenceById(sellerId);
 
@@ -95,24 +98,39 @@ public class ItemService {
     }
 
     @Transactional
-    public void update(List<MultipartFile> images, ItemUpdateRequest request, Long itemId, Long sellerId) {
+    public void update(MultipartFile thumbnailImage,
+                       List<MultipartFile> images,
+                       ItemUpdateRequest request,
+                       Long itemId,
+                       Long sellerId) {
         Item item = findItem(itemId);
         if (!item.isSeller(sellerId)) {
             throw new ForbiddenException(ErrorCode.UNAUTHORIZED);
         }
 
-        List<String> deleteImageUrls = request.getDeleteImageUrls();
-        itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, deleteImageUrls);
+        itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, request.getDeleteImageUrls());
 
-        if (images != null) {
+        if (images != null && !images.isEmpty()) {
             saveImages(images, item);
         }
 
-        if (item.isThumbnailDeleted(deleteImageUrls)) {
-            String thumbnail = itemImageRepository.findByItemId(itemId).get(0).getImageUrl();
-            item.changeThumbnail(thumbnail);
+        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+            replaceThumbnail(item, imageService.uploadImage(thumbnailImage));
         }
+
         item.update(request);
+    }
+
+    private void saveImages(List<MultipartFile> images, Item item) {
+        List<String> itemImageUrls = imageService.uploadImages(images);
+        List<ItemImage> itemImages = itemImageUrls.stream()
+                .map(url -> ItemImage.from(url, item))
+                .collect(Collectors.toList());
+        itemImageRepository.saveAllItemImages(itemImages);
+    }
+
+    private void replaceThumbnail(Item item, String thumbnailUrl) {
+        item.changeThumbnail(thumbnailUrl);
     }
 
     @Transactional
@@ -127,14 +145,6 @@ public class ItemService {
     private Item findItem(Long itemId) {
         return itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "상품을 찾을 수 없습니다."));
-    }
-
-    private void saveImages(List<MultipartFile> images, Item item) {
-        List<String> itemImageUrls = imageService.uploadImages(images);
-        List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.from(url, item))
-                .collect(Collectors.toList());
-        itemImageRepository.saveAllItemImages(itemImages);
     }
 
     @Transactional

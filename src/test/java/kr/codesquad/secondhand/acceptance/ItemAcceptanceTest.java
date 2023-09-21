@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.everyItem;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.anyList;
 import static org.mockito.BDDMockito.given;
 
@@ -16,12 +17,14 @@ import io.restassured.specification.RequestSpecification;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import kr.codesquad.secondhand.domain.image.ImageFile;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import org.apache.http.HttpHeaders;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 
 public class ItemAcceptanceTest extends AcceptanceTestSupport {
@@ -52,10 +55,15 @@ public class ItemAcceptanceTest extends AcceptanceTestSupport {
             // given
             givenSetUp();
 
+            File thumbnail = new ClassPathResource("item.jpeg").getFile();
+
             var request = RestAssured
                     .given().log().all()
                     .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(1L))
+                    .multiPart("thumbnailImage",
+                            thumbnail,
+                            MediaType.IMAGE_JPEG_VALUE)
                     .multiPart("images",
                             createFakeFile(),
                             MediaType.IMAGE_PNG_VALUE)
@@ -108,6 +116,7 @@ public class ItemAcceptanceTest extends AcceptanceTestSupport {
 
             signup();
             given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2"));
+            given(s3Uploader.uploadImageFile(any(ImageFile.class))).willReturn("thumbnail-url");
         }
 
         private ExtractableResponse<Response> registerItem(RequestSpecification request) {

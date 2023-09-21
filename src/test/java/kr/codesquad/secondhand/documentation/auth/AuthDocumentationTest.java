@@ -56,7 +56,6 @@ public class AuthDocumentationTest extends DocumentationTestSupport {
     @Autowired
     private TokenService tokenService;
 
-
     @DisplayName("로그인")
     @Test
     void login() throws Exception {
