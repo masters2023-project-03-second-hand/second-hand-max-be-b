@@ -165,4 +165,38 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_REQUEST);
         }
     }
+
+    @DisplayName("사용자가 메인 거주 지역을 선택할 때")
+    @Nested
+    class Select {
+
+        @DisplayName("지역 아이디가 주어지면 선택에 성공한다.")
+        @Test
+        void givenSelectedAddressId_whenSelectResidence_thenSuccess() {
+            // given
+            Member member = supportRepository.save(FixtureFactory.createMember());
+            Region beoman = supportRepository.save(Region.builder().addressName("범안동")
+                    .fullAddressName("경기도 부천시 범안동")
+                    .build());
+            Region okgil = supportRepository.save(Region.builder().addressName("옥길동")
+                    .fullAddressName("경기도 부천시 옥길동")
+                    .build());
+
+            Residence mainResidence = supportRepository.save(
+                    Residence.from(member.getId(), beoman.getId(), "범안동", true));
+            Residence residence = supportRepository.save(Residence.from(member.getId(), okgil.getId(), "범안동", false));
+
+            // when
+            residenceService.selectResidence(okgil.getId(), member.getId());
+
+            // then
+            Residence notSelectedResidence = supportRepository.findById(Residence.class, mainResidence.getId()).get();
+            Residence selectedResidence = supportRepository.findById(Residence.class, residence.getId()).get();
+
+            assertAll(
+                    () -> assertThat(notSelectedResidence.isSelected()).isFalse(),
+                    () -> assertThat(selectedResidence.isSelected()).isTrue()
+            );
+        }
+    }
 }
