@@ -6,12 +6,14 @@ import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.residence.RegionResponse;
 import kr.codesquad.secondhand.presentation.dto.residence.ResidenceRequest;
+import kr.codesquad.secondhand.presentation.dto.residence.ResidenceSelectRequest;
 import kr.codesquad.secondhand.presentation.support.Auth;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -42,6 +44,13 @@ public class ResidenceController {
     public ApiResponse<Void> removeResidence(@Valid @RequestBody ResidenceRequest request,
                                              @Auth Long memberId) {
         residenceService.remove(request.getAddressId(), memberId);
+        return new ApiResponse<>(HttpStatus.OK.value());
+    }
+
+    @PutMapping
+    public ApiResponse<Void> selectResidence(@Valid @RequestBody ResidenceSelectRequest request,
+                                             @Auth Long memberId) {
+        residenceService.selectResidence(request.getSelectedAddressId(), memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 }
