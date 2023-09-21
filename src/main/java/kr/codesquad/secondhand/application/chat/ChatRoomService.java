@@ -16,6 +16,7 @@ import kr.codesquad.secondhand.repository.chat.querydsl.ChatCountRepository;
 import kr.codesquad.secondhand.repository.chat.querydsl.ChatPaginationRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +32,9 @@ public class ChatRoomService {
     private final ChatCountRepository chatCountRepository;
     private final ChatLogRepository chatLogRepository;
 
-    public CustomSlice<ChatRoomResponse> read(Long chatRoomId, int pageSize, Long memberId) {
+    public CustomSlice<ChatRoomResponse> read(Long memberId, Pageable pageable) {
         Slice<ChatRoomResponse> response =
-                chatPaginationRepository.findByMemberId(memberId, chatRoomId, pageSize);
+                chatPaginationRepository.findByMemberId(memberId, pageable);
         List<ChatRoomResponse> contents = response.getContent();
 
         Map<Long, Long> newMessageCounts = chatCountRepository.countNewMessage(memberId);

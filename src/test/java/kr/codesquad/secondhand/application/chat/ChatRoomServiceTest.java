@@ -16,6 +16,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @ApplicationTest
 public class ChatRoomServiceTest extends ApplicationTestSupport {
@@ -38,9 +40,10 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             List<Member> partners = getPartners();
             Item item = supportRepository.save(FixtureFactory.createItem("item", "가전/잡화", member));
             supportRepository.save(FixtureFactory.createChatRooms(member, partners, item));
+            Pageable pageable = PageRequest.of(0,10);
 
             // when
-            CustomSlice<ChatRoomResponse> response = chatRoomService.read(null, 10, 1L);
+            CustomSlice<ChatRoomResponse> response = chatRoomService.read(1L, pageable);
 
             // then
             assertAll(
@@ -60,9 +63,10 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             List<Member> partners = getPartners();
             Item item = supportRepository.save(FixtureFactory.createItem("item", "가전/잡화", member));
             supportRepository.save(FixtureFactory.createChatRooms(member, partners, item));
+            Pageable pageable = PageRequest.of(2,10);
 
             // when
-            CustomSlice<ChatRoomResponse> response = chatRoomService.read(11L, 10, 1L);
+            CustomSlice<ChatRoomResponse> response = chatRoomService.read(1L, pageable);
 
             // then
             assertAll(
@@ -95,9 +99,11 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             chatLogService.sendMessage("선풍기 사려 그러는데요!", chatRoom.getId(), sender.getId());
             chatLogService.sendMessage("혹시 할인 되나요..?", chatRoom.getId(), sender.getId());
 
+            Pageable pageable = PageRequest.of(0,10);
+
             // when
-            CustomSlice<ChatRoomResponse> senderResponse = chatRoomService.read(null, 10, 1L);
-            CustomSlice<ChatRoomResponse> receiverResponse = chatRoomService.read(null, 10, 2L);
+            CustomSlice<ChatRoomResponse> senderResponse = chatRoomService.read(1L, pageable);
+            CustomSlice<ChatRoomResponse> receiverResponse = chatRoomService.read(2L, pageable);
 
             // then
             assertThat(senderResponse.getContents().get(0).getNewMessageCount()).isEqualTo(0);

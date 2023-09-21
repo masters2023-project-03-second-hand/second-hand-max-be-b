@@ -12,6 +12,7 @@ import kr.codesquad.secondhand.presentation.dto.chat.ChatRequest;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
 import kr.codesquad.secondhand.presentation.support.Auth;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -55,8 +56,7 @@ public class ChatController {
 
     @GetMapping("/chats")
     public DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> readList(
-            @RequestParam(required = false) Long cursor,
-            @RequestParam(required = false, defaultValue = "10") int size,
+            Pageable pageable,
             @RequestParam(required = false) Long messageIndex,
             @Auth Long memberId) {
         DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> deferredResult =
@@ -66,7 +66,7 @@ public class ChatController {
         deferredResult.onCompletion(() -> chatRoomRequests.remove(deferredResult));
 
         if (chatRoomService.existsMessageAfterMessageIndex(messageIndex)) {
-            CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(cursor, size, memberId);
+            CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(memberId, pageable);
             deferredResult.setResult(new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
         }
 

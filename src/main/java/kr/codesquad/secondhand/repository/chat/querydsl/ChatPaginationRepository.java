@@ -14,7 +14,10 @@ import java.util.List;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
 import kr.codesquad.secondhand.repository.PaginationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
@@ -23,7 +26,7 @@ public class ChatPaginationRepository implements PaginationRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Slice<ChatRoomResponse> findByMemberId(Long memberId, Long chatRoomId, int pageSize) {
+    public Slice<ChatRoomResponse> findByMemberId(Long memberId, Pageable pageable) {
         Expression<String> loginIdExpression = createPartnerNameExpression(memberId);
         Expression<String> profileExpression = createPartnerProfileExpression(memberId);
 
@@ -36,13 +39,21 @@ public class ChatPaginationRepository implements PaginationRepository {
                         loginIdExpression,
                         profileExpression))
                 .from(chatRoom)
-                .where(beforeThanId(chatRoomId),
-                        equalsMemberId(memberId)
-                )
+                .where(equalsMemberId(memberId))
                 .orderBy(chatRoom.lastSendTime.desc())
-                .limit(pageSize + 1)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
-        return checkLastPage(pageSize, chatRoomResponses);
+
+        Integer hasNext = queryFactory
+                .selectOne()
+                .from(chatRoom)
+                .where(equalsMemberId(memberId),
+                        chatRoom.lastSendTime.before(
+                                chatRoomResponses.get(chatRoomResponses.size() - 1).getLastSendTime()))
+                .fetchOne();
+
+        return new SliceImpl<>(chatRoomResponses, PageRequest.ofSize(pageable.getPageSize()), hasNext != null);
     }
 
     private Expression<String> createPartnerNameExpression(Long memberId) {
