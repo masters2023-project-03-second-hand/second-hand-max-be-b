@@ -1,0 +1,55 @@
+[[Item]]
+:toc: left
+:toclevels: 4
+
+== 상품
+
+=== 상품 등록
+
+.HTTP REQUEST
+include::{snippets}/items/register/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/items/register/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/items/register/request-headers.adoc[]
+
+==== Request Parts
+
+include::{snippets}/items/register/request-parts.adoc[]
+
+===== 상품 데이터 상세
+
+include::{snippets}/items/register/request-part-item-fields.adoc[]
+
+==== Response Fields
+
+include::{snippets}/items/register/response-fields.adoc[]
+
+=== 상품 수정
+
+.HTTP REQUEST
+include::{snippets}/items/update/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/items/update/http-response.adoc[]
+
+==== Path parameters
+
+include::{snippets}/items/update/path-parameters.adoc[]
+
+=== Request Headers
+
+include::{snippets}/items/update/request-headers.adoc[]
+
+==== Request Parts
+
+include::{snippets}/items/update/request-parts.adoc[]
+
+===== 상품 데이터 상세
+
+include::{snippets}/items/update/request-part-item-fields.adoc[]
+
+==== Response Fields
+
+include::{snippets}/items/update/response-fields.adoc[]
