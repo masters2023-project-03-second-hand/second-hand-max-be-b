@@ -23,6 +23,8 @@ public enum ErrorCode {
     DUPLICATED_LOGIN_ID("중복된 아이디입니다."),
     NOT_LOGIN("로그인된 상태가 아닙니다."),
     UNAUTHORIZED("수정 권한이 없습니다."),
+    OAUTH_PROVIDER_NOT_FOUND("제공하지 않는 OAuth 프로바이더입니다."),
+    OAUTH_FAIL_REQUEST_TOKEN("토큰 요청에 실패했습니다."),
 
     // COMMON
     INVALID_PARAMETER("유효한 파라미터값이 아닙니다."),

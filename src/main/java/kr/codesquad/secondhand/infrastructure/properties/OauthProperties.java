@@ -9,13 +9,29 @@ import org.springframework.boot.context.properties.ConstructorBinding;
 @ConfigurationProperties(prefix = "oauth2")
 public class OauthProperties {
 
-    private final User user;
-    private final Provider provider;
+    private final Naver naver;
+    private final Kakao kakao;
 
     @ConstructorBinding
-    public OauthProperties(User user, Provider provider) {
-        this.user = user;
-        this.provider = provider;
+    public OauthProperties(Naver naver, Kakao kakao) {
+        this.naver = naver;
+        this.kakao = kakao;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class Naver {
+
+        private final User user;
+        private final Provider provider;
+    }
+
+    @Getter
+    @RequiredArgsConstructor
+    public static class Kakao {
+
+        private final User user;
+        private final Provider provider;
     }
 
     @Getter
