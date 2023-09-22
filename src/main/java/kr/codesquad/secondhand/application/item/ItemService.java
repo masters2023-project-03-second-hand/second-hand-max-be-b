@@ -52,7 +52,7 @@ public class ItemService {
         if (thumbnailImage == null || thumbnailImage.isEmpty()) {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST, "썸네일 이미지는 반드시 들어와야 합니다.");
         }
-        if (images.size() > IMAGE_LIST_MAX_SIZE) {
+        if (images != null && images.size() > IMAGE_LIST_MAX_SIZE) {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST, "썸네일 이미지 외의 이미지는 최대 9개까지 들어올 수 있습니다.");
         }
 
