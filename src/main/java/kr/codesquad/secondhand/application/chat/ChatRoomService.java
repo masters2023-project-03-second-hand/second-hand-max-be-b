@@ -2,7 +2,6 @@ package kr.codesquad.secondhand.application.chat;
 
 import java.util.List;
 import java.util.Map;
-import kr.codesquad.secondhand.application.item.PagingUtils;
 import kr.codesquad.secondhand.domain.chat.ChatLog;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
 import kr.codesquad.secondhand.domain.item.Item;
@@ -16,6 +15,7 @@ import kr.codesquad.secondhand.repository.chat.querydsl.ChatCountRepository;
 import kr.codesquad.secondhand.repository.chat.querydsl.ChatPaginationRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,9 +31,10 @@ public class ChatRoomService {
     private final ChatCountRepository chatCountRepository;
     private final ChatLogRepository chatLogRepository;
 
-    public CustomSlice<ChatRoomResponse> read(Long chatRoomId, int pageSize, Long memberId) {
+    public CustomSlice<ChatRoomResponse> read(Long memberId, Pageable pageable) {
         Slice<ChatRoomResponse> response =
-                chatPaginationRepository.findByMemberId(memberId, chatRoomId, pageSize);
+                chatPaginationRepository.findByMemberId(memberId, pageable);
+
         List<ChatRoomResponse> contents = response.getContent();
 
         Map<Long, Long> newMessageCounts = chatCountRepository.countNewMessage(memberId);
@@ -44,7 +45,8 @@ public class ChatRoomService {
             chatRoomResponse.assignNewMessageCount(messageCount);
         });
 
-        Long nextCursor = PagingUtils.setNextCursorForChatRoom(contents, response.hasNext());
+        boolean hasNext = response.hasNext();
+        Long nextCursor = hasNext ? Long.valueOf(pageable.getPageNumber() + 1) : null;
 
         ChatLog lastChatLog = chatLogRepository.findFirstByOrderByIdDesc().orElse(null);
         Long lastChatLogId = lastChatLog != null ? lastChatLog.getId() : null;
