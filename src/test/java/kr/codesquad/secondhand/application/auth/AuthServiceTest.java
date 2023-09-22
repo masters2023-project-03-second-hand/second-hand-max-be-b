@@ -11,6 +11,7 @@ import java.util.Optional;
 import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.member.OAuthProvider;
 import kr.codesquad.secondhand.domain.member.UserProfile;
 import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.ErrorCode;
@@ -46,7 +47,7 @@ class AuthServiceTest extends ApplicationTestSupport {
                     .build());
 
             // when
-            LoginResponse response = authService.login(request, "code");
+            LoginResponse response = authService.login(OAuthProvider.NAVER, request, "code");
 
             // then
             Optional<RefreshToken> token = supportRepository.findById(RefreshToken.class, 1L);
@@ -77,7 +78,7 @@ class AuthServiceTest extends ApplicationTestSupport {
                     .build());
 
             // when
-            authService.login(request, "code");
+            authService.login(OAuthProvider.NAVER, request, "code");
 
             // then
             assertThat(supportRepository.findById(RefreshToken.class, 1L).get().getToken())
@@ -98,7 +99,7 @@ class AuthServiceTest extends ApplicationTestSupport {
                     .build());
 
             // when & then
-            assertThatThrownBy(() -> authService.login(request, "code"))
+            assertThatThrownBy(() -> authService.login(OAuthProvider.NAVER, request, "code"))
                     .isInstanceOf(UnAuthorizedException.class)
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_LOGIN_DATA);
         }
@@ -111,7 +112,7 @@ class AuthServiceTest extends ApplicationTestSupport {
             LoginRequest request = new LoginRequest("joy");
 
             // when & then
-            assertThatThrownBy(() -> authService.login(request, "code"))
+            assertThatThrownBy(() -> authService.login(OAuthProvider.NAVER, request, "code"))
                     .isInstanceOf(UnAuthorizedException.class)
                     .extracting("errorCode").isEqualTo(ErrorCode.INVALID_LOGIN_DATA);
         }
@@ -120,6 +121,14 @@ class AuthServiceTest extends ApplicationTestSupport {
             given(naverRequester.getToken(anyString()))
                     .willReturn(new OauthTokenResponse("a.a.a", "scope", "bearer"));
             given(naverRequester.getUserProfile(any(OauthTokenResponse.class)))
+                    .willReturn(UserProfile.builder()
+                            .email("joy@naver.com")
+                            .profileUrl("url")
+                            .build());
+
+            given(kakaoRequester.getToken(anyString()))
+                    .willReturn(new OauthTokenResponse("a.a.a", "scope", "bearer"));
+            given(kakaoRequester.getUserProfile(any(OauthTokenResponse.class)))
                     .willReturn(UserProfile.builder()
                             .email("joy@naver.com")
                             .profileUrl("url")
