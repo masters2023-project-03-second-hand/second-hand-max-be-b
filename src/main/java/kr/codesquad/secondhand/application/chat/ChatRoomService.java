@@ -2,7 +2,6 @@ package kr.codesquad.secondhand.application.chat;
 
 import java.util.List;
 import java.util.Map;
-import kr.codesquad.secondhand.application.item.PagingUtils;
 import kr.codesquad.secondhand.domain.chat.ChatLog;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
 import kr.codesquad.secondhand.domain.item.Item;
@@ -45,7 +44,7 @@ public class ChatRoomService {
             chatRoomResponse.assignNewMessageCount(messageCount);
         });
 
-        Long nextCursor = PagingUtils.setNextCursorForChatRoom(contents, response.hasNext());
+        Long nextCursor = Long.valueOf(pageable.getPageNumber() + 1);
 
         ChatLog lastChatLog = chatLogRepository.findFirstByOrderByIdDesc().orElse(null);
         Long lastChatLogId = lastChatLog != null ? lastChatLog.getId() : null;

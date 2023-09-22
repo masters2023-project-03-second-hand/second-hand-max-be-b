@@ -6,13 +6,9 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.time.LocalDateTime;
 import java.util.List;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
-import kr.codesquad.secondhand.repository.PaginationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +18,7 @@ import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-public class ChatPaginationRepository implements PaginationRepository {
+public class ChatPaginationRepository {
 
     private final JPAQueryFactory queryFactory;
 
@@ -70,20 +66,6 @@ public class ChatPaginationRepository implements PaginationRepository {
                 .then(chatRoom.seller.profileUrl)
                 .otherwise(chatRoom.buyer.profileUrl)
                 .as("chatPartnerProfile");
-    }
-
-    private BooleanExpression beforeThanId(Long chatRoomId) {
-        if (chatRoomId == null) {
-            return null;
-        }
-        return chatRoom.lastSendTime.before(findLastSendTimeById(chatRoomId));
-    }
-
-    private JPQLQuery<LocalDateTime> findLastSendTimeById(Long chatRoomId) {
-        return JPAExpressions
-                .select(chatRoom.lastSendTime)
-                .from(chatRoom)
-                .where(chatRoom.id.eq(chatRoomId));
     }
 
     private BooleanExpression equalsMemberId(Long memberId) {
