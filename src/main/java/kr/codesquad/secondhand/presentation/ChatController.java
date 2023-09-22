@@ -29,6 +29,8 @@ import org.springframework.web.context.request.async.DeferredResult;
 public class ChatController {
 
     private final Map<DeferredResult<ApiResponse<ChatLogResponse>>, Long> chatRequests = new ConcurrentHashMap<>();
+    private final Map<DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>>, Long> chatRoomRequests = new ConcurrentHashMap<>();
+
     private final ChatLogService chatLogService;
     private final ChatRoomService chatRoomService;
 
@@ -52,12 +54,23 @@ public class ChatController {
     }
 
     @GetMapping("/chats")
-    public ApiResponse<CustomSlice<ChatRoomResponse>> readList(
+    public DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> readList(
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false, defaultValue = "10") int size,
-            @Auth Long memberId
-    ) {
-        return new ApiResponse<>(HttpStatus.OK.value(), chatRoomService.read(cursor, size, memberId));
+            @RequestParam(required = false) Long messageIndex,
+            @Auth Long memberId) {
+        DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> deferredResult =
+                new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), List.of()));
+        chatRoomRequests.put(deferredResult, messageIndex);
+
+        deferredResult.onCompletion(() -> chatRoomRequests.remove(deferredResult));
+
+        if (chatRoomService.existsMessageAfterMessageIndex(messageIndex)) {
+            CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(cursor, size, memberId);
+            deferredResult.setResult(new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
+        }
+
+        return deferredResult;
     }
 
     @PostMapping("/chats/{chatRoomId}")
