@@ -48,7 +48,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             // then
             assertAll(
                     () -> assertThat(response.getPaging().isHasNext()).isTrue(),
-                    () -> assertThat(response.getPaging().getNextCursor()).isEqualTo(21),
+                    () -> assertThat(response.getPaging().getNextCursor()).isEqualTo(1L),
                     () -> assertThat(response.getContents().get(0).getChatPartnerName()).isEqualTo("30testId"),
                     () -> assertThat(response.getContents().get(0).getLastSendMessage()).isEqualTo("30번 채팅방"),
                     () -> assertThat(response.getContents().get(9).getChatPartnerName()).isEqualTo("21testId")

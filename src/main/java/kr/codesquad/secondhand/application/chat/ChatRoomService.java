@@ -45,7 +45,8 @@ public class ChatRoomService {
             chatRoomResponse.assignNewMessageCount(messageCount);
         });
 
-        Long nextCursor = Long.valueOf(pageable.getPageNumber() + 1);
+        boolean hasNext = response.hasNext();
+        Long nextCursor = hasNext ? Long.valueOf(pageable.getPageNumber() + 1) : null;
 
         ChatLog lastChatLog = chatLogRepository.findFirstByOrderByIdDesc().orElse(null);
         Long lastChatLogId = lastChatLog != null ? lastChatLog.getId() : null;
