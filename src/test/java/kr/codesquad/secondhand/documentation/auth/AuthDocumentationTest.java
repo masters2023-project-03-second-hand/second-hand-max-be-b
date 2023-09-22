@@ -90,7 +90,7 @@ public class AuthDocumentationTest extends DocumentationTestSupport {
                 .andExpect(jsonPath("data.user.addresses[0].addressId").value(1))
                 .andExpect(jsonPath("data.user.addresses[0].fullAddressName").value("경기도 부천시 범안동"))
                 .andExpect(jsonPath("data.user.addresses[0].addressName").value("범안동"))
-                .andExpect(jsonPath("data.user.addresses[0].selected").value(true));
+                .andExpect(jsonPath("data.user.addresses[0].isSelected").value(true));
 
         // docs
         resultActions.andDo(document("auth/naver/login",
@@ -113,7 +113,7 @@ public class AuthDocumentationTest extends DocumentationTestSupport {
                         fieldWithPath("data.user.addresses[*].addressId").type(NUMBER).description("지역 아이디"),
                         fieldWithPath("data.user.addresses[*].fullAddressName").type(STRING).description("주소전체이름"),
                         fieldWithPath("data.user.addresses[*].addressName").type(STRING).description("읍면동 이름"),
-                        fieldWithPath("data.user.addresses[0].selected").type(BOOLEAN).description("사용자가 선택한 거주지역")
+                        fieldWithPath("data.user.addresses[0].isSelected").type(BOOLEAN).description("사용자가 선택한 거주지역")
                 )
         ));
     }

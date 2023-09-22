@@ -13,6 +13,5 @@ public class AddressData {
     private Long addressId;
     private String fullAddressName;
     private String addressName;
-    @JsonProperty(value = "isSelected")
-    private boolean isSelected;
+    private Boolean isSelected;
 }
