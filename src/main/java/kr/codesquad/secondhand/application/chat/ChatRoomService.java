@@ -34,6 +34,7 @@ public class ChatRoomService {
     public CustomSlice<ChatRoomResponse> read(Long memberId, Pageable pageable) {
         Slice<ChatRoomResponse> response =
                 chatPaginationRepository.findByMemberId(memberId, pageable);
+
         List<ChatRoomResponse> contents = response.getContent();
 
         Map<Long, Long> newMessageCounts = chatCountRepository.countNewMessage(memberId);
