@@ -9,16 +9,15 @@ import com.querydsl.core.types.dsl.CaseBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
+import kr.codesquad.secondhand.repository.PaginationRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-public class ChatPaginationRepository {
+public class ChatPaginationRepository implements PaginationRepository {
 
     private final JPAQueryFactory queryFactory;
 
@@ -38,18 +37,10 @@ public class ChatPaginationRepository {
                 .where(equalsMemberId(memberId))
                 .orderBy(chatRoom.lastSendTime.desc())
                 .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
 
-        Integer hasNext = queryFactory
-                .selectOne()
-                .from(chatRoom)
-                .where(equalsMemberId(memberId),
-                        chatRoom.lastSendTime.before(
-                                chatRoomResponses.get(chatRoomResponses.size() - 1).getLastSendTime()))
-                .fetchOne();
-
-        return new SliceImpl<>(chatRoomResponses, PageRequest.ofSize(pageable.getPageSize()), hasNext != null);
+        return checkLastPage(pageable.getPageSize(), chatRoomResponses);
     }
 
     private Expression<String> createPartnerNameExpression(Long memberId) {
