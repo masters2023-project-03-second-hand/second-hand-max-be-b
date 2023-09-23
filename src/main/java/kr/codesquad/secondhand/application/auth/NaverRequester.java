@@ -50,7 +50,7 @@ public class NaverRequester implements OAuthRequester {
         validateToken(response);
 
         return new OauthTokenResponse(response.get("access_token").toString(),
-                response.get("scope").toString(),
+                null,
                 response.get("token_type").toString());
     }
 
