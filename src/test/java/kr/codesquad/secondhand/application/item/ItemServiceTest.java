@@ -34,6 +34,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
+@DisplayName("비즈니스 로직 - 아이템")
 @ApplicationTest
 class ItemServiceTest extends ApplicationTestSupport {
 
@@ -57,7 +58,7 @@ class ItemServiceTest extends ApplicationTestSupport {
 
         assertAll(
                 () -> assertThat(item).isPresent(),
-                () -> assertThat(images).hasSize(3)
+                () -> assertThat(images).hasSize(4)
         );
     }
 
@@ -102,6 +103,12 @@ class ItemServiceTest extends ApplicationTestSupport {
                 () -> assertThat(response.getViewCount()).isEqualTo(1)
         );
     }
+
+//    @DisplayName("구매자가 상품의 상세화면을 조회하면 해당 상품의 조회수가 증가한다.")
+//    @Test
+//    void given_whenBuyerReadItemDetails_thenIncreaseViewCount() {
+//
+//    }
 
     @DisplayName("상품의 상태 수정에 성공한다.")
     @Test
