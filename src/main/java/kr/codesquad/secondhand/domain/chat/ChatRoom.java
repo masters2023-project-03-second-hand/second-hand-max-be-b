@@ -4,8 +4,6 @@ import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -36,10 +34,6 @@ public class ChatRoom {
     @Column(nullable = false, length = 1000)
     private String subject;
 
-    @Column(nullable = false, length = 45)
-    @Enumerated(EnumType.STRING)
-    private WhoIsLast status;
-
     @Column(nullable = false)
     private LocalDateTime lastSendTime;
 
@@ -47,26 +41,25 @@ public class ChatRoom {
     @CreatedDate
     private LocalDateTime createdAt;
 
-    @JoinColumn(nullable = false, name = "from_id")
+    @JoinColumn(nullable = false, name = "buyer_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Member sender;
+    private Member buyer;
 
-    @JoinColumn(nullable = false, name = "to_id")
+    @JoinColumn(nullable = false, name = "seller_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private Member receiver;
+    private Member seller;
 
     @JoinColumn(nullable = false, name = "item_id")
     @ManyToOne(fetch = FetchType.LAZY)
     private Item item;
 
     @Builder
-    private ChatRoom(Long id, String subject, WhoIsLast status, Member sender, Member receiver, Item item) {
+    private ChatRoom(Long id, String subject, Member buyer, Member seller, Item item) {
         this.id = id;
         this.subject = subject;
-        this.status = status;
         this.lastSendTime = LocalDateTime.now();
-        this.sender = sender;
-        this.receiver = receiver;
+        this.buyer = buyer;
+        this.seller = seller;
         this.item = item;
     }
 
@@ -76,13 +69,16 @@ public class ChatRoom {
                 .item(Item.builder()
                         .id(itemId)
                         .build())
-                .sender(Member.builder()
+                .buyer(Member.builder()
                         .id(creatorId)
                         .build())
-                .receiver(Member.builder()
+                .seller(Member.builder()
                         .id(sellerId)
                         .build())
-                .status(WhoIsLast.FROM)
                 .build();
+    }
+
+    public boolean isSender(Long memberId) {
+        return buyer.getId().equals(memberId);
     }
 }

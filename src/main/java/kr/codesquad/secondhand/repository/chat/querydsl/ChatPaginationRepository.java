@@ -6,13 +6,12 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.time.LocalDateTime;
 import java.util.List;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
 import kr.codesquad.secondhand.repository.PaginationRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Repository;
 
@@ -22,7 +21,7 @@ public class ChatPaginationRepository implements PaginationRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Slice<ChatRoomResponse> findByMemberId(Long memberId, Long chatRoomId, int pageSize) {
+    public Slice<ChatRoomResponse> findByMemberId(Long memberId, Pageable pageable) {
         Expression<String> loginIdExpression = createPartnerNameExpression(memberId);
         Expression<String> profileExpression = createPartnerProfileExpression(memberId);
 
@@ -35,46 +34,33 @@ public class ChatPaginationRepository implements PaginationRepository {
                         loginIdExpression,
                         profileExpression))
                 .from(chatRoom)
-                .where(latestThanId(chatRoomId),
-                        equalsMemberId(memberId)
-                )
+                .where(equalsMemberId(memberId))
                 .orderBy(chatRoom.lastSendTime.desc())
-                .limit(pageSize + 1)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize() + 1)
                 .fetch();
-        return checkLastPage(pageSize, chatRoomResponses);
+
+        return checkLastPage(pageable.getPageSize(), chatRoomResponses);
     }
 
     private Expression<String> createPartnerNameExpression(Long memberId) {
         return new CaseBuilder()
-                .when(chatRoom.sender.id.eq(memberId))
-                .then(chatRoom.receiver.loginId)
-                .otherwise(chatRoom.sender.loginId);
+                .when(chatRoom.buyer.id.eq(memberId))
+                .then(chatRoom.seller.loginId)
+                .otherwise(chatRoom.buyer.loginId)
+                .as("chatPartnerName");
     }
 
     private Expression<String> createPartnerProfileExpression(Long memberId) {
         return new CaseBuilder()
-                .when(chatRoom.sender.id.eq(memberId))
-                .then(chatRoom.receiver.profileUrl)
-                .otherwise(chatRoom.sender.profileUrl);
-    }
-
-    private LocalDateTime findLastSendTimeById(Long chatRoomId) {
-        return JPAExpressions
-                .select(chatRoom.lastSendTime)
-                .from(chatRoom)
-                .where(chatRoom.id.eq(chatRoomId))
-                .fetchFirst();
-    }
-
-    private BooleanExpression latestThanId(Long chatRoomId) {
-        if (chatRoomId == null) {
-            return null;
-        }
-        return chatRoom.lastSendTime.lt(findLastSendTimeById(chatRoomId));
+                .when(chatRoom.buyer.id.eq(memberId))
+                .then(chatRoom.seller.profileUrl)
+                .otherwise(chatRoom.buyer.profileUrl)
+                .as("chatPartnerProfile");
     }
 
     private BooleanExpression equalsMemberId(Long memberId) {
-        return chatRoom.sender.id.eq(memberId)
-                .or(chatRoom.receiver.id.eq(memberId));
+        return chatRoom.buyer.id.eq(memberId)
+                .or(chatRoom.seller.id.eq(memberId));
     }
 }

@@ -25,14 +25,13 @@ public class ImageService {
 
     @Transactional
     public List<String> uploadImages(List<MultipartFile> images) {
+        if (images == null) {
+            return List.of();
+        }
         List<ImageFile> imageFiles = images.stream()
                 .map(ImageFile::from)
                 .collect(Collectors.toList());
         return s3Uploader.uploadImageFiles(imageFiles);
-    }
-
-    public void deleteImage(ItemImage itemImage) {
-        s3Uploader.deleteImage(itemImage.getImageUrl());
     }
 
     @Async("imageThreadExecutor")

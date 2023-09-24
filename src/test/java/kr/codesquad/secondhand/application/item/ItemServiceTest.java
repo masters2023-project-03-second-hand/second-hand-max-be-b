@@ -3,6 +3,7 @@ package kr.codesquad.secondhand.application.item;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.anyList;
 import static org.mockito.BDDMockito.given;
 
@@ -13,6 +14,7 @@ import java.util.Optional;
 import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.category.Category;
+import kr.codesquad.secondhand.domain.image.ImageFile;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
@@ -43,10 +45,11 @@ class ItemServiceTest extends ApplicationTestSupport {
     void given_whenRegisterItem_thenSuccess() {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
+        given(s3Uploader.uploadImageFile(any(ImageFile.class))).willReturn("thumbnailUrl");
         signup();
 
         // when
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
+        itemService.register(createThumbnailImage(), createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
 
         // then
         Optional<Item> item = supportRepository.findById(Item.class, 1L);
@@ -64,7 +67,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
 
         // when
         ItemDetailResponse response = itemService.read(member.getId(), 1L);
@@ -83,7 +86,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member seller = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), seller.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", seller));
         Member buyer = supportRepository.save(Member.builder()
                 .email("joy@secondhand.com")
                 .loginId("joy")
@@ -100,36 +103,13 @@ class ItemServiceTest extends ApplicationTestSupport {
         );
     }
 
-    @DisplayName("상품을 수정하면 상품정보가 db에 업데이트되고 삭제 이미지가 db에서 제거된다.")
-    @Test
-    void given_whenUpdateItem_thenSuccess() {
-        // given
-        given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
-        Member member = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
-
-        // when
-        itemService.update(null, FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
-
-        // then
-        Optional<Item> item = supportRepository.findById(Item.class, 1L);
-        List<ItemImage> images = supportRepository.findAll(ItemImage.class);
-
-        assertAll(
-                () -> assertThat(item).isPresent(),
-                () -> assertThat(item.get().getTitle()).isEqualTo("수정제목"),
-                () -> assertThat(item.get().getThumbnailUrl()).isEqualTo("url3"),
-                () -> assertThat(images).hasSize(1)
-        );
-    }
-
     @DisplayName("상품의 상태 수정에 성공한다.")
     @Test
     void given_whenUpdateStatus_thenSuccess() {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
         ItemStatusRequest request = new ItemStatusRequest("예약중");
 
         // when
@@ -147,7 +127,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), member.getId());
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
         ItemStatusRequest request = new ItemStatusRequest("예약중");
         Member buyer = supportRepository.save(Member.builder()
                 .email("joy@secondhand.com")
@@ -159,6 +139,13 @@ class ItemServiceTest extends ApplicationTestSupport {
         assertThatThrownBy(() -> itemService.updateStatus(request, 1L, buyer.getId()))
                 .isInstanceOf(ForbiddenException.class)
                 .extracting("errorCode").isEqualTo(ErrorCode.UNAUTHORIZED);
+    }
+
+    private MultipartFile createThumbnailImage() {
+        return new MockMultipartFile("test-image",
+                "test-image.png",
+                MediaType.IMAGE_PNG_VALUE,
+                "content".getBytes(StandardCharsets.UTF_8));
     }
 
     private List<MultipartFile> createFakeImage() {
@@ -182,8 +169,8 @@ class ItemServiceTest extends ApplicationTestSupport {
     void given_whenDeleteItem_thenSuccess() throws InterruptedException {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
-        signup();
-        itemService.register(createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
+        Member member = signup();
+        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
 
         // when
         itemService.delete(1L, 1L);
@@ -197,6 +184,96 @@ class ItemServiceTest extends ApplicationTestSupport {
                 () -> assertThat(item).isNotPresent(),
                 () -> assertThat(images).isEmpty()
         );
+    }
+
+    @DisplayName("상품을 수정할 때")
+    @Nested
+    class Update {
+
+        @DisplayName("상품을 수정하면 상품정보가 db에 업데이트되고 삭제 이미지가 db에서 제거된다.")
+        @Test
+        void given_whenUpdateItem_thenSuccess() {
+            // given
+            Member member = signup();
+            Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+            for (int i = 1; i <= 4; i++) {
+                supportRepository.save(ItemImage.builder()
+                        .item(item)
+                        .imageUrl("url" + i)
+                        .build());
+            }
+
+            // when
+            itemService.update(null, null, FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
+
+            // then
+            Optional<Item> resultItem = supportRepository.findById(Item.class, 1L);
+            List<ItemImage> images = supportRepository.findAll(ItemImage.class);
+
+            assertAll(
+                    () -> assertThat(resultItem).isPresent(),
+                    () -> assertThat(resultItem.get().getTitle()).isEqualTo("수정제목"),
+                    () -> assertThat(images).hasSize(2)
+            );
+        }
+
+        @DisplayName("상품을 수정할 때 새로운 상품 이미지가 주어지면 상품 수정에 성공한다.")
+        @Test
+        void givenNewImage_whenUpdateItem_thenSuccess() {
+            // given
+            given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("new-url"));
+            Member member = signup();
+            Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+            for (int i = 1; i <= 4; i++) {
+                supportRepository.save(ItemImage.builder()
+                        .item(item)
+                        .imageUrl("url" + i)
+                        .build());
+            }
+            MockMultipartFile image = new MockMultipartFile(
+                    "new-image",
+                    "new-image.png",
+                    MediaType.IMAGE_PNG_VALUE,
+                    "new-image-content".getBytes(StandardCharsets.UTF_8)
+            );
+
+            // when
+            itemService.update(null, List.of(image),
+                    FixtureFactory.createItemUpdateRequest(), item.getId(), member.getId());
+
+            // then
+            Optional<Item> resultItem = supportRepository.findById(Item.class, item.getId());
+            List<ItemImage> images = supportRepository.findAll(ItemImage.class);
+
+            assertAll(
+                    () -> assertThat(resultItem).isPresent(),
+                    () -> assertThat(resultItem.get().getTitle()).isEqualTo("수정제목"),
+                    () -> assertThat(images).anyMatch(itemImage -> itemImage.getImageUrl().equals("new-url"))
+            );
+        }
+
+        @DisplayName("상품을 수정할 때 새로운 썸네일 이미지가 주어지면 상품 수정에 성공한다.")
+        @Test
+        void givenNewThumbnail_whenUpdateItem_thenSuccess() {
+            // given
+            given(s3Uploader.uploadImageFile(any(ImageFile.class))).willReturn("new-thumbnail");
+
+            Member member = signup();
+            Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+
+            // when
+            itemService.update(createThumbnailImage(), null,
+                    FixtureFactory.createItemUpdateRequest(), item.getId(), member.getId());
+
+            // then
+            Optional<Item> resultItem = supportRepository.findById(Item.class, item.getId());
+
+            assertAll(
+                    () -> assertThat(resultItem).isPresent(),
+                    () -> assertThat(resultItem.get().getTitle()).isEqualTo("수정제목"),
+                    () -> assertThat(resultItem.get().getThumbnailUrl()).isEqualTo("new-thumbnail")
+            );
+        }
     }
 
     @DisplayName("상품 전체 목록을 조회할 때")
@@ -213,7 +290,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "범박동", 10, member.getId());
+            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "범박동", 10);
 
             // then
             assertAll(
@@ -234,7 +311,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10, member.getId());
+            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10);
 
             // then
             assertAll(
@@ -264,7 +341,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8, member.getId());
+            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8);
 
             // then
             assertAll(
@@ -273,44 +350,6 @@ class ItemServiceTest extends ApplicationTestSupport {
                     () -> assertThat(response.getContents().get(0).getTitle()).isEqualTo("맛없는 거 - 5"),
                     () -> assertThat(response.getContents().get(7).getTitle()).isEqualTo("맛있는 거 - 3")
             );
-        }
-
-        @DisplayName("로그인하지 않은 사용자가 상품목록 화면 조회에 성공한다.")
-        @Test
-        void givenNonLoginMember_whenReadAllItems_thenSuccess() {
-            // given
-            Member member = signup();
-            supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
-            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
-
-            for (int i = 1; i <= 10; i++) {
-                supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
-            }
-
-            // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "역삼1동", 10, null);
-
-            // then
-            assertThat(response.getContents().size()).isEqualTo(10);
-        }
-
-        @DisplayName("로그인하지 않은 사용자가 특정 지역의 상품목록 화면 조회시 역삼1동의 상품목록이 보여진다.")
-        @Test
-        void givenNonLoginMember_whenReadAllItemsByRegion_thenSuccess() {
-            // given
-            Member member = signup();
-            supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
-            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
-
-            for (int i = 1; i <= 10; i++) {
-                supportRepository.save(FixtureFactory.createDefaultRegionItem("선풍기 - " + i, "가전", member));
-            }
-
-            // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, null, "역삼1동", 10, -1L);
-
-            // then
-            assertThat(response.getContents()).hasSize(10);
         }
     }
 }

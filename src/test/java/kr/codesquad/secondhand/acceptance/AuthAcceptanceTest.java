@@ -19,6 +19,7 @@ import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.member.UserProfile;
 import kr.codesquad.secondhand.domain.residence.Region;
 import kr.codesquad.secondhand.domain.residence.Residence;
+import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -185,6 +186,40 @@ public class AuthAcceptanceTest extends AcceptanceTestSupport {
 
             // then
             assertThat(response.statusCode()).isEqualTo(400);
+        }
+    }
+
+    @DisplayName("액세스 토큰을 갱신할 때")
+    @Nested
+    class RenewAccessToken {
+
+        @DisplayName("리프레시 토큰이 주어지면 성공한다.")
+        @Test
+        void givenRefreshToken_whenRenewAccessToken_thenSuccess() {
+            // given
+            Member member = signup();
+            RefreshToken token = supportRepository.save(RefreshToken.builder()
+                    .memberId(member.getId())
+                    .token(jwtProvider.createRefreshToken(member.getId()))
+                    .build());
+
+            var request = RestAssured
+                    .given().log().all()
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(Map.of("refreshToken", token.getToken()));
+
+            // when
+            var response = request
+                    .when()
+                    .post("/api/auth/token")
+                    .then().log().all()
+                    .extract();
+
+            // then
+            assertAll(
+                    () -> assertThat(response.statusCode()).isEqualTo(200),
+                    () -> assertThat(response.jsonPath().getString("data.accessToken")).isNotNull()
+            );
         }
     }
 }

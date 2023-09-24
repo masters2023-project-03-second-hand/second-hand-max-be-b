@@ -1,7 +1,6 @@
 package kr.codesquad.secondhand.presentation;
 
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import kr.codesquad.secondhand.application.item.ItemService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
@@ -12,7 +11,6 @@ import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
 import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import kr.codesquad.secondhand.presentation.support.Auth;
-import kr.codesquad.secondhand.presentation.support.NotNullParam;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -39,10 +37,11 @@ public class ItemController {
 
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Void> registerItem(@RequestPart(required = false) List<MultipartFile> images,
+    public ApiResponse<Void> registerItem(@RequestPart(required = false) MultipartFile thumbnailImage,
+                                          @RequestPart(required = false) List<MultipartFile> images,
                                           @Valid @RequestPart ItemRegisterRequest item,
                                           @Auth Long memberId) {
-        itemService.register(images, item, memberId);
+        itemService.register(thumbnailImage, images, item, memberId);
         return new ApiResponse<>(HttpStatus.CREATED.value());
     }
 
@@ -51,9 +50,8 @@ public class ItemController {
             @RequestParam(required = false) Long cursor,
             @RequestParam(required = false) Long categoryId,
             @RequestParam(required = false, defaultValue = "역삼1동") String region,
-            @RequestParam(required = false, defaultValue = "10") int size,
-            @Auth Long memberId) {
-        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size, memberId));
+            @RequestParam(required = false, defaultValue = "10") int size) {
+        return new ApiResponse<>(HttpStatus.OK.value(), itemService.readAll(cursor, categoryId, region, size));
     }
 
     @GetMapping("/{itemId}")
@@ -62,12 +60,13 @@ public class ItemController {
         return new ApiResponse<>(HttpStatus.OK.value(), itemService.read(memberId, itemId));
     }
 
-    @PatchMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApiResponse<Void> updateItem(@RequestPart(required = false) List<MultipartFile> images,
+    @PatchMapping(value = "/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ApiResponse<Void> updateItem(@RequestPart(required = false) MultipartFile thumbnailImage,
+                                        @RequestPart(required = false) List<MultipartFile> images,
                                         @Valid @RequestPart ItemUpdateRequest item,
                                         @PathVariable Long itemId,
                                         @Auth Long memberId) {
-        itemService.update(images, item, itemId, memberId);
+        itemService.update(thumbnailImage, images, item, itemId, memberId);
         return new ApiResponse<>(HttpStatus.OK.value());
     }
 

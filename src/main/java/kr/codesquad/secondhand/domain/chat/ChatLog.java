@@ -32,11 +32,11 @@ public class ChatLog {
     @Column(nullable = false, length = 1000)
     private String message;
 
-    @Column(nullable = false, columnDefinition = "TINYINT")
-    private boolean isRead;
+    @Column(nullable = false, name = "read_count")
+    private Integer readCount;
 
-    @Column(nullable = false, columnDefinition = "TINYINT")
-    private boolean isSender;
+    @Column(nullable = false, name = "sender_id")
+    private Long senderId;
 
     @Column(nullable = false, updatable = false)
     @CreatedDate
@@ -47,11 +47,20 @@ public class ChatLog {
     private ChatRoom chatRoom;
 
     @Builder
-    private ChatLog(Long id, String message, boolean isRead, boolean isSender, ChatRoom chatRoom) {
+    private ChatLog(Long id, String message, Integer readCount, Long senderId, ChatRoom chatRoom) {
         this.id = id;
         this.message = message;
-        this.isRead = isRead;
-        this.isSender = isSender;
+        this.readCount = readCount;
+        this.senderId = senderId;
         this.chatRoom = chatRoom;
+    }
+
+    public static ChatLog from(ChatRoom chatRoom, String message, Integer readCount, Long senderId) {
+        return ChatLog.builder()
+                .message(message)
+                .readCount(readCount)
+                .senderId(senderId)
+                .chatRoom(chatRoom)
+                .build();
     }
 }

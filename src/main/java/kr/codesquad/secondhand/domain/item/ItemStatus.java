@@ -18,7 +18,7 @@ public enum ItemStatus {
 
     public static ItemStatus of(String statusName) {
         return Arrays.stream(ItemStatus.values())
-                .filter(itemStatus -> itemStatus.getStatus().equals(statusName))
+                .filter(itemStatus -> itemStatus.getStatus().equals(statusName) || itemStatus.name().equals(statusName))
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException(
                         ErrorCode.INVALID_REQUEST,

@@ -3,6 +3,7 @@ package kr.codesquad.secondhand.application.auth;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import kr.codesquad.secondhand.application.image.ImageService;
+import kr.codesquad.secondhand.application.redis.RedisService;
 import kr.codesquad.secondhand.application.residence.ResidenceService;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.member.UserProfile;
@@ -19,7 +20,6 @@ import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
 import kr.codesquad.secondhand.presentation.dto.member.SignUpRequest;
 import kr.codesquad.secondhand.presentation.dto.member.UserResponse;
 import kr.codesquad.secondhand.presentation.dto.token.AuthToken;
-import kr.codesquad.secondhand.repository.RedisRepository;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
 import kr.codesquad.secondhand.repository.token.TokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final NaverRequester naverRequester;
     private final JwtProvider jwtProvider;
-    private final RedisRepository redisRepository;
+    private final RedisService redisService;
 
     @Transactional
     public LoginResponse login(LoginRequest request, String code) {
@@ -85,7 +85,7 @@ public class AuthService {
     public void logout(HttpServletRequest request, String refreshToken) {
         JwtExtractor.extract(request).ifPresent(token -> {
             Long expiration = jwtProvider.getExpiration(token);
-            redisRepository.set(token, "logout", expiration);
+            redisService.set(token, "logout", expiration);
         });
         tokenRepository.deleteByToken(refreshToken);
     }

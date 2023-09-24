@@ -36,15 +36,19 @@ public class Residence {
     @JoinColumn(name = "region_id", nullable = false)
     private Region region;
 
+    @Column(nullable = false, columnDefinition = "TINYINT")
+    private boolean isSelected;
+
     @Builder
-    private Residence(Long id, String addressName, Member member, Region region) {
+    private Residence(Long id, String addressName, Member member, Region region, boolean isSelected) {
         this.id = id;
         this.addressName = addressName;
         this.member = member;
         this.region = region;
+        this.isSelected = isSelected;
     }
 
-    public static Residence from(Long memberId, Long regionId, String addressName) {
+    public static Residence from(Long memberId, Long regionId, String addressName, boolean isSelected) {
         return Residence.builder()
                 .addressName(addressName)
                 .member(Member.builder()
@@ -53,6 +57,11 @@ public class Residence {
                 .region(Region.builder()
                         .id(regionId)
                         .build())
+                .isSelected(isSelected)
                 .build();
+    }
+
+    public void changeIsSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 }

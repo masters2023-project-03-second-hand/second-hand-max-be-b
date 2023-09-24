@@ -1,13 +1,13 @@
-package kr.codesquad.secondhand.repository;
+package kr.codesquad.secondhand.application.redis;
 
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
-@Repository
-public class RedisRepository {
+@Service
+public class RedisService {
 
     private final RedisTemplate<String, Object> redisTemplate;
 

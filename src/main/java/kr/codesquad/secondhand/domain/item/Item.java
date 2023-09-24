@@ -1,6 +1,5 @@
 package kr.codesquad.secondhand.domain.item;
 
-import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -105,11 +104,6 @@ public class Item extends AuditingFields {
         this.categoryName = request.getCategoryName();
     }
 
-    public boolean isThumbnailDeleted(List<String> deleteImageUrls) {
-        return deleteImageUrls.stream()
-                .anyMatch(deleteImage -> thumbnailUrl.equals(deleteImage));
-    }
-
     public void changeThumbnail(String imageUrl) {
         this.thumbnailUrl = imageUrl;
     }
@@ -124,5 +118,9 @@ public class Item extends AuditingFields {
 
     public void decreaseWishCount() {
         this.wishCount--;
+    }
+
+    public void increaseChatCount() {
+        this.chatCount++;
     }
 }
