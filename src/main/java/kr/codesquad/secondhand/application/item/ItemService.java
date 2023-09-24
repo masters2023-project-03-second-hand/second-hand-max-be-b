@@ -59,6 +59,8 @@ public class ItemService {
         String thumbnailUrl = imageService.uploadImage(thumbnailImage);
         List<String> itemImageUrls = imageService.uploadImages(images);
 
+        itemImageUrls.add(thumbnailUrl);
+
         Member seller = memberRepository.getReferenceById(sellerId);
 
         Item savedItem = itemRepository.save(request.toEntity(seller, thumbnailUrl));
