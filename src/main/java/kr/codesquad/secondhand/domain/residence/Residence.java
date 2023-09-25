@@ -68,4 +68,8 @@ public class Residence {
     public void changeIsSelected(boolean isSelected) {
         this.isSelected = isSelected;
     }
+
+    public boolean isSameRegionId(long regionId) {
+        return region.getId() == regionId;
+    }
 }

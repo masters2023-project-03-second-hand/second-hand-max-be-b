@@ -77,8 +77,4 @@ public class ChatRoom {
                         .build())
                 .build();
     }
-
-    public boolean isSender(Long memberId) {
-        return buyer.getId().equals(memberId);
-    }
 }

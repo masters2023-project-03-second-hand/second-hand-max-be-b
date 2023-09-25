@@ -99,8 +99,8 @@ public class ResidenceService {
     }
 
     @Transactional
-    public void selectResidence(Long regionId, Long memberId) {
+    public void selectResidence(long regionId, Long memberId) {
         List<Residence> residences = residenceRepository.findResidenceByMember_Id(memberId);
-        residences.forEach(residence -> residence.changeIsSelected(residence.getRegion().getId().equals(regionId)));
+        residences.forEach(residence -> residence.changeIsSelected(residence.isSameRegionId(regionId)));
     }
 }
