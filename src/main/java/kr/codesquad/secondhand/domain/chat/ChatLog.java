@@ -55,7 +55,7 @@ public class ChatLog {
         this.chatRoom = chatRoom;
     }
 
-    public static ChatLog from(ChatRoom chatRoom, String message, Integer readCount, Long senderId) {
+    public static ChatLog of(ChatRoom chatRoom, String message, Integer readCount, Long senderId) {
         return ChatLog.builder()
                 .message(message)
                 .readCount(readCount)

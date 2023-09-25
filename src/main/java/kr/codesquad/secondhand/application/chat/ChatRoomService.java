@@ -58,7 +58,7 @@ public class ChatRoomService {
     public Long createChatRoom(Long itemId, Long senderId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> NotFoundException.itemNotFound(ErrorCode.NOT_FOUND, itemId));
-        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.from(senderId, itemId, item.getMember().getId()));
+        ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.of(senderId, itemId, item.getMember().getId()));
         item.increaseChatCount();
         return chatRoom.getId();
     }

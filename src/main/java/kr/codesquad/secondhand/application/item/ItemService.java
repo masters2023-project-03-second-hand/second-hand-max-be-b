@@ -68,7 +68,7 @@ public class ItemService {
         Item savedItem = itemRepository.save(request.toEntity(seller, thumbnailUrl));
 
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.from(url, savedItem))
+                .map(url -> ItemImage.of(url, savedItem))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
     }
@@ -128,7 +128,7 @@ public class ItemService {
     private void saveImages(List<MultipartFile> images, Item item) {
         List<String> itemImageUrls = imageService.uploadImages(images);
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.from(url, item))
+                .map(url -> ItemImage.of(url, item))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
     }

@@ -48,7 +48,7 @@ public class Residence {
         this.isSelected = isSelected;
     }
 
-    public static Residence from(Long memberId, Long regionId, String addressName, boolean isSelected) {
+    public static Residence of(Long memberId, Long regionId, String addressName, boolean isSelected) {
         return Residence.builder()
                 .addressName(addressName)
                 .member(Member.builder()

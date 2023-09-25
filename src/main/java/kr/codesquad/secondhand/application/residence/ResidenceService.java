@@ -74,7 +74,7 @@ public class ResidenceService {
         Region region = regionRepository.findById(addressId)
                 .orElseThrow(() -> NotFoundException.regionNotFound(ErrorCode.NOT_FOUND, addressId));
 
-        residenceRepository.save(Residence.from(memberId, region.getId(), region.getAddressName(), false));
+        residenceRepository.save(Residence.of(memberId, region.getId(), region.getAddressName(), false));
     }
 
     @Transactional

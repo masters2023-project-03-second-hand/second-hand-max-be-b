@@ -46,7 +46,7 @@ public class WishItemService {
                         String.format("%s 번호의 아이템을 찾을 수 없습니다.", itemId)));
         item.increaseWishCount();
 
-        wishItemRepository.save(WishItem.from(itemId, memberId));
+        wishItemRepository.save(WishItem.of(itemId, memberId));
     }
 
     private void removeWishItem(Long itemId, Long memberId) {
