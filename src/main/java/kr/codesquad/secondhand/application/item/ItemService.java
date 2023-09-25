@@ -118,11 +118,11 @@ public class ItemService {
 
         itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, request.getDeleteImageUrls());
 
-        if (isValidImage(thumbnailImage)) {
+        if (isValidImages(images)) {
             saveImages(images, item);
         }
 
-        if (isValidImages(images)) {
+        if (isValidImage(thumbnailImage)) {
             replaceThumbnail(item, imageService.uploadImage(thumbnailImage));
         }
 
