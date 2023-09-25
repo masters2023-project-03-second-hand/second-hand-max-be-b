@@ -55,10 +55,10 @@ public class ChatLog {
         this.chatRoom = chatRoom;
     }
 
-    public static ChatLog of(ChatRoom chatRoom, String message, Integer readCount, Long senderId) {
+    public static ChatLog of(ChatRoom chatRoom, String message, Long senderId) {
         return ChatLog.builder()
                 .message(message)
-                .readCount(readCount)
+                .readCount(1)
                 .senderId(senderId)
                 .chatRoom(chatRoom)
                 .build();

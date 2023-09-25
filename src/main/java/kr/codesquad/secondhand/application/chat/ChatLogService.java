@@ -58,7 +58,7 @@ public class ChatLogService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
 
-        ChatLog chatLog = ChatLog.of(chatRoom, message, 1, senderId);
+        ChatLog chatLog = ChatLog.of(chatRoom, message, senderId);
         chatLogRepository.save(chatLog);
         // TODO: 알람 보내기
     }

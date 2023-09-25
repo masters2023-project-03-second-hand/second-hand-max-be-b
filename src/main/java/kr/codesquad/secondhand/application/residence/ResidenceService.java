@@ -2,6 +2,7 @@ package kr.codesquad.secondhand.application.residence;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.residence.Region;
 import kr.codesquad.secondhand.domain.residence.Residence;
@@ -26,6 +27,7 @@ public class ResidenceService {
 
     private static final int MEMBER_HAS_RESIDENCE_MIN_COUNT = 1;
     private static final int MEMBER_HAS_RESIDENCE_MAX_COUNT = 2;
+    private static final Function<List<Residence>, Residence> selectMainResidence = (residences -> residences.get(0));
 
     private final RegionPaginationRepository regionPaginationRepository;
     private final RegionRepository regionRepository;
@@ -45,7 +47,7 @@ public class ResidenceService {
                             .build())
                     .build());
         }
-        residences.get(0).changeIsSelected(true);
+        selectMainResidence.apply(residences).selectToMainResidence();
         residenceRepository.saveAll(residences);
     }
 
@@ -89,7 +91,7 @@ public class ResidenceService {
 
         Long remainAddressId = residenceRepository.findByMemberId(memberId).get(0).getAddressId();
         Residence residence = residenceRepository.findById(remainAddressId).get();
-        residence.changeIsSelected(true);
+        residence.selectToMainResidence();
     }
 
     public List<AddressData> readResidenceOfMember(Long memberId) {

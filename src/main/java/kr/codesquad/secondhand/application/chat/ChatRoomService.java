@@ -25,6 +25,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ChatRoomService {
 
+    private static final long DEFAULT_MESSAGE_COUNT = 0L;
+
     private final ItemRepository itemRepository;
     private final ChatPaginationRepository chatPaginationRepository;
     private final ChatRoomRepository chatRoomRepository;
@@ -40,8 +42,8 @@ public class ChatRoomService {
         Map<Long, Long> newMessageCounts = chatCountRepository.countNewMessage(memberId);
 
         contents.forEach(chatRoomResponse -> {
-            Long id = chatRoomResponse.getChatRoomId();
-            Long messageCount = newMessageCounts.getOrDefault(id, 0L);
+            Long chatRoomId = chatRoomResponse.getChatRoomId();
+            Long messageCount = newMessageCounts.getOrDefault(chatRoomId, DEFAULT_MESSAGE_COUNT);
             chatRoomResponse.assignNewMessageCount(messageCount);
         });
 
@@ -63,10 +65,10 @@ public class ChatRoomService {
         return chatRoom.getId();
     }
 
-    public boolean existsMessageAfterMessageIndex(Long messageIndex) {
-        if (messageIndex == null) {
+    public boolean existsMessageAfterMessageId(Long messageId) {
+        if (messageId == null) {
             return true;
         }
-        return chatLogRepository.existsByIdGreaterThan(messageIndex);
+        return chatLogRepository.existsByIdGreaterThan(messageId);
     }
 }

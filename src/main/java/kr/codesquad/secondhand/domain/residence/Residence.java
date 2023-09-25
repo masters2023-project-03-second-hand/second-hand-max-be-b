@@ -61,6 +61,10 @@ public class Residence {
                 .build();
     }
 
+    public void selectToMainResidence() {
+        this.isSelected = true;
+    }
+
     public void changeIsSelected(boolean isSelected) {
         this.isSelected = isSelected;
     }

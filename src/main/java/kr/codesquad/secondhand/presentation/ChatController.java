@@ -58,15 +58,15 @@ public class ChatController {
     @GetMapping("/chats")
     public DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> readList(
             @PageableDefault Pageable pageable,
-            @RequestParam(required = false) Long messageIndex,
+            @RequestParam(required = false) Long messageId,
             @Auth Long memberId) {
         DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> deferredResult =
                 new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), List.of()));
-        chatRoomRequests.put(deferredResult, messageIndex);
+        chatRoomRequests.put(deferredResult, messageId);
 
         deferredResult.onCompletion(() -> chatRoomRequests.remove(deferredResult));
 
-        if (chatRoomService.existsMessageAfterMessageIndex(messageIndex)) {
+        if (chatRoomService.existsMessageAfterMessageId(messageId)) {
             CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(memberId, pageable);
             deferredResult.setResult(new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
         }
