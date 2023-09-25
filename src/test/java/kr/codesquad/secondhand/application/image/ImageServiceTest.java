@@ -1,5 +1,13 @@
 package kr.codesquad.secondhand.application.image;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.BDDMockito.any;
+import static org.mockito.BDDMockito.given;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 import kr.codesquad.secondhand.domain.image.ImageFile;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,15 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.BDDMockito.any;
-import static org.mockito.BDDMockito.given;
-
+@DisplayName("단위 테스트 - 이미지")
 @ExtendWith(MockitoExtension.class)
 class ImageServiceTest {
 

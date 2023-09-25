@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
 import java.util.List;
-import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
 import kr.codesquad.secondhand.domain.item.Item;
@@ -19,7 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-@ApplicationTest
+@DisplayName("비즈니스 로직 - 채팅방")
 public class ChatRoomServiceTest extends ApplicationTestSupport {
 
     @Autowired
@@ -40,7 +39,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             List<Member> partners = getPartners();
             Item item = supportRepository.save(FixtureFactory.createItem("item", "가전/잡화", member));
             supportRepository.save(FixtureFactory.createChatRooms(member, partners, item));
-            Pageable pageable = PageRequest.of(0,10);
+            Pageable pageable = PageRequest.of(0, 10);
 
             // when
             CustomSlice<ChatRoomResponse> response = chatRoomService.read(1L, pageable);
@@ -63,7 +62,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             List<Member> partners = getPartners();
             Item item = supportRepository.save(FixtureFactory.createItem("item", "가전/잡화", member));
             supportRepository.save(FixtureFactory.createChatRooms(member, partners, item));
-            Pageable pageable = PageRequest.of(2,10);
+            Pageable pageable = PageRequest.of(2, 10);
 
             // when
             CustomSlice<ChatRoomResponse> response = chatRoomService.read(1L, pageable);
@@ -99,7 +98,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             chatLogService.sendMessage("선풍기 사려 그러는데요!", chatRoom.getId(), sender.getId());
             chatLogService.sendMessage("혹시 할인 되나요..?", chatRoom.getId(), sender.getId());
 
-            Pageable pageable = PageRequest.of(0,10);
+            Pageable pageable = PageRequest.of(0, 10);
 
             // when
             CustomSlice<ChatRoomResponse> senderResponse = chatRoomService.read(1L, pageable);

@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+@DisplayName("인수 테스트 - 거주지역")
 public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
 
     private Region saveRegion(String fullAddress, String address) {
@@ -125,8 +126,8 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
             Region okgil = saveRegion("경기도 부천시 옥길동", "옥길동");
             Region oryu = saveRegion("경기도 부천시 오류동", "오류동");
 
-            supportRepository.save(Residence.of(member.getId(), beoman.getId(), "범안동", true));
-            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동", false));
+            supportRepository.save(Residence.of(member.getId(), beoman.getId(), "범안동")).selectToMainResidence();
+            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동"));
 
             var request = RestAssured
                     .given().log().all()
@@ -161,8 +162,8 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
             Member member = signup();
             Region beoman = saveRegion("경기도 부천시 범안동", "범안동");
             Region okgil = saveRegion("경기도 부천시 옥길동", "옥길동");
-            supportRepository.save(Residence.of(member.getId(), beoman.getId(), "범안동", true));
-            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동", false));
+            supportRepository.save(Residence.of(member.getId(), beoman.getId(), "범안동")).selectToMainResidence();
+            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동"));
             var request = RestAssured
                     .given().log().all()
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(member.getId()))
@@ -182,7 +183,7 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
             // given
             Member member = signup();
             Region beoman = saveRegion("경기도 부천시 범안동", "범안동");
-            supportRepository.save(Residence.of(member.getId(), beoman.getId(), "범안동", true));
+            supportRepository.save(Residence.of(member.getId(), beoman.getId(), "범안동"));
 
             var request = RestAssured
                     .given().log().all()
@@ -222,9 +223,8 @@ public class ResidenceAcceptanceTest extends AcceptanceTestSupport {
                     .fullAddressName("경기도 부천시 옥길동")
                     .build());
 
-            Residence mainResidence = supportRepository.save(
-                    Residence.of(member.getId(), beoman.getId(), "범안동", true));
-            Residence residence = supportRepository.save(Residence.of(member.getId(), okgil.getId(), "범안동", false));
+            supportRepository.save(Residence.of(member.getId(), beoman.getId(), "범안동")).selectToMainResidence();
+            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "범안동"));
 
             var request = RestAssured
                     .given().log().all()

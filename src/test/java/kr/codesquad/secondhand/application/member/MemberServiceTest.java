@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
+@DisplayName("비즈니스 로직 - 회원")
 class MemberServiceTest extends ApplicationTestSupport {
 
     @Autowired

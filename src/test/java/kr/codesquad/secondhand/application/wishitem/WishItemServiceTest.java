@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@DisplayName("비즈니스 로직 - 관심상품")
 class WishItemServiceTest extends ApplicationTestSupport {
 
     @Autowired

@@ -1,5 +1,9 @@
 package kr.codesquad.secondhand.domain.image;
 
+import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+import java.nio.charset.StandardCharsets;
 import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import org.junit.jupiter.api.DisplayName;
@@ -7,11 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
-import java.nio.charset.StandardCharsets;
-
-import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-
+@DisplayName("도메인 - 이미지")
 class ImageFileTest {
 
     @DisplayName("올바른 이미지 파일이 들어와 ImageFile 인스턴스 생성에 성공한다.")

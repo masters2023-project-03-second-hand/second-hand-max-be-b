@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+@DisplayName("인수 테스트 - 채팅")
 public class ChatAcceptanceTest extends AcceptanceTestSupport {
 
     private ChatRoom prepareToChatAndReturnChatRoom(Member sender) {

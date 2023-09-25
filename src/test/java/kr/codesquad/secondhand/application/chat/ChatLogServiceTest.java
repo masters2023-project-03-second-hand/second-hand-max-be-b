@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@DisplayName("비즈니스 로직 - 채팅 메시지")
 class ChatLogServiceTest extends ApplicationTestSupport {
 
     @Autowired

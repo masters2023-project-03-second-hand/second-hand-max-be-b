@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
+@DisplayName("인수 테스트 - 인증")
 public class AuthAcceptanceTest extends AcceptanceTestSupport {
 
     private void mockingOAuth() {

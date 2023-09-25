@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.category.Category;
 import kr.codesquad.secondhand.domain.image.ImageFile;
@@ -35,7 +34,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("비즈니스 로직 - 아이템")
-@ApplicationTest
 class ItemServiceTest extends ApplicationTestSupport {
 
     @Autowired

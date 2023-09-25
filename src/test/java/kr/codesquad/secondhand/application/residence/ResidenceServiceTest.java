@@ -19,6 +19,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@DisplayName("비즈니스 로직 - 거주지역")
 class ResidenceServiceTest extends ApplicationTestSupport {
 
     @Autowired
@@ -113,8 +114,8 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 괴안동")
                     .addressName("괴안동")
                     .build());
-            supportRepository.save(Residence.of(member.getId(), beombak.getId(), "범박동", true));
-            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동", false));
+            supportRepository.save(Residence.of(member.getId(), beombak.getId(), "범박동")).selectToMainResidence();
+            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동"));
 
             // when & then
             assertThatThrownBy(() -> residenceService.register(guaean.getId(), member.getId()))
@@ -140,8 +141,8 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 옥길동")
                     .addressName("옥길동")
                     .build());
-            supportRepository.save(Residence.of(member.getId(), beombak.getId(), "범박동", true));
-            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동", false));
+            supportRepository.save(Residence.of(member.getId(), beombak.getId(), "범박동")).selectToMainResidence();
+            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동"));
 
             // when & then
             assertThatCode(() -> residenceService.remove(beombak.getId(), member.getId()))
@@ -157,7 +158,7 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 범박동")
                     .addressName("범박동")
                     .build());
-            supportRepository.save(Residence.of(member.getId(), beombak.getId(), "범박동", true));
+            supportRepository.save(Residence.of(member.getId(), beombak.getId(), "범박동")).selectToMainResidence();
 
             // when & then
             assertThatThrownBy(() -> residenceService.remove(beombak.getId(), member.getId()))
@@ -182,9 +183,10 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 옥길동")
                     .build());
 
-            Residence mainResidence = supportRepository.save(
-                    Residence.of(member.getId(), beoman.getId(), "범안동", true));
-            Residence residence = supportRepository.save(Residence.of(member.getId(), okgil.getId(), "범안동", false));
+            Residence mainResidence = supportRepository.save(Residence.of(member.getId(), beoman.getId(), "범안동"));
+            Residence residence = supportRepository.save(Residence.of(member.getId(), okgil.getId(), "범안동"));
+
+            mainResidence.selectToMainResidence();
 
             // when
             residenceService.selectResidence(okgil.getId(), member.getId());
