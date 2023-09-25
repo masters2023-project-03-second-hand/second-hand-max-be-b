@@ -8,6 +8,6 @@ public class IsWishRequestConverter implements Converter<String, IsWish> {
 
     @Override
     public IsWish convert(String isWish) {
-        return IsWish.of(isWish);
+        return IsWish.from(isWish);
     }
 }

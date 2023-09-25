@@ -3,21 +3,15 @@ package kr.codesquad.secondhand.presentation.support.converter;
 import java.util.Arrays;
 import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
-@Getter
-@RequiredArgsConstructor
 public enum IsWish {
 
-    YES("yes"),
-    NO("no");
+    YES,
+    NO;
 
-    private final String status;
-
-    public static IsWish of(String isWish) {
+    public static IsWish from(String isWish) {
         return Arrays.stream(IsWish.values())
-                .filter(wish -> isWish != null && wish.getStatus().equals(isWish.toLowerCase()))
+                .filter(wish -> wish.name().equalsIgnoreCase(isWish))
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException(
                         ErrorCode.INVALID_PARAMETER,
