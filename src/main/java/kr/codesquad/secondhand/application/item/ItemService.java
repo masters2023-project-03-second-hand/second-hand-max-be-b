@@ -1,5 +1,6 @@
 package kr.codesquad.secondhand.application.item;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import kr.codesquad.secondhand.application.image.ImageService;
@@ -58,6 +59,9 @@ public class ItemService {
 
         String thumbnailUrl = imageService.uploadImage(thumbnailImage);
         List<String> itemImageUrls = imageService.uploadImages(images);
+
+        itemImageUrls = new ArrayList<>(itemImageUrls);
+        itemImageUrls.add(thumbnailUrl);
 
         Member seller = memberRepository.getReferenceById(sellerId);
 

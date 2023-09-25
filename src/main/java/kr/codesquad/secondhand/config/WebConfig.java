@@ -5,6 +5,7 @@ import kr.codesquad.secondhand.presentation.interceptor.RegionNotLoginIntercepto
 import kr.codesquad.secondhand.presentation.support.AuthArgumentResolver;
 import kr.codesquad.secondhand.presentation.support.NotNullParamArgumentResolver;
 import kr.codesquad.secondhand.presentation.support.converter.IsWishRequestConverter;
+import kr.codesquad.secondhand.presentation.support.converter.OAuthProviderConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,7 @@ public class WebConfig implements WebMvcConfigurer {
     private final AuthArgumentResolver authArgumentResolver;
     private final NotNullParamArgumentResolver notNullParamArgumentResolver;
     private final IsWishRequestConverter isWishRequestConverter;
+    private final OAuthProviderConverter oAuthProviderConverter;
     private final RegionNotLoginInterceptor regionNotLoginInterceptor;
 
     @Value("${custom.front-local-url}")
@@ -44,6 +46,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addFormatters(FormatterRegistry registry) {
         registry.addConverter(isWishRequestConverter);
+        registry.addConverter(oAuthProviderConverter);
     }
 
     @Override

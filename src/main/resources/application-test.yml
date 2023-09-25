@@ -27,13 +27,22 @@ cloud:
       auto: false
 
 oauth2:
-  user:
-    client-id: client-id
-    client-secret: client-secret
-    redirect-url: redirect-url
-  provider:
-    token-url: token-url
-    user-info-url: user-info-url
+  naver:
+    user:
+      client-id: client-id
+      client-secret: client-secret
+      redirect-url: redirect-url
+    provider:
+      token-url: token-url
+      user-info-url: user-info-url
+  kakao:
+    user:
+      client-id: client-id
+      client-secret: client-secret
+      redirect-url: redirect-url
+    provider:
+      token-url: token-url
+      user-info-url: user-info-url
 
 custom:
   default-profile:

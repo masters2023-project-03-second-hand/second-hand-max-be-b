@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import kr.codesquad.secondhand.application.auth.AuthService;
 import kr.codesquad.secondhand.application.auth.TokenService;
 import kr.codesquad.secondhand.documentation.DocumentationTestSupport;
+import kr.codesquad.secondhand.domain.member.OAuthProvider;
 import kr.codesquad.secondhand.presentation.dto.member.AddressData;
 import kr.codesquad.secondhand.presentation.dto.member.LoginRequest;
 import kr.codesquad.secondhand.presentation.dto.member.LoginResponse;
@@ -69,7 +70,8 @@ public class AuthDocumentationTest extends DocumentationTestSupport {
                 )
         );
 
-        given(authService.login(any(LoginRequest.class), anyString())).willReturn(loginResponse);
+        given(authService.login(any(OAuthProvider.class), any(LoginRequest.class), anyString()))
+                .willReturn(loginResponse);
 
         // when
         var response = mockMvc.perform(post("/api/auth/naver/login")
@@ -124,7 +126,8 @@ public class AuthDocumentationTest extends DocumentationTestSupport {
         // given
         SignUpRequest request = new SignUpRequest("23Yong", List.of(1L));
 
-        willDoNothing().given(authService).signUp(any(SignUpRequest.class), anyString(), any(MultipartFile.class));
+        willDoNothing().given(authService)
+                .signUp(any(OAuthProvider.class), any(SignUpRequest.class), anyString(), any(MultipartFile.class));
 
         MockMultipartFile image = new MockMultipartFile("profile", "image.png", "image/png",
                 "<<png data>>".getBytes());
