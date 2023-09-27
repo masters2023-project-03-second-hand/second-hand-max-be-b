@@ -50,7 +50,7 @@ public class WishItem {
         this.item = item;
     }
 
-    public static WishItem from(Long itemId, Long memberId) {
+    public static WishItem of(Long itemId, Long memberId) {
         return WishItem.builder()
                 .item(Item.builder()
                         .id(itemId)

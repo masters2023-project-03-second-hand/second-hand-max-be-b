@@ -13,6 +13,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@DisplayName("비즈니스 로직 - 판매 내역")
 class SalesHistoryServiceTest extends ApplicationTestSupport {
 
     @Autowired

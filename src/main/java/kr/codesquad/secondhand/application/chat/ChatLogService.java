@@ -45,7 +45,7 @@ public class ChatLogService {
         List<SimpleChatLog> chatLogsResponse = LongStream.range(0, logsAfterIndex.size())
                 .mapToObj(idx -> {
                     ChatLog chatLog = chatLogs.get((int) idx);
-                    return SimpleChatLog.from(idx, chatLog, chatLog.getSenderId().equals(memberId));
+                    return SimpleChatLog.of(idx, chatLog, chatLog.getSenderId().equals(memberId));
                 })
                 .collect(Collectors.toList());
 
@@ -58,7 +58,7 @@ public class ChatLogService {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
 
-        ChatLog chatLog = ChatLog.from(chatRoom, message, 1, senderId);
+        ChatLog chatLog = ChatLog.of(chatRoom, message, senderId);
         chatLogRepository.save(chatLog);
         // TODO: 알람 보내기
     }

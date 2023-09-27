@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.category.Category;
 import kr.codesquad.secondhand.domain.image.ImageFile;
@@ -35,7 +34,6 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 @DisplayName("비즈니스 로직 - 아이템")
-@ApplicationTest
 class ItemServiceTest extends ApplicationTestSupport {
 
     @Autowired
@@ -53,11 +51,11 @@ class ItemServiceTest extends ApplicationTestSupport {
         itemService.register(createThumbnailImage(), createFakeImage(), FixtureFactory.createItemRegisterRequest(), 1L);
 
         // then
-        Optional<Item> item = supportRepository.findById(Item.class, 1L);
+        List<Item> items = supportRepository.findAll(Item.class);
         List<ItemImage> images = supportRepository.findAll(ItemImage.class);
 
         assertAll(
-                () -> assertThat(item).isPresent(),
+                () -> assertThat(items).isNotEmpty(),
                 () -> assertThat(images).hasSize(4)
         );
     }
@@ -68,10 +66,10 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+        Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
 
         // when
-        ItemDetailResponse response = itemService.read(member.getId(), 1L);
+        ItemDetailResponse response = itemService.read(member.getId(), item.getId());
 
         // then
         assertAll(
@@ -87,7 +85,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member seller = signup();
-        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", seller));
+        Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", seller));
         Member buyer = supportRepository.save(Member.builder()
                 .email("joy@secondhand.com")
                 .loginId("joy")
@@ -95,7 +93,7 @@ class ItemServiceTest extends ApplicationTestSupport {
                 .build());
 
         // when
-        ItemDetailResponse response = itemService.read(buyer.getId(), 1L);
+        ItemDetailResponse response = itemService.read(buyer.getId(), item.getId());
 
         // then
         assertAll(
@@ -104,28 +102,22 @@ class ItemServiceTest extends ApplicationTestSupport {
         );
     }
 
-//    @DisplayName("구매자가 상품의 상세화면을 조회하면 해당 상품의 조회수가 증가한다.")
-//    @Test
-//    void given_whenBuyerReadItemDetails_thenIncreaseViewCount() {
-//
-//    }
-
     @DisplayName("상품의 상태 수정에 성공한다.")
     @Test
     void given_whenUpdateStatus_thenSuccess() {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+        Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
         ItemStatusRequest request = new ItemStatusRequest("예약중");
 
         // when
-        itemService.updateStatus(request, 1L, member.getId());
+        itemService.updateStatus(request, item.getId(), member.getId());
 
         // then
-        Item item = supportRepository.findById(Item.class, 1L).get();
+        Item foundItem = supportRepository.findById(Item.class, 1L).get();
 
-        assertThat(item.getStatus().getStatus()).isEqualTo("예약중");
+        assertThat(foundItem.getStatus().getStatus()).isEqualTo("예약중");
     }
 
     @DisplayName("작성자가 아닌 사람이 상품을 수정하려하면 예외를 던진다.")
@@ -134,7 +126,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+        Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
         ItemStatusRequest request = new ItemStatusRequest("예약중");
         Member buyer = supportRepository.save(Member.builder()
                 .email("joy@secondhand.com")
@@ -143,7 +135,7 @@ class ItemServiceTest extends ApplicationTestSupport {
                 .build());
 
         // when & then
-        assertThatThrownBy(() -> itemService.updateStatus(request, 1L, buyer.getId()))
+        assertThatThrownBy(() -> itemService.updateStatus(request, item.getId(), buyer.getId()))
                 .isInstanceOf(ForbiddenException.class)
                 .extracting("errorCode").isEqualTo(ErrorCode.UNAUTHORIZED);
     }
@@ -177,18 +169,18 @@ class ItemServiceTest extends ApplicationTestSupport {
         // given
         given(s3Uploader.uploadImageFiles(anyList())).willReturn(List.of("url1", "url2", "url3"));
         Member member = signup();
-        supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
+        Item item = supportRepository.save(FixtureFactory.createItem("선풍기", "가전잡화", member));
 
         // when
-        itemService.delete(1L, 1L);
+        itemService.delete(item.getId(), member.getId());
         Thread.sleep(1000); // 비동기 로직을 위해 지연
 
         // then
-        Optional<Item> item = supportRepository.findById(Item.class, 1L);
+        Optional<Item> foundItem = supportRepository.findById(Item.class, 1L);
         List<ItemImage> images = supportRepository.findAll(ItemImage.class);
 
         assertAll(
-                () -> assertThat(item).isNotPresent(),
+                () -> assertThat(foundItem).isNotPresent(),
                 () -> assertThat(images).isEmpty()
         );
     }
@@ -211,10 +203,10 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            itemService.update(null, null, FixtureFactory.createItemUpdateRequest(), 1L, member.getId());
+            itemService.update(null, null, FixtureFactory.createItemUpdateRequest(), item.getId(), member.getId());
 
             // then
-            Optional<Item> resultItem = supportRepository.findById(Item.class, 1L);
+            Optional<Item> resultItem = supportRepository.findById(Item.class, item.getId());
             List<ItemImage> images = supportRepository.findAll(ItemImage.class);
 
             assertAll(
@@ -313,12 +305,13 @@ class ItemServiceTest extends ApplicationTestSupport {
         void givenSavedItemData_whenReadAllItemsOfSecondPage_thenSuccess() {
             // given
             Member member = signup();
+            List<Item> items = new ArrayList<>();
             for (int i = 1; i <= 20; i++) {
-                supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", signup()));
+                items.add(supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", member)));
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(11L, null, "범박동", 10);
+            var response = itemService.readAll(items.get(10).getId(), null, "범박동", 10);
 
             // then
             assertAll(
@@ -335,7 +328,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             // given
             Member member = signup();
             supportRepository.save(Category.builder().name("가전").imageUrl("url").build());
-            supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
+            Category foodCategory = supportRepository.save(Category.builder().name("식품").imageUrl("url").build());
 
             for (int i = 1; i <= 10; i++) {
                 supportRepository.save(FixtureFactory.createItem("선풍기 - " + i, "가전", member));
@@ -348,7 +341,7 @@ class ItemServiceTest extends ApplicationTestSupport {
             }
 
             // when
-            CustomSlice<ItemResponse> response = itemService.readAll(null, 2L, "범박동", 8);
+            var response = itemService.readAll(null, foodCategory.getId(), "범박동", 8);
 
             // then
             assertAll(

@@ -27,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 
+@DisplayName("인수 테스트 - 상품")
 public class ItemAcceptanceTest extends AcceptanceTestSupport {
 
     private File createFakeFile() throws IOException {

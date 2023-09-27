@@ -63,7 +63,7 @@ public class ChatRoom {
         this.item = item;
     }
 
-    public static ChatRoom from(Long creatorId, Long itemId, Long sellerId) {
+    public static ChatRoom of(Long creatorId, Long itemId, Long sellerId) {
         return ChatRoom.builder()
                 .subject("")
                 .item(Item.builder()
@@ -76,9 +76,5 @@ public class ChatRoom {
                         .id(sellerId)
                         .build())
                 .build();
-    }
-
-    public boolean isSender(Long memberId) {
-        return buyer.getId().equals(memberId);
     }
 }

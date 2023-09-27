@@ -8,7 +8,6 @@ import static org.mockito.BDDMockito.anyString;
 import static org.mockito.BDDMockito.given;
 
 import java.util.Optional;
-import kr.codesquad.secondhand.application.ApplicationTest;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.member.OAuthProvider;
@@ -24,7 +23,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-@ApplicationTest
+@DisplayName("비즈니스 로직 - 인증/인가")
 class AuthServiceTest extends ApplicationTestSupport {
 
     @Autowired

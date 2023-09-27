@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+@DisplayName("인수 테스트 - 회원")
 public class MemberAcceptanceTest extends AcceptanceTestSupport {
 
     private MultiPartSpecification createFakeFile() {

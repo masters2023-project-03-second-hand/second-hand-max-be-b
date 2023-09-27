@@ -50,7 +50,7 @@ public class ItemService {
                          List<MultipartFile> images,
                          ItemRegisterRequest request,
                          Long sellerId) {
-        if (thumbnailImage == null || thumbnailImage.isEmpty()) {
+        if (!isValidImage(thumbnailImage)) {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST, "썸네일 이미지는 반드시 들어와야 합니다.");
         }
         if (images != null && images.size() > IMAGE_LIST_MAX_SIZE) {
@@ -68,9 +68,13 @@ public class ItemService {
         Item savedItem = itemRepository.save(request.toEntity(seller, thumbnailUrl));
 
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.from(url, savedItem))
+                .map(url -> ItemImage.of(url, savedItem))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
+    }
+
+    private boolean isValidImage(MultipartFile image) {
+        return image != null && !image.isEmpty();
     }
 
     public CustomSlice<ItemResponse> readAll(Long itemId, Long categoryId, String region, int pageSize) {
@@ -114,21 +118,25 @@ public class ItemService {
 
         itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, request.getDeleteImageUrls());
 
-        if (images != null && !images.isEmpty()) {
+        if (isValidImages(images)) {
             saveImages(images, item);
         }
 
-        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+        if (isValidImage(thumbnailImage)) {
             replaceThumbnail(item, imageService.uploadImage(thumbnailImage));
         }
 
         item.update(request);
     }
 
+    private boolean isValidImages(List<MultipartFile> images) {
+        return images != null && !images.isEmpty();
+    }
+
     private void saveImages(List<MultipartFile> images, Item item) {
         List<String> itemImageUrls = imageService.uploadImages(images);
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.from(url, item))
+                .map(url -> ItemImage.of(url, item))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
     }

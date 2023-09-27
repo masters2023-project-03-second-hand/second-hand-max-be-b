@@ -20,7 +20,7 @@ public class SalesHistoryService {
     public CustomSlice<ItemResponse> read(Long itemId, String status, int pageSize, Long memberId) {
         ItemStatus itemStatus = null;
         if (!status.equals("all")) {
-            itemStatus = ItemStatus.of(status);
+            itemStatus = ItemStatus.fromEnglish(status);
         }
         Slice<ItemResponse> response =
                 itemPaginationRepository.findByIdAndStatus(itemId, itemStatus, pageSize, memberId);

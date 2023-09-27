@@ -42,7 +42,7 @@ public class ItemRegisterRequest {
                 .content(this.content)
                 .price(this.price)
                 .tradingRegion(this.region)
-                .status(ItemStatus.of(this.status))
+                .status(ItemStatus.fromKorean(this.status))
                 .categoryName(this.categoryName)
                 .thumbnailUrl(thumbnailUrl)
                 .member(member)
