@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import kr.codesquad.secondhand.application.image.ImageService;
-import kr.codesquad.secondhand.application.item.event.ItemViewEvent;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
@@ -25,7 +24,6 @@ import kr.codesquad.secondhand.repository.itemimage.ItemImageRepository;
 import kr.codesquad.secondhand.repository.member.MemberRepository;
 import kr.codesquad.secondhand.repository.wishitem.WishItemRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,7 +43,6 @@ public class ItemService {
     private final CategoryRepository categoryRepository;
     private final ItemPaginationRepository itemPaginationRepository;
     private final WishItemRepository wishItemRepository;
-    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void register(MultipartFile thumbnailImage,
@@ -100,7 +97,6 @@ public class ItemService {
         List<ItemImage> images = itemImageRepository.findByItemId(itemId);
 
         if (!item.isSeller(memberId)) {
-            eventPublisher.publishEvent(new ItemViewEvent(item.getId()));
             return ItemDetailResponse.toBuyerResponse(item, images);
         }
         return ItemDetailResponse.toSellerResponse(item, images);
