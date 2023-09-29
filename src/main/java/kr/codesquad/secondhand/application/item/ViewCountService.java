@@ -2,7 +2,7 @@ package kr.codesquad.secondhand.application.item;
 
 import java.time.Duration;
 import java.util.List;
-import kr.codesquad.secondhand.application.redis.RedisLockRepository;
+import kr.codesquad.secondhand.application.redis.RedisLockService;
 import kr.codesquad.secondhand.application.redis.ViewCountRedisService;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.util.RedisUtil;
@@ -20,13 +20,13 @@ public class ViewCountService {
 
     private final ItemRepository itemRepository;
     private final ViewCountRedisService redisService;
-    private final RedisLockRepository redisLockRepository;
+    private final RedisLockService redisLockService;
 
     public void increaseViewCount(Long itemId) {
         String viewCountKey = RedisUtil.createItemViewCountCacheKey(itemId);
 
         // locking - spinlock
-        while (!redisLockRepository.lock("lock::" + viewCountKey)) {
+        while (!redisLockService.lock("lock::" + viewCountKey)) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {
@@ -41,7 +41,7 @@ public class ViewCountService {
 
             redisService.set(viewCountKey, INITIAL_VIEW_COUNT, Duration.ofSeconds(100).toMillis());
         } finally {
-            redisLockRepository.unlock("lock::" + viewCountKey);
+            redisLockService.unlock("lock::" + viewCountKey);
         }
     }
 
