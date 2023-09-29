@@ -14,4 +14,8 @@ public class RedisService {
     public void set(String key, String value, long expiration) {
         redisTemplate.opsForValue().set(key, value, expiration, TimeUnit.MILLISECONDS);
     }
+
+    public void set(String key, String value) {
+        redisTemplate.opsForValue().set(key, value);
+    }
 }
