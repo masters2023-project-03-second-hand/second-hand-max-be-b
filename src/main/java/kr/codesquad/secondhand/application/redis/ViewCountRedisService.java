@@ -60,7 +60,7 @@ public class ViewCountRedisService {
             String key = new String(keys.next());
             Long expiredTime = redisTemplate.getExpire(key, TimeUnit.SECONDS);
 
-            if (expiredTime != null && expiredTime > 0) {
+            if (expiredTime != null) {
                 keyExpiredMap.put(key, expiredTime);
             }
         }
