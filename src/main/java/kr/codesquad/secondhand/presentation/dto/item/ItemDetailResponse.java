@@ -13,7 +13,7 @@ import lombok.Getter;
 @Getter
 public class ItemDetailResponse {
 
-    private final boolean isSeller;
+    private final Boolean isSeller;
     private final List<String> imageUrls;
     private final String seller;
     @JsonInclude(Include.NON_NULL)
