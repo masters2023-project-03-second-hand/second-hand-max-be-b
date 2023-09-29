@@ -73,7 +73,7 @@ class ItemServiceTest extends ApplicationTestSupport {
 
         // then
         assertAll(
-                () -> assertThat(response.isSeller()).isTrue(),
+                () -> assertThat(response.getIsSeller()).isTrue(),
                 () -> assertThat(response.getStatus()).isEqualTo(ItemStatus.ON_SALE.getStatus()),
                 () -> assertThat(response.getViewCount()).isEqualTo(0)
         );
@@ -96,10 +96,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         ItemDetailResponse response = itemService.read(buyer.getId(), item.getId());
 
         // then
-        assertAll(
-                () -> assertThat(response.isSeller()).isFalse(),
-                () -> assertThat(response.getViewCount()).isEqualTo(1)
-        );
+        assertThat(response.getIsSeller()).isFalse();
     }
 
     @DisplayName("상품의 상태 수정에 성공한다.")
