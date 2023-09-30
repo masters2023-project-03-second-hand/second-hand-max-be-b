@@ -91,13 +91,14 @@ class WishItemServiceTest extends ApplicationTestSupport {
         }
 
         // when
-        List<String> response = wishItemService.readCategories(member.getId());
+        var response = wishItemService.readCategories(member.getId());
 
         // then
         assertAll(
                 () -> assertThat(response.size()).isEqualTo(4),
-                () -> assertThat(response.get(0)).isEqualTo("가공식품"),
-                () -> assertThat(response.contains("유아도서")).isFalse()
+                () -> assertThat(response.get(0).getCategoryName()).isEqualTo("가공식품"),
+                () -> assertThat(response).anyMatch(
+                        wishItemCategoryResponse -> !wishItemCategoryResponse.getCategoryName().equals("유아도서"))
         );
     }
 
