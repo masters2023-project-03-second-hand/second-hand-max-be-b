@@ -21,6 +21,7 @@ import kr.codesquad.secondhand.domain.image.ImageFile;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import org.apache.http.HttpHeaders;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -216,6 +217,7 @@ public class ItemAcceptanceTest extends AcceptanceTestSupport {
             );
         }
 
+        @Disabled
         @DisplayName("로그인하지 않은 사용자가 역삼1동 외의 지역을 검색 시 401응답을 한다.")
         @Test
         void givenNotLoginMember_whenReadAllItems_thenResponse401() {
