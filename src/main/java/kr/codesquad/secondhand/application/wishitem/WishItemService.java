@@ -10,6 +10,7 @@ import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.presentation.dto.wishitem.WishItemCategoryResponse;
+import kr.codesquad.secondhand.presentation.dto.wishitem.WishItemCategoryResponses;
 import kr.codesquad.secondhand.presentation.support.converter.IsWish;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
@@ -71,10 +72,10 @@ public class WishItemService {
         return new CustomSlice<>(content, nextCursor, itemResponses.hasNext());
     }
 
-    public List<WishItemCategoryResponse> readCategories(Long memberId) {
+    public WishItemCategoryResponses readCategories(Long memberId) {
         List<String> categoryNames = wishItemCategoryRepository.findCategoryNameByMemberId(memberId);
-        return categoryNames.stream()
+        return new WishItemCategoryResponses(categoryNames.stream()
                 .map(name -> new WishItemCategoryResponse(categoryRepository.findIdByName(name), name))
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()));
     }
 }

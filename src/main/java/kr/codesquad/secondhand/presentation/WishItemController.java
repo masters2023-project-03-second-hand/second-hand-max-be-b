@@ -1,11 +1,10 @@
 package kr.codesquad.secondhand.presentation;
 
-import java.util.List;
 import kr.codesquad.secondhand.application.wishitem.WishItemService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
-import kr.codesquad.secondhand.presentation.dto.wishitem.WishItemCategoryResponse;
+import kr.codesquad.secondhand.presentation.dto.wishitem.WishItemCategoryResponses;
 import kr.codesquad.secondhand.presentation.support.Auth;
 import kr.codesquad.secondhand.presentation.support.converter.IsWish;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +41,7 @@ public class WishItemController {
     }
 
     @GetMapping("/categories")
-    public ApiResponse<List<WishItemCategoryResponse>> readCategories(@Auth Long memberId) {
+    public ApiResponse<WishItemCategoryResponses> readCategories(@Auth Long memberId) {
         return new ApiResponse<>(HttpStatus.OK.value(), wishItemService.readCategories(memberId));
     }
 }
