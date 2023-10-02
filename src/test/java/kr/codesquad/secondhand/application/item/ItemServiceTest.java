@@ -18,6 +18,7 @@ import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.wishitem.WishItem;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
@@ -73,7 +74,7 @@ class ItemServiceTest extends ApplicationTestSupport {
 
         // then
         assertAll(
-                () -> assertThat(response.isSeller()).isTrue(),
+                () -> assertThat(response.getIsSeller()).isTrue(),
                 () -> assertThat(response.getStatus()).isEqualTo(ItemStatus.ON_SALE.getStatus()),
                 () -> assertThat(response.getViewCount()).isEqualTo(0)
         );
@@ -91,14 +92,19 @@ class ItemServiceTest extends ApplicationTestSupport {
                 .loginId("joy")
                 .profileUrl("profile-url")
                 .build());
+        supportRepository.save(WishItem.builder()
+                .item(item)
+                .member(buyer)
+                .build());
 
         // when
         ItemDetailResponse response = itemService.read(buyer.getId(), item.getId());
 
         // then
         assertAll(
-                () -> assertThat(response.isSeller()).isFalse(),
-                () -> assertThat(response.getViewCount()).isEqualTo(1)
+                () -> assertThat(response.getIsSeller()).isFalse(),
+                () -> assertThat(response.getViewCount()).isEqualTo(1),
+                () -> assertThat(response.getIsInWishList()).isTrue()
         );
     }
 

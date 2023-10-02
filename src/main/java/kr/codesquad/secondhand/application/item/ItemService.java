@@ -100,7 +100,8 @@ public class ItemService {
 
         if (!item.isSeller(memberId)) {
             item.incrementViewCount();
-            return ItemDetailResponse.toBuyerResponse(item, images);
+            Boolean isWish = wishItemRepository.existsByItemIdAndMemberId(itemId, memberId);
+            return ItemDetailResponse.toBuyerResponse(item, images, isWish);
         }
         return ItemDetailResponse.toSellerResponse(item, images);
     }
