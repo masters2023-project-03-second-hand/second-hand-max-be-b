@@ -1,0 +1,62 @@
+[[WishItem]]
+:toc: left
+:toclevels: 4
+
+== 관심상품
+
+=== 관심상품 등록 / 해제
+
+.HTTP REQUEST
+include::{snippets}/wishitem/change/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/wishitem/change/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/wishitem/change/request-headers.adoc[]
+
+==== Request Parameters
+
+include::{snippets}/wishitem/change/request-parameters.adoc[]
+
+==== Path parameters
+
+include::{snippets}/wishitem/change/path-parameters.adoc[]
+
+==== Response Fields
+
+include::{snippets}/wishitem/change/response-fields.adoc[]
+
+=== 관심상품 목록 조회
+
+.HTTP REQUEST
+include::{snippets}/wishitem/readAll/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/wishitem/readAll/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/wishitem/readAll/request-headers.adoc[]
+
+==== Request Parameters
+
+include::{snippets}/wishitem/readAll/request-parameters.adoc[]
+
+==== Response Fields
+
+include::{snippets}/wishitem/readAll/response-fields.adoc[]
+
+=== 관심상품 카테고리 목록 조회
+
+.HTTP REQUEST
+include::{snippets}/wishitem/categories/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/wishitem/categories/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/wishitem/categories/request-headers.adoc[]
+
+==== Response Fields
+
+include::{snippets}/wishitem/categories/response-fields.adoc[]

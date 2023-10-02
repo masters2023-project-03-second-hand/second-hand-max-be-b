@@ -2,9 +2,13 @@ package kr.codesquad.secondhand.presentation.dto.item;
 
 import java.time.LocalDateTime;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class ItemResponse {
 
     private Long itemId;
