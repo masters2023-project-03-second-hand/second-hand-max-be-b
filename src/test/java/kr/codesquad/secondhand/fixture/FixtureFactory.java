@@ -1,12 +1,16 @@
 package kr.codesquad.secondhand.fixture;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.item.ItemStatus;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.presentation.dto.CustomSlice;
+import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
+import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
 import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 
 public class FixtureFactory {
@@ -118,5 +122,43 @@ public class FixtureFactory {
             );
         }
         return chatRooms;
+    }
+
+    public static CustomSlice<ItemResponse> createCustomSliceItemResponse() {
+        List<ItemResponse> itemResponses = new ArrayList<>();
+        for (int i = 1; i <= 10; i++) {
+            itemResponses.add(
+                    new ItemResponse(
+                            (long) i,
+                            "url",
+                            "title",
+                            "범안 1동",
+                            LocalDateTime.now(),
+                            10000L,
+                            ItemStatus.ON_SALE,
+                            "sellerId",
+                            0,
+                            0
+                    )
+            );
+        }
+        return new CustomSlice<>(itemResponses, 10L, true);
+    }
+
+    public static ItemDetailResponse createSellerItemDetailResponse() {
+        return ItemDetailResponse.builder()
+                .isSeller(true)
+                .imageUrls(List.of("url1", "url2"))
+                .seller("sellerId")
+                .status("판매중")
+                .title("선풍기")
+                .categoryName("가전/잡화")
+                .createdAt(LocalDateTime.now())
+                .content("content")
+                .chatCount(1)
+                .wishCount(10)
+                .viewCount(100)
+                .price(10000L)
+                .build();
     }
 }

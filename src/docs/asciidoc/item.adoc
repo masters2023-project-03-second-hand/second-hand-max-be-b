@@ -4,6 +4,40 @@
 
 == 상품
 
+=== 상품 목록
+
+.HTTP REQUEST
+include::{snippets}/items/readAll/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/items/readAll/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/items/readAll/request-headers.adoc[]
+
+==== Response Fields
+
+include::{snippets}/items/readAll/response-fields.adoc[]
+
+=== 상품 상세
+
+.HTTP REQUEST
+include::{snippets}/items/read/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/items/read/http-response.adoc[]
+
+==== Path parameters
+
+include::{snippets}/items/read/path-parameters.adoc[]
+
+==== Request Headers
+
+include::{snippets}/items/read/request-headers.adoc[]
+
+==== Response Fields
+
+include::{snippets}/items/read/response-fields.adoc[]
+
 === 상품 등록
 
 .HTTP REQUEST
@@ -38,7 +72,7 @@ include::{snippets}/items/update/http-response.adoc[]
 
 include::{snippets}/items/update/path-parameters.adoc[]
 
-=== Request Headers
+==== Request Headers
 
 include::{snippets}/items/update/request-headers.adoc[]
 
@@ -53,3 +87,45 @@ include::{snippets}/items/update/request-part-item-fields.adoc[]
 ==== Response Fields
 
 include::{snippets}/items/update/response-fields.adoc[]
+
+=== 상품 삭제
+
+.HTTP REQUEST
+include::{snippets}/items/delete/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/items/delete/http-response.adoc[]
+
+==== Path parameters
+
+include::{snippets}/items/delete/path-parameters.adoc[]
+
+==== Request Headers
+
+include::{snippets}/items/delete/request-headers.adoc[]
+
+==== Response Fields
+
+include::{snippets}/items/delete/response-fields.adoc[]
+
+=== 상품 판매 상태 변경
+
+.HTTP REQUEST
+include::{snippets}/items/updateStatus/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/items/updateStatus/http-response.adoc[]
+
+==== Path parameters
+
+include::{snippets}/items/updateStatus/path-parameters.adoc[]
+
+==== Request Headers
+
+include::{snippets}/items/updateStatus/request-headers.adoc[]
+
+==== Request Fields
+
+include::{snippets}/items/updateStatus/request-fields.adoc[]
+
+==== Response Fields
+
+include::{snippets}/items/updateStatus/response-fields.adoc[]

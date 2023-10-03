@@ -18,6 +18,7 @@ public class ItemResponse {
     private LocalDateTime createdAt;
     private Long price;
     private ItemStatus status;
+    private String sellerId;
     private int chatCount;
     private int wishCount;
 }
