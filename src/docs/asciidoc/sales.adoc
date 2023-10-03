@@ -1,0 +1,24 @@
+[[SalesHistory]]
+:toc: left
+:toclevels: 4
+
+== 판매내역
+
+=== 판매내역 조회
+
+.HTTP Request
+include::{snippets}/sales/readAll/http-request.adoc[]
+.HTTP Response
+include::{snippets}/sales/readAll/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/sales/readAll/request-headers.adoc[]
+
+==== Request Parameters
+
+include::{snippets}/sales/readAll/request-parameters.adoc[]
+
+==== Response Body
+
+include::{snippets}/sales/readAll/response-body.adoc[]
