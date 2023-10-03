@@ -96,6 +96,7 @@ public class WishItemDocumentationTest extends DocumentationTestSupport {
                 createdAt,
                 10000L,
                 ItemStatus.ON_SALE,
+                "seller",
                 1,
                 10);
         given(wishItemService.readAll(anyLong(), anyLong(), anyLong(), anyInt())).willReturn(new CustomSlice<>(
@@ -121,6 +122,7 @@ public class WishItemDocumentationTest extends DocumentationTestSupport {
                 .andExpect(jsonPath("data.contents[*].createdAt").value(createdAt.toString()))
                 .andExpect(jsonPath("data.contents[*].price").value(10000))
                 .andExpect(jsonPath("data.contents[*].status").value("판매중"))
+                .andExpect(jsonPath("data.contents[*].sellerId").value("seller"))
                 .andExpect(jsonPath("data.contents[*].chatCount").value(1))
                 .andExpect(jsonPath("data.contents[*].wishCount").value(10))
                 .andExpect(jsonPath("data.paging.nextCursor").value(11))
@@ -148,9 +150,10 @@ public class WishItemDocumentationTest extends DocumentationTestSupport {
                                 fieldWithPath("data.contents[*].tradingRegion").type(STRING).description("상품 아이디"),
                                 fieldWithPath("data.contents[*].createdAt").type(STRING).description("상품 아이디"),
                                 fieldWithPath("data.contents[*].price").type(NUMBER).description("상품 아이디"),
-                                fieldWithPath("data.contents[*].status").type(STRING).description("상품 아이디"),
-                                fieldWithPath("data.contents[*].chatCount").type(NUMBER).description("상품 아이디"),
-                                fieldWithPath("data.contents[*].wishCount").type(NUMBER).description("상품 아이디"),
+                                fieldWithPath("data.contents[*].status").type(STRING).description("상품 판매 상태"),
+                                fieldWithPath("data.contents[*].sellerId").type(STRING).description("판매자"),
+                                fieldWithPath("data.contents[*].chatCount").type(NUMBER).description("상품 채팅 개수"),
+                                fieldWithPath("data.contents[*].wishCount").type(NUMBER).description("상품 관심 수"),
                                 fieldWithPath("data.paging.nextCursor").type(NUMBER).description("다음 상품 조회 아이디"),
                                 fieldWithPath("data.paging.hasNext").type(BOOLEAN).description("다음 조회할 상품이 존재하는지 여부")
                         )
