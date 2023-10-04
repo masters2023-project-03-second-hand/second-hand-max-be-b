@@ -32,7 +32,7 @@ public class RegionNotLoginInterceptor implements HandlerInterceptor {
         Long memberId = authenticationContext.getMemberId()
                 .orElseThrow(() -> new UnAuthorizedException(ErrorCode.NOT_LOGIN));
         if (!region.equals(NOT_LOGIN_DEFAULT_REGION) && NOT_LOGIN_MEMBER_ID.equals(memberId)) {
-            throw new UnAuthorizedException(ErrorCode.NOT_LOGIN, "로그인되지 않은 상태에서는 역삼 1동 지역만을 볼 수 있습니다.");
+//            throw new UnAuthorizedException(ErrorCode.NOT_LOGIN, "로그인되지 않은 상태에서는 역삼 1동 지역만을 볼 수 있습니다.");
         }
         return true;
     }

@@ -1,6 +1,7 @@
 package kr.codesquad.secondhand.application.wishitem;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import kr.codesquad.secondhand.application.item.PagingUtils;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.wishitem.WishItem;
@@ -8,6 +9,8 @@ import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.dto.wishitem.WishItemCategoryResponse;
+import kr.codesquad.secondhand.presentation.dto.wishitem.WishItemCategoryResponses;
 import kr.codesquad.secondhand.presentation.support.converter.IsWish;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
@@ -69,7 +72,10 @@ public class WishItemService {
         return new CustomSlice<>(content, nextCursor, itemResponses.hasNext());
     }
 
-    public List<String> readCategories(Long memberId) {
-        return wishItemCategoryRepository.findCategoryNameByMemberId(memberId);
+    public WishItemCategoryResponses readCategories(Long memberId) {
+        List<String> categoryNames = wishItemCategoryRepository.findCategoryNameByMemberId(memberId);
+        return new WishItemCategoryResponses(categoryNames.stream()
+                .map(name -> new WishItemCategoryResponse(categoryRepository.findIdByName(name), name))
+                .collect(Collectors.toList()));
     }
 }

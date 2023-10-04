@@ -26,11 +26,14 @@ public class ItemDetailResponse {
     private final int wishCount;
     private final int viewCount;
     private final Long price;
+    @JsonInclude(Include.NON_NULL)
+    private final Boolean isInWishList;
 
     @Builder
-    private ItemDetailResponse(boolean isSeller, List<String> imageUrls, String seller, String status, String title,
-                               String categoryName, LocalDateTime createdAt, String content,
-                               int chatCount, int wishCount, int viewCount, Long price) {
+    public ItemDetailResponse(Boolean isSeller, List<String> imageUrls, String seller, String status, String title,
+                              String categoryName, LocalDateTime createdAt, String content, int chatCount,
+                              int wishCount,
+                              int viewCount, Long price, Boolean isInWishList) {
         this.isSeller = isSeller;
         this.imageUrls = imageUrls;
         this.seller = seller;
@@ -43,6 +46,7 @@ public class ItemDetailResponse {
         this.wishCount = wishCount;
         this.viewCount = viewCount;
         this.price = price;
+        this.isInWishList = isInWishList;
     }
 
     public static ItemDetailResponse toSellerResponse(Item item, List<ItemImage> images) {
@@ -64,7 +68,7 @@ public class ItemDetailResponse {
                 .build();
     }
 
-    public static ItemDetailResponse toBuyerResponse(Item item, List<ItemImage> images) {
+    public static ItemDetailResponse toBuyerResponse(Item item, List<ItemImage> images, Boolean isInWishList) {
         return ItemDetailResponse.builder()
                 .isSeller(false)
                 .imageUrls(images.stream()
@@ -79,6 +83,7 @@ public class ItemDetailResponse {
                 .wishCount(item.getWishCount())
                 .viewCount(item.getViewCount())
                 .price(item.getPrice())
+                .isInWishList(isInWishList)
                 .build();
     }
 }

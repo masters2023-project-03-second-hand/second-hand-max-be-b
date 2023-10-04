@@ -28,6 +28,7 @@ public class WishItemPaginationRepository implements PaginationRepository {
                         item.createdAt,
                         item.price,
                         item.status,
+                        item.member.loginId.as("sellerId"),
                         item.chatCount,
                         item.wishCount))
                 .from(wishItem)
