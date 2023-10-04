@@ -48,7 +48,7 @@ public class ChatControllerTest extends DocumentationTestSupport {
 
         willDoNothing().given(chatLogService).sendMessage(anyString(), anyLong(), anyLong());
         given(chatRoomService.getReceiverId(anyLong())).willReturn(receiverId);
-        given(chatRoomService.read(anyLong(), any(Pageable.class))).willReturn(pagedChatRoomResponse);
+        given(chatRoomService.read(anyLong(), any(Pageable.class), anyLong())).willReturn(pagedChatRoomResponse);
 
         var asyncListener = mockMvc.perform(MockMvcRequestBuilders.request(HttpMethod.GET, "/api/chats")
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + jwtProvider.createAccessToken(receiverId)))

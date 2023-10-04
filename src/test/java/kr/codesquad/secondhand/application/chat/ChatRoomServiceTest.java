@@ -42,7 +42,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             Pageable pageable = PageRequest.of(0, 10);
 
             // when
-            CustomSlice<ChatRoomResponse> response = chatRoomService.read(1L, pageable);
+            CustomSlice<ChatRoomResponse> response = chatRoomService.read(1L, pageable, null);
 
             // then
             assertAll(
@@ -65,7 +65,7 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             Pageable pageable = PageRequest.of(2, 10);
 
             // when
-            CustomSlice<ChatRoomResponse> response = chatRoomService.read(1L, pageable);
+            CustomSlice<ChatRoomResponse> response = chatRoomService.read(1L, pageable, null);
 
             // then
             assertAll(
@@ -101,8 +101,8 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
             Pageable pageable = PageRequest.of(0, 10);
 
             // when
-            CustomSlice<ChatRoomResponse> senderResponse = chatRoomService.read(1L, pageable);
-            CustomSlice<ChatRoomResponse> receiverResponse = chatRoomService.read(2L, pageable);
+            CustomSlice<ChatRoomResponse> senderResponse = chatRoomService.read(1L, pageable, null);
+            CustomSlice<ChatRoomResponse> receiverResponse = chatRoomService.read(2L, pageable, null);
 
             // then
             assertThat(senderResponse.getContents().get(0).getNewMessageCount()).isEqualTo(0);
@@ -140,5 +140,50 @@ public class ChatRoomServiceTest extends ApplicationTestSupport {
                     () -> assertThat(foundItem.getChatCount()).isEqualTo(1)
             );
         }
+    }
+
+    @DisplayName("상품별 채팅방 목록 조회에 성공한다.")
+    @Test
+    void given_whenReadChatByItem_thenSuccess() {
+        // given
+        Member seller = supportRepository.save(FixtureFactory.createMember());
+        Member buyer = supportRepository.save(Member.builder()
+                        .loginId("joy")
+                        .email("joy@codesquad.com")
+                        .profileUrl("image.png")
+                        .build());
+
+        Item searchedItem = supportRepository.save(FixtureFactory.createItem("searchedItem", "가전/잡화", seller));
+        Item item = supportRepository.save(FixtureFactory.createItem("item", "기타", seller));
+        for (int i = 0; i < 10; i++) {
+            supportRepository.save(ChatRoom.builder()
+                    .seller(seller)
+                    .buyer(buyer)
+                    .item(searchedItem)
+                    .subject("searchedItem")
+                    .build());
+        }
+        for (int i = 0; i < 10; i++) {
+            supportRepository.save(ChatRoom.builder()
+                    .seller(seller)
+                    .buyer(buyer)
+                    .item(item)
+                    .subject("item")
+                    .build());
+        }
+
+        Pageable pageable = PageRequest.of(0, 10);
+
+        // when
+        CustomSlice<ChatRoomResponse> response = chatRoomService.read(1L, pageable, searchedItem.getId());
+
+        // then
+        assertAll(
+                () -> assertThat(response.getPaging().isHasNext()).isFalse(),
+                () -> assertThat(response.getPaging().getNextCursor()).isNull(),
+                () -> assertThat(response.getContents().size()).isEqualTo(10),
+                () -> assertThat(response.getContents().get(0).getLastSendMessage()).isEqualTo("searchedItem"),
+                () -> assertThat(response.getContents().get(9).getLastSendMessage()).isEqualTo("searchedItem")
+        );
     }
 }
