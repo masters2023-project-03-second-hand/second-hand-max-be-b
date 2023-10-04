@@ -123,4 +123,8 @@ public class Item extends AuditingFields {
     public void increaseChatCount() {
         this.chatCount++;
     }
+
+    public void addViewCount(Integer viewCount) {
+        this.viewCount += viewCount;
+    }
 }

@@ -33,6 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import kr.codesquad.secondhand.application.item.ItemReadFacade;
 import kr.codesquad.secondhand.application.item.ItemService;
 import kr.codesquad.secondhand.documentation.DocumentationTestSupport;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
@@ -53,6 +54,8 @@ public class ItemDocumentationTest extends DocumentationTestSupport {
 
     @Autowired
     private ItemService itemService;
+    @Autowired
+    private ItemReadFacade itemReadFacade;
 
     @DisplayName("상품 등록")
     @Test

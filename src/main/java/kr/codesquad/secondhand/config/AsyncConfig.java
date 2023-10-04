@@ -18,4 +18,13 @@ public class AsyncConfig {
         executor.initialize();
         return executor;
     }
+
+    @Bean(name = "viewCountExecutor")
+    public ThreadPoolTaskExecutor viewCountExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(1);
+        executor.setThreadNamePrefix("ViewCountExecutor-");
+        executor.initialize();
+        return executor;
+    }
 }

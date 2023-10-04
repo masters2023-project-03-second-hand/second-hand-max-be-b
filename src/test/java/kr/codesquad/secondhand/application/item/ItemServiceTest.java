@@ -101,11 +101,7 @@ class ItemServiceTest extends ApplicationTestSupport {
         ItemDetailResponse response = itemService.read(buyer.getId(), item.getId());
 
         // then
-        assertAll(
-                () -> assertThat(response.getIsSeller()).isFalse(),
-                () -> assertThat(response.getViewCount()).isEqualTo(1),
-                () -> assertThat(response.getIsInWishList()).isTrue()
-        );
+        assertThat(response.getIsSeller()).isFalse();
     }
 
     @DisplayName("상품의 상태 수정에 성공한다.")

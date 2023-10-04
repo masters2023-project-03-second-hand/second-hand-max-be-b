@@ -11,6 +11,7 @@ import kr.codesquad.secondhand.application.category.CategoryService;
 import kr.codesquad.secondhand.application.chat.ChatLogService;
 import kr.codesquad.secondhand.application.chat.ChatRoomService;
 import kr.codesquad.secondhand.application.image.ImageService;
+import kr.codesquad.secondhand.application.item.ItemReadFacade;
 import kr.codesquad.secondhand.application.item.ItemService;
 import kr.codesquad.secondhand.application.item.SalesHistoryService;
 import kr.codesquad.secondhand.application.member.MemberService;
@@ -36,7 +37,8 @@ import org.springframework.test.web.servlet.MockMvc;
         RedisService.class,
         ResidenceService.class,
         WishItemService.class,
-        SalesHistoryService.class
+        SalesHistoryService.class,
+        ItemReadFacade.class
 })
 @DocumentationTest
 public abstract class DocumentationTestSupport {
