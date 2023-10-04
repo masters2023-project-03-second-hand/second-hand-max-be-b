@@ -101,7 +101,6 @@ public class ItemDocumentationTest extends DocumentationTestSupport {
         ));
     }
 
-
     @DisplayName("상품 수정")
     @Test
     void updateItem() throws Exception {
