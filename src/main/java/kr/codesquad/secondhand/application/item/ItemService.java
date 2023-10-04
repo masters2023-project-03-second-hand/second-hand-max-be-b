@@ -1,8 +1,5 @@
 package kr.codesquad.secondhand.application.item;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
@@ -12,11 +9,7 @@ import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
-import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
-import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
-import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
-import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
-import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
+import kr.codesquad.secondhand.presentation.dto.item.*;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.item.querydsl.ItemPaginationRepository;
@@ -28,6 +21,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -97,7 +94,8 @@ public class ItemService {
         List<ItemImage> images = itemImageRepository.findByItemId(itemId);
 
         if (!item.isSeller(memberId)) {
-            return ItemDetailResponse.toBuyerResponse(item, images);
+            Boolean isWish = wishItemRepository.existsByItemIdAndMemberId(itemId, memberId);
+            return ItemDetailResponse.toBuyerResponse(item, images, isWish);
         }
         return ItemDetailResponse.toSellerResponse(item, images);
     }
