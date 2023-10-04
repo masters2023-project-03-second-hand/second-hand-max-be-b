@@ -1,8 +1,5 @@
 package kr.codesquad.secondhand.application.residence;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.residence.Region;
 import kr.codesquad.secondhand.domain.residence.Residence;
@@ -19,6 +16,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
