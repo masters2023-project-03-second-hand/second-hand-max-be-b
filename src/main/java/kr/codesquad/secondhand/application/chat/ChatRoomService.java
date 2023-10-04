@@ -31,8 +31,8 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatCountRepository chatCountRepository;
 
-    public CustomSlice<ChatRoomResponse> read(Long memberId, Pageable pageable) {
-        Slice<ChatRoomResponse> response = chatPaginationRepository.findByMemberId(memberId, pageable);
+    public CustomSlice<ChatRoomResponse> read(Long memberId, Pageable pageable, Long itemId) {
+        Slice<ChatRoomResponse> response = chatPaginationRepository.findByMemberId(memberId, pageable, itemId);
 
         List<ChatRoomResponse> contents = response.getContent();
 

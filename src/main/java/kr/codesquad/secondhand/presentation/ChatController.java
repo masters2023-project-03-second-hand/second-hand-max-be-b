@@ -54,7 +54,23 @@ public class ChatController {
     public DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> readList(
             @PageableDefault Pageable pageable,
             @Auth Long memberId) {
-        CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(memberId, pageable);
+        CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(memberId, pageable, null);
+
+        DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> deferredResult =
+                new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
+        chatRoomRequests.put(deferredResult, memberId);
+
+        deferredResult.onCompletion(() -> chatRoomRequests.remove(deferredResult));
+
+        return deferredResult;
+    }
+
+    @GetMapping("/items/{itemId}/chats")
+    public DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> readListByItem(
+            @PageableDefault Pageable pageable,
+            @PathVariable Long itemId,
+            @Auth Long memberId) {
+        CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(memberId, pageable, itemId);
 
         DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> deferredResult =
                 new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
@@ -81,7 +97,7 @@ public class ChatController {
             if (!entry.getValue().equals(receiverId)) {
                 continue;
             }
-            CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(senderId, Pageable.ofSize(10));
+            CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(senderId, Pageable.ofSize(10), null);
             entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
         }
 

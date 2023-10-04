@@ -21,7 +21,7 @@ public class ChatPaginationRepository implements PaginationRepository {
 
     private final JPAQueryFactory queryFactory;
 
-    public Slice<ChatRoomResponse> findByMemberId(Long memberId, Pageable pageable) {
+    public Slice<ChatRoomResponse> findByMemberId(Long memberId, Pageable pageable, Long itemId) {
         Expression<String> loginIdExpression = createPartnerNameExpression(memberId);
         Expression<String> profileExpression = createPartnerProfileExpression(memberId);
 
@@ -34,7 +34,8 @@ public class ChatPaginationRepository implements PaginationRepository {
                         loginIdExpression,
                         profileExpression))
                 .from(chatRoom)
-                .where(equalsMemberId(memberId))
+                .where(equalsMemberId(memberId),
+                        equalsItemId(itemId))
                 .orderBy(chatRoom.lastSendTime.desc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -62,5 +63,13 @@ public class ChatPaginationRepository implements PaginationRepository {
     private BooleanExpression equalsMemberId(Long memberId) {
         return chatRoom.buyer.id.eq(memberId)
                 .or(chatRoom.seller.id.eq(memberId));
+    }
+
+    private BooleanExpression equalsItemId(Long itemId) {
+        if (itemId == null) {
+            return null;
+        }
+
+        return chatRoom.item.id.eq(itemId);
     }
 }
