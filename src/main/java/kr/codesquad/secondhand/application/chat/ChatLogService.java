@@ -60,6 +60,8 @@ public class ChatLogService {
 
         ChatLog chatLog = ChatLog.of(chatRoom, message, senderId);
         chatLogRepository.save(chatLog);
+
+        chatRoom.setLastSendMessage(message);
         // TODO: 알람 보내기
     }
 }

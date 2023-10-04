@@ -34,8 +34,7 @@ public class ChatRoomService {
     private final ChatLogRepository chatLogRepository;
 
     public CustomSlice<ChatRoomResponse> read(Long memberId, Pageable pageable) {
-        Slice<ChatRoomResponse> response =
-                chatPaginationRepository.findByMemberId(memberId, pageable);
+        Slice<ChatRoomResponse> response = chatPaginationRepository.findByMemberId(memberId, pageable);
 
         List<ChatRoomResponse> contents = response.getContent();
 
@@ -65,10 +64,9 @@ public class ChatRoomService {
         return chatRoom.getId();
     }
 
-    public boolean existsMessageAfterMessageId(Long messageId) {
-        if (messageId == null) {
-            return true;
-        }
-        return chatLogRepository.existsByIdGreaterThan(messageId);
+    public Long getReceiverId(Long chatRoomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
+        return chatRoom.getSeller().getId();
     }
 }

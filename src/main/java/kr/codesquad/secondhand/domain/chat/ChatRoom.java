@@ -77,4 +77,8 @@ public class ChatRoom {
                         .build())
                 .build();
     }
+
+    public void setLastSendMessage(String message) {
+        this.subject = message;
+    }
 }
