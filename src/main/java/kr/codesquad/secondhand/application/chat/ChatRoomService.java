@@ -1,15 +1,11 @@
 package kr.codesquad.secondhand.application.chat;
 
-import java.util.List;
-import java.util.Map;
-import kr.codesquad.secondhand.domain.chat.ChatLog;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
-import kr.codesquad.secondhand.repository.chat.ChatLogRepository;
 import kr.codesquad.secondhand.repository.chat.ChatRoomRepository;
 import kr.codesquad.secondhand.repository.chat.querydsl.ChatCountRepository;
 import kr.codesquad.secondhand.repository.chat.querydsl.ChatPaginationRepository;
@@ -19,6 +15,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,7 +30,6 @@ public class ChatRoomService {
     private final ChatPaginationRepository chatPaginationRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatCountRepository chatCountRepository;
-    private final ChatLogRepository chatLogRepository;
 
     public CustomSlice<ChatRoomResponse> read(Long memberId, Pageable pageable) {
         Slice<ChatRoomResponse> response = chatPaginationRepository.findByMemberId(memberId, pageable);
@@ -49,10 +47,7 @@ public class ChatRoomService {
         boolean hasNext = response.hasNext();
         Long nextCursor = hasNext ? Long.valueOf(pageable.getPageNumber() + 1) : null;
 
-        ChatLog lastChatLog = chatLogRepository.findFirstByOrderByIdDesc().orElse(null);
-        Long lastChatLogId = lastChatLog != null ? lastChatLog.getId() : null;
-
-        return new CustomSlice<>(contents, nextCursor, response.hasNext(), lastChatLogId);
+        return new CustomSlice<>(contents, nextCursor, response.hasNext());
     }
 
     @Transactional

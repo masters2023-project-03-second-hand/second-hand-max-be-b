@@ -1,8 +1,5 @@
 package kr.codesquad.secondhand.application.chat;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 import kr.codesquad.secondhand.application.chat.event.ChatReadEvent;
 import kr.codesquad.secondhand.domain.chat.ChatLog;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
@@ -20,6 +17,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -60,8 +61,9 @@ public class ChatLogService {
 
         ChatLog chatLog = ChatLog.of(chatRoom, message, senderId);
         chatLogRepository.save(chatLog);
-
+        
         chatRoom.setLastSendMessage(message);
+        chatRoom.changeLastSendTime();
         // TODO: 알람 보내기
     }
 }
