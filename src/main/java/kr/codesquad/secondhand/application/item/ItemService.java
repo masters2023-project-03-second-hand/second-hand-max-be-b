@@ -11,6 +11,7 @@ import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
 import kr.codesquad.secondhand.presentation.dto.item.*;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
+import kr.codesquad.secondhand.repository.chat.ChatRoomRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.item.querydsl.ItemPaginationRepository;
 import kr.codesquad.secondhand.repository.itemimage.ItemImageRepository;
@@ -40,6 +41,7 @@ public class ItemService {
     private final CategoryRepository categoryRepository;
     private final ItemPaginationRepository itemPaginationRepository;
     private final WishItemRepository wishItemRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Transactional
     public void register(MultipartFile thumbnailImage,
@@ -95,7 +97,9 @@ public class ItemService {
 
         if (!item.isSeller(memberId)) {
             Boolean isWish = wishItemRepository.existsByItemIdAndMemberId(itemId, memberId);
-            return ItemDetailResponse.toBuyerResponse(item, images, isWish);
+            Long chatRoomId = chatRoomRepository.findByItem_IdAndBuyer_Id(itemId, memberId)
+                    .orElse(null);
+            return ItemDetailResponse.toBuyerResponse(item, images, isWish, chatRoomId);
         }
         return ItemDetailResponse.toSellerResponse(item, images);
     }
