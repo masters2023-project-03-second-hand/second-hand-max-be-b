@@ -9,7 +9,7 @@ import lombok.Getter;
 public class SimpleChatLog {
 
     private Long messageId;
-    private boolean isMe;
+    private Boolean isMe;
     private String message;
 
     public static SimpleChatLog of(ChatLog chatLog, boolean isMe) {
