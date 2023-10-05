@@ -20,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -32,7 +31,7 @@ public class ChatLogService {
     private final ChatRoomRepository chatRoomRepository;
     private final ItemRepository itemRepository;
 
-    public ChatLogResponse getMessages(Long chatRoomId, long messageIndex, Long memberId) {
+    public ChatLogResponse getMessages(Long chatRoomId, long messageId, Long memberId) {
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
         Item item = itemRepository.findById(chatRoom.getItem().getId())
@@ -40,18 +39,15 @@ public class ChatLogService {
 
         Member receiver = chatRoom.getSeller();
 
-        List<ChatLog> chatLogs = chatLogRepository.findAllByChatRoomId(chatRoomId);
-        List<ChatLog> logsAfterIndex = chatLogs.subList((int) messageIndex, chatLogs.size());
-
-        List<SimpleChatLog> chatLogsResponse = LongStream.range(0, logsAfterIndex.size())
-                .mapToObj(idx -> {
-                    ChatLog chatLog = chatLogs.get((int) idx);
-                    return SimpleChatLog.of(idx, chatLog, chatLog.getSenderId().equals(memberId));
-                })
+        List<ChatLog> chatLogs = chatLogRepository.findAllByChatRoom_IdAndIdIsGreaterThan(chatRoomId, messageId);
+        List<SimpleChatLog> chatLogsResponse = chatLogs.stream()
+                .map(chatLog -> SimpleChatLog.of(chatLog, chatLog.getSenderId().equals(memberId)))
                 .collect(Collectors.toList());
 
         eventPublisher.publishEvent(new ChatReadEvent(chatRoomId));
-        return new ChatLogResponse(receiver.getLoginId(), ItemSimpleResponse.from(item), chatLogsResponse);
+
+        Long lastMessageId = chatLogs.isEmpty() ? messageId : chatLogs.get(chatLogs.size() - 1).getId();
+        return new ChatLogResponse(receiver.getLoginId(), ItemSimpleResponse.from(item), chatLogsResponse, lastMessageId);
     }
 
     @Transactional
@@ -61,7 +57,7 @@ public class ChatLogService {
 
         ChatLog chatLog = ChatLog.of(chatRoom, message, senderId);
         chatLogRepository.save(chatLog);
-        
+
         chatRoom.setLastSendMessage(message);
         chatRoom.changeLastSendTime();
         // TODO: 알람 보내기

@@ -34,15 +34,15 @@ public class ChatController {
     @GetMapping("/chats/{chatRoomId}")
     public DeferredResult<ApiResponse<ChatLogResponse>> readAll(
             @PathVariable Long chatRoomId,
-            @RequestParam(required = false, defaultValue = "0") long messageIndex,
+            @RequestParam(required = false, defaultValue = "0") Long messageId,
             @Auth Long memberId) {
         DeferredResult<ApiResponse<ChatLogResponse>> deferredResult =
                 new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), List.of()));
-        chatRequests.put(deferredResult, messageIndex);
+        chatRequests.put(deferredResult, messageId);
 
         deferredResult.onCompletion(() -> chatRequests.remove(deferredResult));
 
-        ChatLogResponse messages = chatLogService.getMessages(chatRoomId, messageIndex, memberId);
+        ChatLogResponse messages = chatLogService.getMessages(chatRoomId, messageId, memberId);
         if (!messages.getChat().isEmpty()) {
             deferredResult.setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
         }
