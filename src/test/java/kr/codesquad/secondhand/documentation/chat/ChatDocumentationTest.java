@@ -90,7 +90,7 @@ public class ChatDocumentationTest extends DocumentationTestSupport {
                                 fieldWithPath("data.chat[].messageId").type(NUMBER).description("채팅 메시지 ID"),
                                 fieldWithPath("data.chat[].isMe").type(BOOLEAN).description("내가 보낸 메시지인지 여부"),
                                 fieldWithPath("data.chat[].message").type(STRING).description("채팅 메시지"),
-                                fieldWithPath("data.lastMessageId").type(NUMBER).description("마지막으로 읽은 메시지 ID, 다음 요청으로 사용할 쿼리 파라미터")
+                                fieldWithPath("data.nextMessageId").type(NUMBER).description("마지막으로 읽은 메시지 ID, 다음 요청으로 사용할 쿼리 파라미터")
                         )
                 ));
     }

@@ -13,5 +13,5 @@ public class ChatLogResponse {
     private String chatPartnerName;
     private ItemSimpleResponse item;
     private List<SimpleChatLog> chat;
-    private Long lastMessageId;
+    private Long nextMessageId;
 }
