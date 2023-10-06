@@ -92,7 +92,7 @@ public class ChatController {
             if (!entry.getValue().containsKey(chatRoomId)) {
                 continue;
             }
-            ChatLogResponse messages = chatLogService.getMessages(chatRoomId, entry.getValue().get(chatRoomId), senderId);
+            ChatLogResponse messages = chatLogService.getMessages(chatRoomId, entry.getValue().get(chatRoomId), receiverId);
             entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
         }
 
