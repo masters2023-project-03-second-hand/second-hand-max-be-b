@@ -1,7 +1,5 @@
 package kr.codesquad.secondhand.presentation.dto.item;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import lombok.Builder;
@@ -17,7 +15,6 @@ public class ItemDetailResponse {
     private final Boolean isSeller;
     private final List<String> imageUrls;
     private final String seller;
-    @JsonInclude(Include.NON_NULL)
     private final String status;
     private final String title;
     private final String categoryName;
@@ -27,9 +24,7 @@ public class ItemDetailResponse {
     private final int wishCount;
     private final int viewCount;
     private final Long price;
-    @JsonInclude(Include.NON_NULL)
     private final Boolean isInWishList;
-    @JsonInclude(Include.NON_NULL)
     private final Long chatRoomId;
 
     @Builder

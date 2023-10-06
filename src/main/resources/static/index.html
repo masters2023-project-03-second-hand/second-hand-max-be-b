@@ -1514,7 +1514,7 @@ Vary: Origin
 Vary: Access-Control-Request-Method
 Vary: Access-Control-Request-Headers
 Content-Type: application/json
-Content-Length: 3190
+Content-Length: 3192
 
 {
   "statusCode" : 200,
@@ -1525,7 +1525,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.737513",
+      "createdAt" : "2023-10-06T10:57:13.760221",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1536,7 +1536,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.737527",
+      "createdAt" : "2023-10-06T10:57:13.760363",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1547,7 +1547,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.73753",
+      "createdAt" : "2023-10-06T10:57:13.760369",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1558,7 +1558,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.737532",
+      "createdAt" : "2023-10-06T10:57:13.760371",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1569,7 +1569,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.737533",
+      "createdAt" : "2023-10-06T10:57:13.760372",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1580,7 +1580,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.737535",
+      "createdAt" : "2023-10-06T10:57:13.760373",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1591,7 +1591,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.737536",
+      "createdAt" : "2023-10-06T10:57:13.760374",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1602,7 +1602,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.737538",
+      "createdAt" : "2023-10-06T10:57:13.760375",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1613,7 +1613,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.737539",
+      "createdAt" : "2023-10-06T10:57:13.760377",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1624,7 +1624,7 @@ Content-Length: 3190
       "thumbnailUrl" : "url",
       "title" : "title",
       "tradingRegion" : "범안 1동",
-      "createdAt" : "2023-10-05T21:06:34.73754",
+      "createdAt" : "2023-10-06T10:57:13.760378",
       "price" : 10000,
       "status" : "판매중",
       "sellerId" : "sellerId",
@@ -1769,7 +1769,7 @@ Vary: Origin
 Vary: Access-Control-Request-Method
 Vary: Access-Control-Request-Headers
 Content-Type: application/json
-Content-Length: 421
+Content-Length: 473
 
 {
   "statusCode" : 200,
@@ -1781,12 +1781,14 @@ Content-Length: 421
     "status" : "판매중",
     "title" : "선풍기",
     "categoryName" : "가전/잡화",
-    "createdAt" : "2023-10-05T21:06:34.553765",
+    "createdAt" : "2023-10-06T10:57:13.415916",
     "content" : "content",
     "chatCount" : 1,
     "wishCount" : 10,
     "viewCount" : 100,
-    "price" : 10000
+    "price" : 10000,
+    "isInWishList" : null,
+    "chatRoomId" : null
   }
 }</code></pre>
 </div>
@@ -3460,7 +3462,7 @@ Content-Length: 445
       "isMe" : false,
       "message" : "네 안녕하세요"
     } ],
-    "lastMessageId" : 12
+    "nextMessageId" : 12
   }
 }</code></pre>
 </div>
@@ -3557,7 +3559,7 @@ Content-Length: 445
 <td class="tableblock halign-left valign-top"><p class="tableblock">채팅 메시지</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.lastMessageId</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>data.nextMessageId</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>Number</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">마지막으로 읽은 메시지 ID, 다음 요청으로 사용할 쿼리 파라미터</p></td>
 </tr>
@@ -3572,7 +3574,7 @@ Content-Length: 445
 <div id="footer">
 <div id="footer-text">
 Version 0.0.1-SNAPSHOT<br>
-Last updated 2023-10-05 21:02:45 +0900
+Last updated 2023-10-06 10:24:19 +0900
 </div>
 </div>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.6/styles/github.min.css">

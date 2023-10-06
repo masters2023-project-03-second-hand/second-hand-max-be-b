@@ -372,7 +372,9 @@ public class ItemDocumentationTest extends DocumentationTestSupport {
                         fieldWithPath("data.chatCount").type(NUMBER).description("채팅 수"),
                         fieldWithPath("data.wishCount").type(NUMBER).description("관심 수"),
                         fieldWithPath("data.viewCount").type(NUMBER).description("조회 수"),
-                        fieldWithPath("data.price").type(NUMBER).description("상품 가격")
+                        fieldWithPath("data.price").type(NUMBER).description("상품 가격"),
+                        fieldWithPath("data.isInWishList").ignored().type(BOOLEAN).description("관심 목록에 있는지 여부, 구매자인 경우에만 응답에 포함"),
+                        fieldWithPath("data.chatRoomId").ignored().type(NUMBER).description("채팅방 아이디, 구매자인 경우에만 응답에 포함")
                 )
         ));
     }
