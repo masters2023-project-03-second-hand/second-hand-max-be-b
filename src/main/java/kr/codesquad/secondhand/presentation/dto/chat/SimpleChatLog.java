@@ -8,11 +8,11 @@ import lombok.Getter;
 @AllArgsConstructor
 public class SimpleChatLog {
 
-    private Long messageIndex;
-    private boolean isMe;
+    private Long messageId;
+    private Boolean isMe;
     private String message;
 
-    public static SimpleChatLog of(Long messageIndex, ChatLog chatLog, boolean isMe) {
-        return new SimpleChatLog(messageIndex, isMe, chatLog.getMessage());
+    public static SimpleChatLog of(ChatLog chatLog, boolean isMe) {
+        return new SimpleChatLog(chatLog.getId(), isMe, chatLog.getMessage());
     }
 }

@@ -1,0 +1,76 @@
+[[Chat]]
+:toc: left
+:toclevels: 4
+== 채팅
+
+=== 채팅방 생성
+
+.HTTP REQUEST
+include::{snippets}/chat/create-chat-room/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/chat/create-chat-room/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/chat/create-chat-room/request-headers.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/chat/create-chat-room/path-parameters.adoc[]
+
+==== Response Fields
+
+include::{snippets}/chat/create-chat-room/response-fields.adoc[]
+
+=== 채팅방 목록 조회 - 네비게이션 바
+
+.HTTP REQUEST
+include::{snippets}/chat/read-all-chat-rooms/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/chat/read-all-chat-rooms/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/chat/read-all-chat-rooms/request-headers.adoc[]
+
+===== Response Fields
+
+include::{snippets}/chat/read-all-chat-rooms/response-fields.adoc[]
+
+=== 채팅 전송
+
+.HTTP REQUEST
+include::{snippets}/chat/send-message/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/chat/send-message/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/chat/send-message/request-headers.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/chat/send-message/path-parameters.adoc[]
+
+==== Request Fields
+
+include::{snippets}/chat/send-message/request-fields.adoc[]
+
+==== Response Fields
+
+include::{snippets}/chat/send-message/response-fields.adoc[]
+
+=== 채팅 메시지 목록 조회
+
+.HTTP REQUEST
+include::{snippets}/chat/read-all-chat-logs/http-request.adoc[]
+.HTTP RESPONSE
+include::{snippets}/chat/read-all-chat-logs/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/chat/read-all-chat-logs/request-headers.adoc[]
+
+===== Response Fields
+
+include::{snippets}/chat/read-all-chat-logs/response-fields.adoc[]
