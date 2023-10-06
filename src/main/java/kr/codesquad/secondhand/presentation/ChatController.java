@@ -8,6 +8,8 @@ import kr.codesquad.secondhand.presentation.dto.chat.ChatLogResponse;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRequest;
 import kr.codesquad.secondhand.presentation.dto.chat.ChatRoomResponse;
 import kr.codesquad.secondhand.presentation.support.Auth;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -25,9 +27,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @RestController
 public class ChatController {
 
-    private final Map<DeferredResult<ApiResponse<ChatLogResponse>>, Map<Long, Long>> chatRequests = new ConcurrentHashMap<>();
+    private final Map<DeferredResult<ApiResponse<ChatLogResponse>>, ChatData> chatRequests = new ConcurrentHashMap<>();
     private final Map<DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>>, Long> chatRoomRequests = new ConcurrentHashMap<>();
-
     private final ChatLogService chatLogService;
     private final ChatRoomService chatRoomService;
 
@@ -38,7 +39,7 @@ public class ChatController {
             @Auth Long memberId) {
         DeferredResult<ApiResponse<ChatLogResponse>> deferredResult =
                 new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), List.of()));
-        chatRequests.put(deferredResult, Map.of(chatRoomId, messageId));
+        chatRequests.put(deferredResult, new ChatData(chatRoomId, messageId, memberId));
 
         deferredResult.onCompletion(() -> chatRequests.remove(deferredResult));
 
@@ -89,10 +90,11 @@ public class ChatController {
         chatLogService.sendMessage(request.getMessage(), chatRoomId, senderId);
 
         for (var entry : chatRequests.entrySet()) {
-            if (!entry.getValue().containsKey(chatRoomId)) {
+            ChatData chatData = entry.getValue();
+            if (!chatData.getChatRoomId().equals(chatRoomId)) {
                 continue;
             }
-            ChatLogResponse messages = chatLogService.getMessages(chatRoomId, entry.getValue().get(chatRoomId), receiverId);
+            ChatLogResponse messages = chatLogService.getMessages(chatRoomId, chatData.getChatRoomId(), chatData.getTargetMemberId());
             entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
         }
 
@@ -112,5 +114,14 @@ public class ChatController {
     public ApiResponse<Map<String, Long>> createChatRoom(@PathVariable Long itemId, @Auth Long senderId) {
         Long chatRoomId = chatRoomService.createChatRoom(itemId, senderId);
         return new ApiResponse<>(HttpStatus.CREATED.value(), Map.of("chatRoomId", chatRoomId));
+    }
+
+    @Getter
+    @AllArgsConstructor
+    private static class ChatData {
+
+        private Long chatRoomId;
+        private Long messageId;
+        private Long targetMemberId;
     }
 }
