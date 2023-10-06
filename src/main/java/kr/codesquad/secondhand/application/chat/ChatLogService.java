@@ -44,7 +44,7 @@ public class ChatLogService {
                 .map(chatLog -> SimpleChatLog.of(chatLog, chatLog.getSenderId().equals(memberId)))
                 .collect(Collectors.toList());
 
-        eventPublisher.publishEvent(new ChatReadEvent(chatRoomId));
+        eventPublisher.publishEvent(new ChatReadEvent(chatRoomId, memberId));
 
         Long lastMessageId = chatLogs.isEmpty() ? messageId : chatLogs.get(chatLogs.size() - 1).getId();
         return new ChatLogResponse(receiver.getLoginId(), ItemSimpleResponse.from(item), chatLogsResponse, lastMessageId);

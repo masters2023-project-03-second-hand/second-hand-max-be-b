@@ -11,8 +11,8 @@ import java.util.List;
 public interface ChatLogRepository extends JpaRepository<ChatLog, Long> {
 
     @Modifying(clearAutomatically = true)
-    @Query("UPDATE ChatLog chatLog SET chatLog.readCount = 0 WHERE chatLog.chatRoom.id = :chatRoomId")
-    void updateReadCountByChatRoomId(@Param("chatRoomId") Long chatRoomId);
+    @Query("UPDATE ChatLog chatLog SET chatLog.readCount = 0 WHERE chatLog.chatRoom.id = :chatRoomId AND chatLog.senderId != :readerId")
+    void updateReadCountByChatRoomId(@Param("chatRoomId") Long chatRoomId, @Param("readerId") Long readerId);
 
     @Query("SELECT chatLog FROM ChatLog chatLog WHERE chatLog.chatRoom.id = :chatRoomId AND chatLog.id > :id")
     List<ChatLog> findAllByChatRoom_IdAndIdIsGreaterThan(@Param("chatRoomId") Long chatRoomId, @Param("id") Long id);

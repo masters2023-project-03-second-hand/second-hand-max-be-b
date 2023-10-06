@@ -8,4 +8,5 @@ import lombok.RequiredArgsConstructor;
 public class ChatReadEvent {
 
     private final Long chatRoomId;
+    private final Long readerId;
 }
