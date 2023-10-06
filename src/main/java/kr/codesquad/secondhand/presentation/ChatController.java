@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RestController
 public class ChatController {
 
-    private final Map<DeferredResult<ApiResponse<ChatLogResponse>>, Long> chatRequests = new ConcurrentHashMap<>();
+    private final Map<DeferredResult<ApiResponse<ChatLogResponse>>, Map<Long, Long>> chatRequests = new ConcurrentHashMap<>();
     private final Map<DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>>, Long> chatRoomRequests = new ConcurrentHashMap<>();
 
     private final ChatLogService chatLogService;
@@ -38,7 +38,7 @@ public class ChatController {
             @Auth Long memberId) {
         DeferredResult<ApiResponse<ChatLogResponse>> deferredResult =
                 new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), List.of()));
-        chatRequests.put(deferredResult, messageId);
+        chatRequests.put(deferredResult, Map.of(chatRoomId, messageId));
 
         deferredResult.onCompletion(() -> chatRequests.remove(deferredResult));
 
@@ -89,7 +89,10 @@ public class ChatController {
         chatLogService.sendMessage(request.getMessage(), chatRoomId, senderId);
 
         for (var entry : chatRequests.entrySet()) {
-            ChatLogResponse messages = chatLogService.getMessages(chatRoomId, entry.getValue(), senderId);
+            if (!entry.getValue().containsKey(chatRoomId)) {
+                continue;
+            }
+            ChatLogResponse messages = chatLogService.getMessages(chatRoomId, entry.getValue().get(chatRoomId), senderId);
             entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
         }
 
