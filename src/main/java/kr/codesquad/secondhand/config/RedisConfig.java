@@ -19,6 +19,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
     private static final String REDISSON_HOST_PREFIX = "redis://";
+    
     private final RedisProperties redisProperties;
 
     @Bean
