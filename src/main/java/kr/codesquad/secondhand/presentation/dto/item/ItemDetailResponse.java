@@ -1,22 +1,20 @@
 package kr.codesquad.secondhand.presentation.dto.item;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Getter
 public class ItemDetailResponse {
 
-    private final boolean isSeller;
+    private final Boolean isSeller;
     private final List<String> imageUrls;
     private final String seller;
-    @JsonInclude(Include.NON_NULL)
     private final String status;
     private final String title;
     private final String categoryName;
@@ -26,11 +24,14 @@ public class ItemDetailResponse {
     private final int wishCount;
     private final int viewCount;
     private final Long price;
+    private final Boolean isInWishList;
+    private final Long chatRoomId;
 
     @Builder
-    private ItemDetailResponse(boolean isSeller, List<String> imageUrls, String seller, String status, String title,
-                               String categoryName, LocalDateTime createdAt, String content,
-                               int chatCount, int wishCount, int viewCount, Long price) {
+    public ItemDetailResponse(Boolean isSeller, List<String> imageUrls, String seller, String status, String title,
+                              String categoryName, LocalDateTime createdAt, String content, int chatCount,
+                              int wishCount,
+                              int viewCount, Long price, Boolean isInWishList, Long chatRoomId) {
         this.isSeller = isSeller;
         this.imageUrls = imageUrls;
         this.seller = seller;
@@ -43,6 +44,8 @@ public class ItemDetailResponse {
         this.wishCount = wishCount;
         this.viewCount = viewCount;
         this.price = price;
+        this.isInWishList = isInWishList;
+        this.chatRoomId = chatRoomId;
     }
 
     public static ItemDetailResponse toSellerResponse(Item item, List<ItemImage> images) {
@@ -64,7 +67,7 @@ public class ItemDetailResponse {
                 .build();
     }
 
-    public static ItemDetailResponse toBuyerResponse(Item item, List<ItemImage> images) {
+    public static ItemDetailResponse toBuyerResponse(Item item, List<ItemImage> images, Boolean isInWishList, Long chatRoomId) {
         return ItemDetailResponse.builder()
                 .isSeller(false)
                 .imageUrls(images.stream()
@@ -79,6 +82,8 @@ public class ItemDetailResponse {
                 .wishCount(item.getWishCount())
                 .viewCount(item.getViewCount())
                 .price(item.getPrice())
+                .isInWishList(isInWishList)
+                .chatRoomId(chatRoomId)
                 .build();
     }
 }

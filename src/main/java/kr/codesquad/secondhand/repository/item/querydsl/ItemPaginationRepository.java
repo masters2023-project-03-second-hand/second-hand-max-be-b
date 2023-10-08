@@ -29,6 +29,7 @@ public class ItemPaginationRepository implements PaginationRepository {
                         item.createdAt,
                         item.price,
                         item.status,
+                        item.member.loginId.as("sellerId"),
                         item.chatCount,
                         item.wishCount))
                 .from(item)
@@ -52,6 +53,7 @@ public class ItemPaginationRepository implements PaginationRepository {
                         item.createdAt,
                         item.price,
                         item.status,
+                        item.member.loginId.as("sellerId"),
                         item.chatCount,
                         item.wishCount))
                 .from(item)

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
 
+import java.util.List;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.residence.Region;
@@ -13,12 +14,14 @@ import kr.codesquad.secondhand.exception.BadRequestException;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.fixture.FixtureFactory;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
+import kr.codesquad.secondhand.presentation.dto.member.AddressData;
 import kr.codesquad.secondhand.presentation.dto.residence.RegionResponse;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+@DisplayName("비즈니스 로직 - 거주지역")
 class ResidenceServiceTest extends ApplicationTestSupport {
 
     @Autowired
@@ -113,8 +116,8 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 괴안동")
                     .addressName("괴안동")
                     .build());
-            supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동", true));
-            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동", false));
+            supportRepository.save(Residence.of(member.getId(), beombak.getId(), "범박동")).selectToMainResidence();
+            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동"));
 
             // when & then
             assertThatThrownBy(() -> residenceService.register(guaean.getId(), member.getId()))
@@ -140,8 +143,8 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 옥길동")
                     .addressName("옥길동")
                     .build());
-            supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동", true));
-            supportRepository.save(Residence.from(member.getId(), okgil.getId(), "옥길동", false));
+            supportRepository.save(Residence.of(member.getId(), beombak.getId(), "범박동")).selectToMainResidence();
+            supportRepository.save(Residence.of(member.getId(), okgil.getId(), "옥길동"));
 
             // when & then
             assertThatCode(() -> residenceService.remove(beombak.getId(), member.getId()))
@@ -157,7 +160,7 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 범박동")
                     .addressName("범박동")
                     .build());
-            supportRepository.save(Residence.from(member.getId(), beombak.getId(), "범박동", true));
+            supportRepository.save(Residence.of(member.getId(), beombak.getId(), "범박동")).selectToMainResidence();
 
             // when & then
             assertThatThrownBy(() -> residenceService.remove(beombak.getId(), member.getId()))
@@ -182,9 +185,10 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     .fullAddressName("경기도 부천시 옥길동")
                     .build());
 
-            Residence mainResidence = supportRepository.save(
-                    Residence.from(member.getId(), beoman.getId(), "범안동", true));
-            Residence residence = supportRepository.save(Residence.from(member.getId(), okgil.getId(), "범안동", false));
+            Residence mainResidence = supportRepository.save(Residence.of(member.getId(), beoman.getId(), "범안동"));
+            Residence residence = supportRepository.save(Residence.of(member.getId(), okgil.getId(), "범안동"));
+
+            mainResidence.selectToMainResidence();
 
             // when
             residenceService.selectResidence(okgil.getId(), member.getId());
@@ -198,5 +202,43 @@ class ResidenceServiceTest extends ApplicationTestSupport {
                     () -> assertThat(selectedResidence.isSelected()).isTrue()
             );
         }
+    }
+
+    @DisplayName("사용자의 지역목록 반환에 성공한다.")
+    @Test
+    void givenMember_whenReadResidences_thenSuccess() {
+        // given
+        Member member = supportRepository.save(FixtureFactory.createMember());
+        Region beoman = supportRepository.save(Region.builder().addressName("범안동")
+                .fullAddressName("경기도 부천시 범안동")
+                .build());
+        Region okgil = supportRepository.save(Region.builder().addressName("옥길동")
+                .fullAddressName("경기도 부천시 옥길동")
+                .build());
+
+        Residence mainResidence = supportRepository.save(Residence.builder()
+                        .member(member)
+                        .addressName(beoman.getAddressName())
+                        .region(beoman)
+                        .isSelected(true)
+                        .build());
+        Residence residence = supportRepository.save(Residence.builder()
+                        .member(member)
+                        .addressName(okgil.getAddressName())
+                        .region(okgil)
+                        .isSelected(false)
+                        .build());
+        mainResidence.selectToMainResidence();
+
+        // when
+        List<AddressData> response = residenceService.readResidenceOfMember(member.getId());
+
+        // then
+        assertAll(
+                () -> assertThat(response.get(0).getAddressName()).isEqualTo("범안동"),
+                () -> assertThat(response.get(0).getIsSelected()).isTrue(),
+                () -> assertThat(response.get(1).getAddressName()).isEqualTo("옥길동"),
+                () -> assertThat(response.get(1).getIsSelected()).isFalse()
+        );
     }
 }

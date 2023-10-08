@@ -1,7 +1,5 @@
 package kr.codesquad.secondhand.application.residence;
 
-import java.util.ArrayList;
-import java.util.List;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.residence.Region;
 import kr.codesquad.secondhand.domain.residence.Residence;
@@ -19,6 +17,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
@@ -26,6 +28,7 @@ public class ResidenceService {
 
     private static final int MEMBER_HAS_RESIDENCE_MIN_COUNT = 1;
     private static final int MEMBER_HAS_RESIDENCE_MAX_COUNT = 2;
+    private static final Function<List<Residence>, Residence> selectMainResidence = (residences -> residences.get(0));
 
     private final RegionPaginationRepository regionPaginationRepository;
     private final RegionRepository regionRepository;
@@ -45,7 +48,7 @@ public class ResidenceService {
                             .build())
                     .build());
         }
-        residences.get(0).changeIsSelected(true);
+        selectMainResidence.apply(residences).selectToMainResidence();
         residenceRepository.saveAll(residences);
     }
 
@@ -74,7 +77,7 @@ public class ResidenceService {
         Region region = regionRepository.findById(addressId)
                 .orElseThrow(() -> NotFoundException.regionNotFound(ErrorCode.NOT_FOUND, addressId));
 
-        residenceRepository.save(Residence.from(memberId, region.getId(), region.getAddressName(), false));
+        residenceRepository.save(Residence.of(memberId, region.getId(), region.getAddressName()));
     }
 
     @Transactional
@@ -87,9 +90,9 @@ public class ResidenceService {
 
         residenceRepository.deleteByAddressName(region.getAddressName());
 
-        Long remainAddressId = residenceRepository.findByMemberId(memberId).get(0).getAddressId();
-        Residence residence = residenceRepository.findById(remainAddressId).get();
-        residence.changeIsSelected(true);
+        Residence residence = residenceRepository.findByMember_Id(memberId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND));
+        residence.selectToMainResidence();
     }
 
     public List<AddressData> readResidenceOfMember(Long memberId) {
@@ -97,8 +100,8 @@ public class ResidenceService {
     }
 
     @Transactional
-    public void selectResidence(Long regionId, Long memberId) {
+    public void selectResidence(long regionId, Long memberId) {
         List<Residence> residences = residenceRepository.findResidenceByMember_Id(memberId);
-        residences.forEach(residence -> residence.changeIsSelected(residence.getRegion().getId().equals(regionId)));
+        residences.forEach(residence -> residence.changeIsSelected(residence.isSameRegionId(regionId)));
     }
 }

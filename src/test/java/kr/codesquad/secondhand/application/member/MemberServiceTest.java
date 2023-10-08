@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 
+@DisplayName("비즈니스 로직 - 회원")
 class MemberServiceTest extends ApplicationTestSupport {
 
     @Autowired
@@ -42,10 +43,10 @@ class MemberServiceTest extends ApplicationTestSupport {
                     "profile-image-content".getBytes(StandardCharsets.UTF_8));
 
             // when
-            String updatedProfileUrl = memberService.modifyProfileImage(profileImage, member.getId());
+            var updatedProfileResponse = memberService.modifyProfileImage(profileImage, member.getId());
 
             // then
-            assertThat(updatedProfileUrl).isEqualTo("updatedProfileUrl");
+            assertThat(updatedProfileResponse.getProfileImageUrl()).isEqualTo("updatedProfileUrl");
         }
 
         @DisplayName("변경할 프로필 사진이 주어지지 않을 때 기본 이미지로 프로필 변경에 성공한다.")
@@ -55,10 +56,10 @@ class MemberServiceTest extends ApplicationTestSupport {
             Member member = supportRepository.save(FixtureFactory.createMember());
 
             // when
-            String updatedProfileUrl = memberService.modifyProfileImage(null, member.getId());
+            var updatedProfileResponse = memberService.modifyProfileImage(null, member.getId());
 
             // then
-            assertThat(updatedProfileUrl).isEqualTo(defaultProfileUrl);
+            assertThat(updatedProfileResponse.getProfileImageUrl()).isEqualTo(defaultProfileUrl);
         }
     }
 }

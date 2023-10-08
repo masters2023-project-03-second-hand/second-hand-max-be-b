@@ -1,13 +1,5 @@
 package kr.codesquad.secondhand.presentation.filter;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.UnAuthorizedException;
 import kr.codesquad.secondhand.infrastructure.jwt.JwtExtractor;
@@ -17,6 +9,15 @@ import org.springframework.http.HttpMethod;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.cors.CorsUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class JwtFilter extends OncePerRequestFilter {
 
@@ -39,7 +40,10 @@ public class JwtFilter extends OncePerRequestFilter {
         HttpMethod method = HttpMethod.resolve(request.getMethod());
         if (method == HttpMethod.GET && isExcludeGetUrl(request.getRequestURI())) {
             extractToken(request).ifPresentOrElse(
-                    token -> authenticationContext.setMemberId(jwtProvider.extractClaims(token)),
+                    token -> {
+                        jwtProvider.validateToken(token);
+                        authenticationContext.setMemberId(jwtProvider.extractClaims(token));
+                    },
                     () -> authenticationContext.setMemberId(Map.of("memberId", -1L)));
             return true;
         }

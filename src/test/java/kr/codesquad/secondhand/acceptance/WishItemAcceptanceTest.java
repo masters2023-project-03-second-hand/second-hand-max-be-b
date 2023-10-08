@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
 
+@DisplayName("인수 테스트 - 관심상품")
 public class WishItemAcceptanceTest extends AcceptanceTestSupport {
 
     @DisplayName("관심 상품 등록/해제 쿼리파라미터가 주어지면 어떤 상품을 관심상품으로 등록할 때 성공한다.")

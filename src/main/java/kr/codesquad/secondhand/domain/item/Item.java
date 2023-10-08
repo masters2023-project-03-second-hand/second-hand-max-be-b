@@ -100,7 +100,7 @@ public class Item extends AuditingFields {
         this.content = request.getContent();
         this.price = request.getPrice();
         this.tradingRegion = request.getRegion();
-        this.status = ItemStatus.of(request.getStatus());
+        this.status = ItemStatus.fromKorean(request.getStatus());
         this.categoryName = request.getCategoryName();
     }
 
@@ -109,7 +109,7 @@ public class Item extends AuditingFields {
     }
 
     public void changeStatus(String status) {
-        this.status = ItemStatus.of(status);
+        this.status = ItemStatus.fromKorean(status);
     }
 
     public void increaseWishCount() {
@@ -122,5 +122,9 @@ public class Item extends AuditingFields {
 
     public void increaseChatCount() {
         this.chatCount++;
+    }
+
+    public void addViewCount(Integer viewCount) {
+        this.viewCount += viewCount;
     }
 }

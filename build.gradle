@@ -73,12 +73,16 @@ dependencies {
     testImplementation 'org.testcontainers:mysql:1.18.3'
     testImplementation 'com.redis.testcontainers:testcontainers-redis-junit:1.6.4'
     testImplementation "org.testcontainers:junit-jupiter:1.18.3"
+    testImplementation 'org.redisson:redisson-spring-boot-starter:3.23.5'
+    testImplementation 'com.squareup.okhttp3:okhttp:4.0.1'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
 
     // validation
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     //redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.23.5'
 
     // REST Docs
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'

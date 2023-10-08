@@ -6,6 +6,7 @@ import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.application.redis.RedisService;
 import kr.codesquad.secondhand.application.residence.ResidenceService;
 import kr.codesquad.secondhand.domain.member.Member;
+import kr.codesquad.secondhand.domain.member.OAuthProvider;
 import kr.codesquad.secondhand.domain.member.UserProfile;
 import kr.codesquad.secondhand.domain.token.RefreshToken;
 import kr.codesquad.secondhand.exception.DuplicatedException;
@@ -36,14 +37,15 @@ public class AuthService {
     private final ResidenceService residenceService;
     private final TokenRepository tokenRepository;
     private final MemberRepository memberRepository;
-    private final NaverRequester naverRequester;
     private final JwtProvider jwtProvider;
     private final RedisService redisService;
 
     @Transactional
-    public LoginResponse login(LoginRequest request, String code) {
-        OauthTokenResponse tokenResponse = naverRequester.getToken(code);
-        UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
+    public LoginResponse login(OAuthProvider oAuthProvider, LoginRequest request, String code) {
+        OAuthRequester oAuthRequester = oAuthProvider.getOAuthRequester();
+        OauthTokenResponse tokenResponse = oAuthRequester.getToken(code);
+        UserProfile userProfile = oAuthRequester.getUserProfile(tokenResponse);
+
         Member member = verifyUser(request, userProfile);
         Long memberId = member.getId();
 
@@ -63,14 +65,18 @@ public class AuthService {
     }
 
     @Transactional
-    public void signUp(SignUpRequest request, String code, MultipartFile profile) {
+    public void signUp(OAuthProvider oAuthProvider, SignUpRequest request, String code, MultipartFile profile) {
         verifyDuplicated(request);
-        OauthTokenResponse tokenResponse = naverRequester.getToken(code);
-        UserProfile userProfile = naverRequester.getUserProfile(tokenResponse);
+
+        OAuthRequester oAuthRequester = oAuthProvider.getOAuthRequester();
+        OauthTokenResponse tokenResponse = oAuthRequester.getToken(code);
+        UserProfile userProfile = oAuthRequester.getUserProfile(tokenResponse);
+
         if (profile != null) {
             String profileUrl = imageService.uploadImage(profile);
             userProfile.changeProfileUrl(profileUrl);
         }
+
         Member savedMember = saveMember(request, userProfile);
         residenceService.saveResidence(request.getAddressIds(), savedMember);
     }

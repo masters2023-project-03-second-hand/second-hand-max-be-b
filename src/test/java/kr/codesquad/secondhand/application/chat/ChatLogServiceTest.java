@@ -1,9 +1,5 @@
 package kr.codesquad.secondhand.application.chat;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertAll;
-
-import java.util.List;
 import kr.codesquad.secondhand.application.ApplicationTestSupport;
 import kr.codesquad.secondhand.domain.chat.ChatLog;
 import kr.codesquad.secondhand.domain.chat.ChatRoom;
@@ -15,6 +11,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertAll;
+
+@DisplayName("비즈니스 로직 - 채팅 메시지")
 class ChatLogServiceTest extends ApplicationTestSupport {
 
     @Autowired
@@ -50,7 +52,7 @@ class ChatLogServiceTest extends ApplicationTestSupport {
                 () -> assertThat(response.getChat()).hasSize(10),
                 () -> assertThat(response.getChatPartnerName()).isEqualTo("joy"),
                 () -> assertThat(response.getItem().getTitle()).isEqualTo("선풍기"),
-                () -> assertThat(chatLogs.get(9).getReadCount()).isEqualTo(0)
+                () -> assertThat(chatLogs.get(9).getReadCount()).isEqualTo(1)
         );
     }
 

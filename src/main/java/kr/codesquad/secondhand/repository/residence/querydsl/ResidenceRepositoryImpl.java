@@ -20,7 +20,8 @@ public class ResidenceRepositoryImpl implements ResidenceRepositoryCustom {
                 .select(Projections.fields(AddressData.class,
                         region.id.as("addressId"),
                         region.fullAddressName,
-                        region.addressName))
+                        region.addressName,
+                        residence.isSelected))
                 .from(residence)
                 .innerJoin(residence.region, region)
                 .where(residence.member.id.eq(memberId))

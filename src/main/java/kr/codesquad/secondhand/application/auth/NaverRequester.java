@@ -4,7 +4,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import kr.codesquad.secondhand.domain.member.UserProfile;
-import kr.codesquad.secondhand.infrastructure.OauthProvider;
+import kr.codesquad.secondhand.exception.ErrorCode;
+import kr.codesquad.secondhand.exception.InternalServerException;
+import kr.codesquad.secondhand.infrastructure.properties.OauthProperties;
+import kr.codesquad.secondhand.infrastructure.properties.OauthProperties.Naver;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -19,42 +22,52 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class NaverRequester {
+public class NaverRequester implements OAuthRequester {
 
     private final RestTemplate restTemplate;
-    private final OauthProvider oauthProvider;
+    private final Naver naver;
     private final String defaultProfileImage;
 
-    public NaverRequester(RestTemplate restTemplate, OauthProvider oauthProvider,
+    public NaverRequester(RestTemplate restTemplate, OauthProperties oauthProperties,
                           @Value("${custom.default-profile}") String defaultProfileImage) {
         this.restTemplate = restTemplate;
-        this.oauthProvider = oauthProvider;
+        this.naver = oauthProperties.getNaver();
         this.defaultProfileImage = defaultProfileImage;
     }
 
     public OauthTokenResponse getToken(String code) {
         HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth(oauthProvider.getClientId(), oauthProvider.getClientSecret());
+        headers.setBasicAuth(naver.getUser().getClientId(), naver.getUser().getClientSecret());
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
         headers.setAcceptCharset(Collections.singletonList(StandardCharsets.UTF_8));
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(tokenRequest(code), headers);
 
-        ResponseEntity<OauthTokenResponse> response = restTemplate.exchange(
-                oauthProvider.getTokenUrl(),
-                HttpMethod.POST,
+        Map<String, Object> response = restTemplate.postForObject(naver.getProvider().getTokenUrl(),
                 request,
-                OauthTokenResponse.class
-        );
-        // todo: validate access_token필드가 있는지 검증 / 없으면 `error_description` 필드
-        return response.getBody();
+                Map.class);
+
+        validateToken(response);
+
+        return new OauthTokenResponse(response.get("access_token").toString(),
+                null,
+                response.get("token_type").toString());
+    }
+
+    private void validateToken(Map<String, Object> tokenResponse) {
+        if (!tokenResponse.containsKey("access_token")) {
+            throw new InternalServerException(
+                    ErrorCode.OAUTH_FAIL_REQUEST_TOKEN,
+                    tokenResponse.get("error_description").toString()
+            );
+        }
     }
 
     private MultiValueMap<String, String> tokenRequest(String code) {
         MultiValueMap<String, String> formData = new LinkedMultiValueMap<>();
         formData.add("code", code);
         formData.add("grant_type", "authorization_code");
-        formData.add("redirect_uri", oauthProvider.getRedirectUrl());
+        formData.add("redirect_uri", naver.getUser().getRedirectUrl());
         return formData;
     }
 
@@ -73,7 +86,7 @@ public class NaverRequester {
         HttpEntity<Void> request = new HttpEntity<>(headers);
 
         ResponseEntity<Map<String, Object>> response = restTemplate.exchange(
-                oauthProvider.getUserInfoUrl(),
+                naver.getProvider().getUserInfoUrl(),
                 HttpMethod.GET,
                 request,
                 new ParameterizedTypeReference<Map<String, Object>>() {

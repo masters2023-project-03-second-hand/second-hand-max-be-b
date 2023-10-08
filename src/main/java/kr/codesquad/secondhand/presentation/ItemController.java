@@ -2,6 +2,7 @@ package kr.codesquad.secondhand.presentation;
 
 import java.util.List;
 import javax.validation.Valid;
+import kr.codesquad.secondhand.application.item.ItemReadFacade;
 import kr.codesquad.secondhand.application.item.ItemService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
@@ -34,6 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ItemController {
 
     private final ItemService itemService;
+    private final ItemReadFacade itemReadFacade;
 
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -57,7 +59,7 @@ public class ItemController {
     @GetMapping("/{itemId}")
     public ApiResponse<ItemDetailResponse> readItem(@PathVariable Long itemId,
                                                     @Auth Long memberId) {
-        return new ApiResponse<>(HttpStatus.OK.value(), itemService.read(memberId, itemId));
+        return new ApiResponse<>(HttpStatus.OK.value(), itemReadFacade.read(memberId, itemId));
     }
 
     @PatchMapping(value = "/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

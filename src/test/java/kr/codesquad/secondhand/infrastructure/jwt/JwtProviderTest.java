@@ -12,7 +12,7 @@ import kr.codesquad.secondhand.infrastructure.properties.JwtProperties;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-
+@DisplayName("JWT 발급 / 검증 테스트")
 class JwtProviderTest {
 
     private final String secretKey = "2901ujr9021urf0u902hf021y90fh9c210hg093hg091h3g90h30gh901hg09h01";

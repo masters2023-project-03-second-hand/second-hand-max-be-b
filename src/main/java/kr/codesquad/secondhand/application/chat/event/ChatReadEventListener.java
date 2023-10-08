@@ -16,6 +16,6 @@ public class ChatReadEventListener {
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener
     public void changeReadStatusOfChatLog(ChatReadEvent event) {
-        chatLogRepository.updateReadCountByChatRoomId(event.getChatRoomId());
+        chatLogRepository.updateReadCountByChatRoomId(event.getChatRoomId(), event.getReaderId());
     }
 }

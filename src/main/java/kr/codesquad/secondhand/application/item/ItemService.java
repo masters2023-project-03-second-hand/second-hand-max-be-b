@@ -1,7 +1,5 @@
 package kr.codesquad.secondhand.application.item;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
@@ -11,12 +9,9 @@ import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
-import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
-import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
-import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
-import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
-import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
+import kr.codesquad.secondhand.presentation.dto.item.*;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
+import kr.codesquad.secondhand.repository.chat.ChatRoomRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
 import kr.codesquad.secondhand.repository.item.querydsl.ItemPaginationRepository;
 import kr.codesquad.secondhand.repository.itemimage.ItemImageRepository;
@@ -27,6 +22,10 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -42,14 +41,14 @@ public class ItemService {
     private final CategoryRepository categoryRepository;
     private final ItemPaginationRepository itemPaginationRepository;
     private final WishItemRepository wishItemRepository;
-
+    private final ChatRoomRepository chatRoomRepository;
 
     @Transactional
     public void register(MultipartFile thumbnailImage,
                          List<MultipartFile> images,
                          ItemRegisterRequest request,
                          Long sellerId) {
-        if (thumbnailImage == null || thumbnailImage.isEmpty()) {
+        if (!isValidImage(thumbnailImage)) {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST, "썸네일 이미지는 반드시 들어와야 합니다.");
         }
         if (images != null && images.size() > IMAGE_LIST_MAX_SIZE) {
@@ -59,14 +58,21 @@ public class ItemService {
         String thumbnailUrl = imageService.uploadImage(thumbnailImage);
         List<String> itemImageUrls = imageService.uploadImages(images);
 
+        itemImageUrls = new ArrayList<>(itemImageUrls);
+        itemImageUrls.add(thumbnailUrl);
+
         Member seller = memberRepository.getReferenceById(sellerId);
 
         Item savedItem = itemRepository.save(request.toEntity(seller, thumbnailUrl));
 
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.from(url, savedItem))
+                .map(url -> ItemImage.of(url, savedItem))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
+    }
+
+    private boolean isValidImage(MultipartFile image) {
+        return image != null && !image.isEmpty();
     }
 
     public CustomSlice<ItemResponse> readAll(Long itemId, Long categoryId, String region, int pageSize) {
@@ -84,15 +90,16 @@ public class ItemService {
         return new CustomSlice<>(content, nextCursor, response.hasNext());
     }
 
-    @Transactional
     public ItemDetailResponse read(Long memberId, Long itemId) {
         Item item = findItem(itemId);
 
         List<ItemImage> images = itemImageRepository.findByItemId(itemId);
 
         if (!item.isSeller(memberId)) {
-            item.incrementViewCount();
-            return ItemDetailResponse.toBuyerResponse(item, images);
+            Boolean isWish = wishItemRepository.existsByItemIdAndMemberId(itemId, memberId);
+            Long chatRoomId = chatRoomRepository.findByItem_IdAndBuyer_Id(itemId, memberId)
+                    .orElse(null);
+            return ItemDetailResponse.toBuyerResponse(item, images, isWish, chatRoomId);
         }
         return ItemDetailResponse.toSellerResponse(item, images);
     }
@@ -110,21 +117,25 @@ public class ItemService {
 
         itemImageRepository.deleteByItem_IdAndImageUrlIn(itemId, request.getDeleteImageUrls());
 
-        if (images != null && !images.isEmpty()) {
+        if (isValidImages(images)) {
             saveImages(images, item);
         }
 
-        if (thumbnailImage != null && !thumbnailImage.isEmpty()) {
+        if (isValidImage(thumbnailImage)) {
             replaceThumbnail(item, imageService.uploadImage(thumbnailImage));
         }
 
         item.update(request);
     }
 
+    private boolean isValidImages(List<MultipartFile> images) {
+        return images != null && !images.isEmpty();
+    }
+
     private void saveImages(List<MultipartFile> images, Item item) {
         List<String> itemImageUrls = imageService.uploadImages(images);
         List<ItemImage> itemImages = itemImageUrls.stream()
-                .map(url -> ItemImage.from(url, item))
+                .map(url -> ItemImage.of(url, item))
                 .collect(Collectors.toList());
         itemImageRepository.saveAllItemImages(itemImages);
     }

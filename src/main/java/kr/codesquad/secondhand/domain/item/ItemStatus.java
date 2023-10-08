@@ -16,9 +16,18 @@ public enum ItemStatus {
     @JsonValue
     private final String status;
 
-    public static ItemStatus of(String statusName) {
+    public static ItemStatus fromKorean(String statusName) {
         return Arrays.stream(ItemStatus.values())
-                .filter(itemStatus -> itemStatus.getStatus().equals(statusName) || itemStatus.name().equals(statusName))
+                .filter(itemStatus -> itemStatus.getStatus().equals(statusName))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException(
+                        ErrorCode.INVALID_REQUEST,
+                        "상품 판매 상태는 (판매중, 판매완료, 예약중) 만 들어올 수 있습니다."));
+    }
+
+    public static ItemStatus fromEnglish(String statusName) {
+        return Arrays.stream(ItemStatus.values())
+                .filter(itemStatus -> itemStatus.name().equalsIgnoreCase(statusName))
                 .findFirst()
                 .orElseThrow(() -> new BadRequestException(
                         ErrorCode.INVALID_REQUEST,
