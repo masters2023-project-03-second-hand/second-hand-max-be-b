@@ -1,5 +1,8 @@
 package kr.codesquad.secondhand.application.item;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.domain.item.Item;
 import kr.codesquad.secondhand.domain.itemimage.ItemImage;
@@ -9,7 +12,11 @@ import kr.codesquad.secondhand.exception.ErrorCode;
 import kr.codesquad.secondhand.exception.ForbiddenException;
 import kr.codesquad.secondhand.exception.NotFoundException;
 import kr.codesquad.secondhand.presentation.dto.CustomSlice;
-import kr.codesquad.secondhand.presentation.dto.item.*;
+import kr.codesquad.secondhand.presentation.dto.item.ItemDetailResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemRegisterRequest;
+import kr.codesquad.secondhand.presentation.dto.item.ItemResponse;
+import kr.codesquad.secondhand.presentation.dto.item.ItemStatusRequest;
+import kr.codesquad.secondhand.presentation.dto.item.ItemUpdateRequest;
 import kr.codesquad.secondhand.repository.category.CategoryRepository;
 import kr.codesquad.secondhand.repository.chat.ChatRoomRepository;
 import kr.codesquad.secondhand.repository.item.ItemRepository;
@@ -22,10 +29,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -48,7 +51,7 @@ public class ItemService {
                          List<MultipartFile> images,
                          ItemRegisterRequest request,
                          Long sellerId) {
-        if (!isValidImage(thumbnailImage)) {
+        if (!isValidThumbnail(thumbnailImage)) {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST, "썸네일 이미지는 반드시 들어와야 합니다.");
         }
         if (images != null && images.size() > IMAGE_LIST_MAX_SIZE) {
@@ -71,7 +74,7 @@ public class ItemService {
         itemImageRepository.saveAllItemImages(itemImages);
     }
 
-    private boolean isValidImage(MultipartFile image) {
+    private boolean isValidThumbnail(MultipartFile image) {
         return image != null && !image.isEmpty();
     }
 
@@ -121,7 +124,7 @@ public class ItemService {
             saveImages(images, item);
         }
 
-        if (isValidImage(thumbnailImage)) {
+        if (isValidThumbnail(thumbnailImage)) {
             replaceThumbnail(item, imageService.uploadImage(thumbnailImage));
         }
 
