@@ -1,5 +1,9 @@
 package kr.codesquad.secondhand.presentation;
 
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import javax.validation.Valid;
 import kr.codesquad.secondhand.application.chat.ChatLogService;
 import kr.codesquad.secondhand.application.chat.ChatRoomService;
 import kr.codesquad.secondhand.presentation.dto.ApiResponse;
@@ -14,18 +18,22 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.context.request.async.DeferredResult;
-
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
 @RequestMapping("/api")
 @RestController
 public class ChatController {
+
+    private static final Long TIMEOUT_VALUE = 10000L;
 
     private final Map<DeferredResult<ApiResponse<ChatLogResponse>>, ChatData> chatRequests = new ConcurrentHashMap<>();
     private final Map<DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>>, Long> chatRoomRequests = new ConcurrentHashMap<>();
@@ -38,7 +46,7 @@ public class ChatController {
             @RequestParam(required = false, defaultValue = "0") Long messageId,
             @Auth Long memberId) {
         DeferredResult<ApiResponse<ChatLogResponse>> deferredResult =
-                new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), List.of()));
+                new DeferredResult<>(TIMEOUT_VALUE, new ApiResponse<>(HttpStatus.OK.value(), List.of()));
         chatRequests.put(deferredResult, new ChatData(chatRoomId, messageId, memberId));
 
         deferredResult.onCompletion(() -> chatRequests.remove(deferredResult));
@@ -58,7 +66,7 @@ public class ChatController {
         CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(memberId, pageable, null);
 
         DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> deferredResult =
-                new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
+                new DeferredResult<>(TIMEOUT_VALUE, new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
         chatRoomRequests.put(deferredResult, memberId);
 
         deferredResult.onCompletion(() -> chatRoomRequests.remove(deferredResult));
@@ -74,7 +82,7 @@ public class ChatController {
         CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(memberId, pageable, itemId);
 
         DeferredResult<ApiResponse<CustomSlice<ChatRoomResponse>>> deferredResult =
-                new DeferredResult<>(10000L, new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
+                new DeferredResult<>(TIMEOUT_VALUE, new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
         chatRoomRequests.put(deferredResult, memberId);
 
         deferredResult.onCompletion(() -> chatRoomRequests.remove(deferredResult));
@@ -91,19 +99,19 @@ public class ChatController {
 
         for (var entry : chatRequests.entrySet()) {
             ChatData chatData = entry.getValue();
-            if (!chatData.getChatRoomId().equals(chatRoomId)) {
-                continue;
+
+            if (chatData.getChatRoomId().equals(chatRoomId)) {
+                ChatLogResponse messages = chatLogService.getMessages(chatRoomId, chatData.getChatRoomId(),
+                        chatData.getTargetMemberId());
+                entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
             }
-            ChatLogResponse messages = chatLogService.getMessages(chatRoomId, chatData.getChatRoomId(), chatData.getTargetMemberId());
-            entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
         }
 
         for (var entry : chatRoomRequests.entrySet()) {
-            if (!entry.getValue().equals(receiverId)) {
-                continue;
+            if (entry.getValue().equals(receiverId)) {
+                CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(senderId, Pageable.ofSize(10), null);
+                entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
             }
-            CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(senderId, Pageable.ofSize(10), null);
-            entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
         }
 
         return new ApiResponse<>(HttpStatus.OK.value());

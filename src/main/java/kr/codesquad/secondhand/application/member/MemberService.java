@@ -28,12 +28,12 @@ public class MemberService {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.NOT_FOUND, "회원을 찾을 수 없습니다."));
 
-        if (profileImage == null || profileImage.isEmpty()) {
-            member.changeProfileImage(defaultProfileImage);
-            return new ModifyProfileResponse(defaultProfileImage);
+        String updatedProfileImageUrl = defaultProfileImage;
+
+        if (profileImage != null && !profileImage.isEmpty()) {
+            updatedProfileImageUrl = imageService.uploadImage(profileImage);
         }
 
-        String updatedProfileImageUrl = imageService.uploadImage(profileImage);
         member.changeProfileImage(updatedProfileImageUrl);
         return new ModifyProfileResponse(updatedProfileImageUrl);
     }

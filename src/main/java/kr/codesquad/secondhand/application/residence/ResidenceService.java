@@ -1,5 +1,8 @@
 package kr.codesquad.secondhand.application.residence;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 import kr.codesquad.secondhand.domain.member.Member;
 import kr.codesquad.secondhand.domain.residence.Region;
 import kr.codesquad.secondhand.domain.residence.Residence;
@@ -17,10 +20,6 @@ import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Function;
-
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 @Service
@@ -28,7 +27,6 @@ public class ResidenceService {
 
     private static final int MEMBER_HAS_RESIDENCE_MIN_COUNT = 1;
     private static final int MEMBER_HAS_RESIDENCE_MAX_COUNT = 2;
-    private static final Function<List<Residence>, Residence> selectMainResidence = (residences -> residences.get(0));
 
     private final RegionPaginationRepository regionPaginationRepository;
     private final RegionRepository regionRepository;
@@ -48,6 +46,9 @@ public class ResidenceService {
                             .build())
                     .build());
         }
+
+        Function<List<Residence>, Residence> selectMainResidence = (residenceList -> residenceList.get(0));
+
         selectMainResidence.apply(residences).selectToMainResidence();
         residenceRepository.saveAll(residences);
     }

@@ -58,7 +58,7 @@ public class ChatLog {
     public static ChatLog of(ChatRoom chatRoom, String message, Long senderId) {
         return ChatLog.builder()
                 .message(message)
-                .readCount(1)
+                .readCount(1)   // 채팅메시지는 보낸사람이 보낸 메시지는 무조건 읽은 상태로 처리, 그렇기 때문에 1로 고정
                 .senderId(senderId)
                 .chatRoom(chatRoom)
                 .build();
