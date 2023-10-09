@@ -2,8 +2,6 @@ package kr.codesquad.secondhand.application.auth;
 
 import java.util.Map;
 import kr.codesquad.secondhand.domain.member.UserProfile;
-import kr.codesquad.secondhand.exception.ErrorCode;
-import kr.codesquad.secondhand.exception.InternalServerException;
 import kr.codesquad.secondhand.infrastructure.properties.OauthProperties;
 import kr.codesquad.secondhand.infrastructure.properties.OauthProperties.Kakao;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
@@ -54,15 +52,6 @@ public class KakaoRequester implements OAuthRequester {
         params.add("code", code);
         params.add("client_secret", kakao.getUser().getClientSecret());
         return params;
-    }
-
-    private void validateToken(Map<String, Object> tokenResponse) {
-        if (!tokenResponse.containsKey("access_token")) {
-            throw new InternalServerException(
-                    ErrorCode.OAUTH_FAIL_REQUEST_TOKEN,
-                    tokenResponse.get("error_description").toString()
-            );
-        }
     }
 
     @Override

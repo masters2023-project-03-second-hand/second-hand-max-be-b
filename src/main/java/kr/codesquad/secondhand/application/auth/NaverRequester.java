@@ -4,8 +4,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 import kr.codesquad.secondhand.domain.member.UserProfile;
-import kr.codesquad.secondhand.exception.ErrorCode;
-import kr.codesquad.secondhand.exception.InternalServerException;
 import kr.codesquad.secondhand.infrastructure.properties.OauthProperties;
 import kr.codesquad.secondhand.infrastructure.properties.OauthProperties.Naver;
 import kr.codesquad.secondhand.presentation.dto.OauthTokenResponse;
@@ -52,15 +50,6 @@ public class NaverRequester implements OAuthRequester {
         return new OauthTokenResponse(response.get("access_token").toString(),
                 null,
                 response.get("token_type").toString());
-    }
-
-    private void validateToken(Map<String, Object> tokenResponse) {
-        if (!tokenResponse.containsKey("access_token")) {
-            throw new InternalServerException(
-                    ErrorCode.OAUTH_FAIL_REQUEST_TOKEN,
-                    tokenResponse.get("error_description").toString()
-            );
-        }
     }
 
     private MultiValueMap<String, String> tokenRequest(String code) {
