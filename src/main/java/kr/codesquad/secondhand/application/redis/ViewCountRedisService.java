@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ViewCountRedisService {
 
+    private static final int REDIS_SCAN_COUNT = 100;
+
     private final RedisTemplate<String, String> redisTemplate;
 
     public void set(String key, Integer value, long expiration) {
@@ -44,7 +46,7 @@ public class ViewCountRedisService {
     public List<String> getKeysOrderByExpiration(String keyPattern) {
         ScanOptions scanOptions = ScanOptions.scanOptions()
                 .match(keyPattern)
-                .count(100)
+                .count(REDIS_SCAN_COUNT)
                 .build();
 
         Map<String, Long> keyExpiredMap = collectKeysAndExpiredTime(scanOptions);
