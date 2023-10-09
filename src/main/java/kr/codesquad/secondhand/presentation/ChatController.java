@@ -99,20 +99,19 @@ public class ChatController {
 
         for (var entry : chatRequests.entrySet()) {
             ChatData chatData = entry.getValue();
-            if (!chatData.getChatRoomId().equals(chatRoomId)) {
-                continue;
+
+            if (chatData.getChatRoomId().equals(chatRoomId)) {
+                ChatLogResponse messages = chatLogService.getMessages(chatRoomId, chatData.getChatRoomId(),
+                        chatData.getTargetMemberId());
+                entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
             }
-            ChatLogResponse messages = chatLogService.getMessages(chatRoomId, chatData.getChatRoomId(),
-                    chatData.getTargetMemberId());
-            entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), messages));
         }
 
         for (var entry : chatRoomRequests.entrySet()) {
-            if (!entry.getValue().equals(receiverId)) {
-                continue;
+            if (entry.getValue().equals(receiverId)) {
+                CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(senderId, Pageable.ofSize(10), null);
+                entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
             }
-            CustomSlice<ChatRoomResponse> chatRooms = chatRoomService.read(senderId, Pageable.ofSize(10), null);
-            entry.getKey().setResult(new ApiResponse<>(HttpStatus.OK.value(), chatRooms));
         }
 
         return new ApiResponse<>(HttpStatus.OK.value());
