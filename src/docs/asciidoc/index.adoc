@@ -1,0 +1,21 @@
+[[API]]
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+
+== API 명세
+
+== second-hand
+
+중고 거래 플랫폼
+
+include::auth.adoc[]
+include::member.adoc[]
+include::category.adoc[]
+include::item.adoc[]
+include::residence.adoc[]
+include::wishitem.adoc[]
+include::chat.adoc[]

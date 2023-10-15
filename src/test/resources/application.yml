@@ -1,11 +1,7 @@
 spring:
-  datasource:
-    url: jdbc:mysql://localhost:3309/second_hand
-    username: user
-    password: admin
-
-  jpa:
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
+  profiles:
+    active:
+      - test
+custom:
+  default-profile:
+    https://e7.pngegg.com/pngimages/1000/665/png-clipart-computer-icons-profile-s-free-angle-sphere.png

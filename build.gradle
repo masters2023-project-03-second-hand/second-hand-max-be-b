@@ -1,7 +1,23 @@
+buildscript {
+    ext {
+        queryDslVersion = "5.0.0"
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '2.7.14'
     id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+    // QueryDSL
+    id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
+    // Jacoco
+    id 'jacoco'
+    // RESTDocs
+    id 'org.asciidoctor.jvm.convert' version '3.3.2'
+}
+
+jacoco {
+    toolVersion = "0.8.9"
 }
 
 group = 'kr.codesquad'
@@ -15,10 +31,15 @@ configurations {
     compileOnly {
         extendsFrom annotationProcessor
     }
+    asciidoctorExt
 }
 
 repositories {
     mavenCentral()
+}
+
+ext {
+    set('snippetsDir', file("build/generated-snippets"))
 }
 
 dependencies {
@@ -26,17 +47,143 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-web'
 
+    // QueryDSL
+    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+    annotationProcessor "com.querydsl:querydsl-apt:${queryDslVersion}"
+
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    // AWS S3
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.526'
+    testImplementation 'com.amazonaws:aws-java-sdk-s3:1.12.526'
 
     // mysql
     runtimeOnly 'com.mysql:mysql-connector-j'
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'io.rest-assured:rest-assured:4.5.1'
+    testImplementation 'org.testcontainers:mysql:1.18.3'
+    testImplementation 'com.redis.testcontainers:testcontainers-redis-junit:1.6.4'
+    testImplementation "org.testcontainers:junit-jupiter:1.18.3"
+    testImplementation 'org.redisson:redisson-spring-boot-starter:3.23.5'
+    testImplementation 'com.squareup.okhttp3:okhttp:4.0.1'
+    testImplementation 'com.squareup.okhttp3:mockwebserver:4.0.1'
+
+    // validation
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+    //redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.redisson:redisson-spring-boot-starter:3.23.5'
+
+    // REST Docs
+    asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
+    testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
 }
 
-tasks.named('test') {
-    useJUnitPlatform()
+/** QueryDSL start **/
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
 }
+sourceSets {
+    main.java.srcDir querydslDir
+}
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
+/** QueryDSL end **/
+
+/** Git Submodules start **/
+processResources.dependsOn('copySecret')
+
+tasks.register('copySecret', Copy) {
+    description = 'Copy submodules to project'
+
+    from('./src/main/resources/secret') {
+        include('*.yml')
+    }
+    into('src/main/resources')
+}
+/** Git Submodules end **/
+
+// Test common
+tasks.named('test') {
+    outputs.dir snippetsDir
+    useJUnitPlatform()
+    finalizedBy 'jacocoTestReport'
+}
+
+/** Jacoco start **/
+jacocoTestReport {
+    dependsOn "createDocument"
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+
+        // QueryDSL Q클래스 제외
+        def Qdomains = []
+        for (qPattern in "**/QA".."**/QZ") {
+            Qdomains.add(qPattern + "*")
+        }
+
+        afterEvaluate {
+            classDirectories.setFrom(files(classDirectories.files.collect {
+                fileTree(dir: it,
+                        exclude: [] + Qdomains)
+            }))
+        }
+
+        xml.destination file("${buildDir}/jacoco/index.xml")
+        html.destination file("${buildDir}/jacoco/index.html")
+    }
+}
+/** Jacoco end **/
+
+/** REST Docs start **/
+asciidoctor {
+    inputs.dir snippetsDir
+    configurations 'asciidoctorExt'
+    baseDirFollowsSourceFile()
+
+    dependsOn test
+}
+
+asciidoctor.doFirst {
+    delete file('src/main/resources/static/docs')
+}
+
+tasks.register('createDocument', Copy) {
+    dependsOn asciidoctor
+
+    from file("build/docs/asciidoc")
+    into file("src/main/resources/static")
+}
+
+tasks.register('displaceDocument', Copy) {
+    dependsOn createDocument
+
+    from("${asciidoctor.outputDir}")
+    into("build/resources/main/static")
+}
+
+bootJar {
+    bootJarMainClassName.dependsOn createDocument
+    jar.dependsOn createDocument
+    dependsOn createDocument
+}
+/** REST Docs end **/

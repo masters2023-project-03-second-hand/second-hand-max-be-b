@@ -1,0 +1,121 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+  checks: write
+  id-token: write
+  pull-requests: write
+
+jobs:
+  backend-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # SOURCE 단계 - 저장소 Checkout
+      - name: Checkout-source code
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
+          submodules: true
+
+      # JDK 설치
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+
+      # Gradle 실행권한 부여
+      - name: Grant execute permission to gradlew
+        run: chmod +x ./gradlew
+
+      # Spring boot application 빌드
+      - name: Build with gradle
+        run: ./gradlew clean build
+
+      # 테스트 결과를 PR에 코멘트로 등록
+      - name: Register comment about test report on PR
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        if: always()
+        with:
+          files: '**/build/test-results/test/TEST-*.xml'
+          token: ${{ github.token }}
+      
+      # 테스트 실패 시, 실패한 코드 라인에 Check 코멘트를 등록
+      - name: Register 'Check' comment about failed test
+        uses: mikepenz/action-junit-report@v3
+        if: always()
+        with:
+          report_paths: '**/build/test-results/test/TEST-*.xml'
+          token: ${{ github.token }}
+
+      # 테스트 커버리지를 PR에 코멘트로 등록합니다
+      - name: Comment test coverage on PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.2
+        with:
+          title: 📝 테스트 커버리지 리포트
+          paths: ${{ github.workspace }}/build/jacoco/index.xml
+          token: ${{ secrets.PRIVATE_REPO_ACCESS_TOKEN }}
+          min-coverage-overall: 50
+          min-coverage-changed-files: 50
+
+      # docker image 빌드
+      - name: Build docker image
+        run: docker build -t 23yong/second-hand .
+
+      # GHCR(github container registry) 로그인
+      - name: Login to GHCR
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{secrets.GH_USER}}
+          password: ${{secrets.PRIVATE_REPO_ACCESS_TOKEN}}
+
+      # Build & Push to GHCR
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        id: docker_build
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{secrets.GH_USER}}/secondhand:0.0
+
+      # Copy docker-compose-deploy.yml
+      - name: Deliver docker-compose-deploy.yml file
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          source: "docker-compose-deploy.yml"
+          target: "/home/ubuntu"
+
+      # WAS 인스턴스 접속 & 애플리케이션 실행
+      - name: Connect to WAS & Execute Application
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.WAS_HOST }}
+          username: ${{ secrets.WAS_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.WAS_SSH_PORT }}
+          script: |
+            echo ${{secrets.PRIVATE_REPO_ACCESS_TOKEN}} >> TOKEN.txt
+            cat TOKEN.txt | docker login https://ghcr.io -u ${{secrets.GH_USER}} --password-stdin
+            
+            docker-compose -f docker-compose-deploy.yml down -v
+            docker-compose -f docker-compose-deploy.yml pull
+            docker-compose -f docker-compose-deploy.yml up -d
+            docker image prune -f

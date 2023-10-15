@@ -1,0 +1,51 @@
+spring:
+  datasource:
+    url: jdbc:tc:mysql:8.0.34:///second_hand
+    username: root
+    password: root
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+jwt:
+  secret-key: 2901ujr9021urf0u902hf021y90fh9c210hg093hg091h3g90h30gh901hg09h01
+  access-token-expiration-time: 100000
+  refresh-token-expiration-time: 2000000
+
+cloud:
+  aws:
+    credentials:
+      access-key: access-key
+      secret-key: secret-key
+    s3:
+      bucket: bucket
+    region:
+      static: static
+    stack:
+      auto: false
+
+oauth2:
+  naver:
+    user:
+      client-id: client-id
+      client-secret: client-secret
+      redirect-url: redirect-url
+    provider:
+      token-url: token-url
+      user-info-url: user-info-url
+  kakao:
+    user:
+      client-id: client-id
+      client-secret: client-secret
+      redirect-url: redirect-url
+    provider:
+      token-url: token-url
+      user-info-url: user-info-url
+
+custom:
+  default-profile:
+    https://e7.pngegg.com/pngimages/1000/665/png-clipart-computer-icons-profile-s-free-angle-sphere.png
+  front-local-url: http://localhost:5173
+  front-server-url: https://second.codesquad-project.site

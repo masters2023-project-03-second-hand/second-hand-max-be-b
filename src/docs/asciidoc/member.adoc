@@ -1,0 +1,43 @@
+[[Member]]
+:toc: left
+:toclevels: 4
+
+== 회원
+
+=== 회원 프로필 수정
+
+.HTTP Request
+include::{snippets}/member/modify-profile/http-request.adoc[]
+.HTTP Response
+include::{snippets}/member/modify-profile/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/member/modify-profile/request-headers.adoc[]
+
+==== Path Parameters
+
+include::{snippets}/member/modify-profile/path-parameters.adoc[]
+
+==== Request Parts
+
+include::{snippets}/member/modify-profile/request-parts.adoc[]
+
+==== Response Fields
+
+include::{snippets}/member/modify-profile/response-fields.adoc[]
+
+=== 회원 주소 목록 조회
+
+.HTTP Request
+include::{snippets}/member/read-residences/http-request.adoc[]
+.HTTP Response
+include::{snippets}/member/read-residences/http-response.adoc[]
+
+==== Request Headers
+
+include::{snippets}/member/read-residences/request-headers.adoc[]
+
+==== Response Fields
+
+include::{snippets}/member/read-residences/response-fields.adoc[]
