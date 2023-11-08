@@ -87,6 +87,9 @@ dependencies {
     // REST Docs
     asciidoctorExt 'org.springframework.restdocs:spring-restdocs-asciidoctor'
     testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+
+    // FCM
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
 }
 
 /** QueryDSL start **/
@@ -114,7 +117,7 @@ tasks.register('copySecret', Copy) {
     description = 'Copy submodules to project'
 
     from('./src/main/resources/secret') {
-        include('*.yml')
+        include('*')
     }
     into('src/main/resources')
 }
