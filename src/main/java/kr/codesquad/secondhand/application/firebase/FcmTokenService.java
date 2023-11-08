@@ -34,7 +34,6 @@ public class FcmTokenService {
 
             return new FcmTokenIssueResponse(accessToken.getTokenValue());
         } catch (IOException e) {
-            e.printStackTrace();
             throw new InternalServerException(ErrorCode.FIREBASE_CONFIG_ERROR, "FCM 토큰 발급에 실패했습니다.");
         }
     }
