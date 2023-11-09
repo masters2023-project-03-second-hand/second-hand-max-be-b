@@ -32,7 +32,7 @@
 
 ## 사용자 요청 흐름
 
-![image](https://github.com/masters2023-project-03-second-hand/second-hand-max-be-b/assets/66981851/187cca4c-9291-47b9-8e58-abf9c1da606e)
+![image](https://github.com/masters2023-project-03-second-hand/second-hand-max-be-b/assets/66981851/32176319-4ba2-4e11-ad00-0921949adf0e)
 
 ## 그라운드 룰
 
