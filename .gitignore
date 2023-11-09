@@ -36,3 +36,6 @@ replay_pid*
 application-db.yml
 application-oauth.yml
 application-secret.yml
+
+# FCM
+firebase-admin-sdk.json

@@ -29,7 +29,11 @@ public enum ErrorCode {
     // COMMON
     INVALID_PARAMETER("유효한 파라미터값이 아닙니다."),
     INVALID_REQUEST("유효한 요청이 아닙니다."),
-    NOT_FOUND("페이지를 찾을 수 없습니다.");
+    NOT_FOUND("페이지를 찾을 수 없습니다."),
+
+    // FIREBASE
+    FIREBASE_CONFIG_ERROR("Firebase 설정 파일을 읽어올 수 없습니다."),
+    FCM_TOKEN_NOT_FOUND("FCM 토큰을 찾을 수 없습니다.");
 
     private final String message;
 }

@@ -4,12 +4,12 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Optional;
 import kr.codesquad.secondhand.application.auth.AuthService;
 import kr.codesquad.secondhand.application.auth.TokenService;
 import kr.codesquad.secondhand.application.category.CategoryService;
 import kr.codesquad.secondhand.application.chat.ChatLogService;
 import kr.codesquad.secondhand.application.chat.ChatRoomService;
+import kr.codesquad.secondhand.application.firebase.FcmTokenService;
 import kr.codesquad.secondhand.application.image.ImageService;
 import kr.codesquad.secondhand.application.item.ItemReadFacade;
 import kr.codesquad.secondhand.application.item.ItemService;
@@ -24,6 +24,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import java.util.Optional;
 
 @MockBean({
         ChatLogService.class,
@@ -38,7 +39,8 @@ import org.springframework.test.web.servlet.MockMvc;
         ResidenceService.class,
         WishItemService.class,
         SalesHistoryService.class,
-        ItemReadFacade.class
+        ItemReadFacade.class,
+        FcmTokenService.class
 })
 @DocumentationTest
 public abstract class DocumentationTestSupport {

@@ -5,3 +5,7 @@ spring:
 custom:
   default-profile:
     https://e7.pngegg.com/pngimages/1000/665/png-clipart-computer-icons-profile-s-free-angle-sphere.png
+
+fcm:
+  private-key-path: private-key-path
+  expiration-millis: 3600000
